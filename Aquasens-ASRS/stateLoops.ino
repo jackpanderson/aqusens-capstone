@@ -1,69 +1,82 @@
 
 /* State Machine Functions ******************************************************/
 
-/*---------------------------------------------------------
-* Function: menuLoop()
-* Purpose: backend for main menu
-*   - Polls keypad for key, parses and switches to new
-*      state
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
-void menuLoop() {
-  char key;
-  uint8_t cursorX = 0, cursorY = 0;
+// /*---------------------------------------------------------
+// * Function: menuLoop()
+// * Purpose: backend for main menu
+// *   - Polls keypad for key, parses and switches to new
+// *      state
+// * Params: None                                            
+// * Returns: None
+// ---------------------------------------------------------*/
+// void standbyLoop() {
+//   char key;
+//   uint8_t cursorX = 0, cursorY = 0;
 
+//   lcd.clear();
+
+//   while (state == STANDBY) {
+
+//     standbyLCD(cursorX, cursorY);
+
+//     if ((key = getKeyDebounce()) != NULL) {
+//       switch (key) {
+
+//         case 'U':  // UP
+//           if (cursorY == 1) {
+//             cursorY--;
+//           }
+//           break;
+
+//         case 'D':  // DOWN
+//           if (cursorY == 0) {
+//             cursorY++;
+//           }
+//           break;
+
+//         case 'L':  // LEFT
+//           if (cursorX == 1) {
+//             cursorX--;
+//           }
+//           break;
+
+//         case 'R':  // RIGHT
+//           if (cursorX == 0) {
+//             cursorX++;
+//           }
+//           break;
+
+//         case 'S':  // SELECT
+//           if (cursorX == 0 && cursorY == 0) {
+//             state = ACTIVE;
+//           } else if (cursorX == 0 && cursorY == 1) {
+//             state = SET_INTERVAL;
+//           } else if (cursorX == 1 && cursorY == 0) {
+//             state = MANUAL;
+//           } else if (cursorX == 1 && cursorY == 1) {
+//             state = SET_CLOCK;
+//           }
+//           break;
+//         default:
+//           break;
+//       }
+//     }
+//   }
+// }
+
+
+void standbyLoop()
+{
+  char key;
+  uint8_t cursorX, cursorY = 0;
   lcd.clear();
 
-  while (state == MENU) {
-
-    menuLCD(cursorX, cursorY);
-
-    if ((key = getKeyDebounce()) != NULL) {
-      switch (key) {
-
-        case 'U':  // UP
-          if (cursorY == 1) {
-            cursorY--;
-          }
-          break;
-
-        case 'D':  // DOWN
-          if (cursorY == 0) {
-            cursorY++;
-          }
-          break;
-
-        case 'L':  // LEFT
-          if (cursorX == 1) {
-            cursorX--;
-          }
-          break;
-
-        case 'R':  // RIGHT
-          if (cursorX == 0) {
-            cursorX++;
-          }
-          break;
-
-        case 'S':  // SELECT
-          if (cursorX == 0 && cursorY == 0) {
-            state = ACTIVE;
-          } else if (cursorX == 0 && cursorY == 1) {
-            state = SET_INTERVAL;
-          } else if (cursorX == 1 && cursorY == 0) {
-            state = MANUAL;
-          } else if (cursorX == 1 && cursorY == 1) {
-            state = SET_CLOCK;
-          }
-          break;
-        default:
-          break;
-      }
-    }
+  while (state == STANDBY) 
+  {
+    standbyLCD(cursorX, cursorY);
+    
   }
 }
-
 /*---------------------------------------------------------
 * Function: activeLoop()
 * Purpose: Backend for when machine is in running mode
@@ -100,7 +113,7 @@ void activeLoop() {
       }
       // Check if E stop has been pressed
       if ((key = getKeyDebounce()) == 'L') {  // Check if back button has been pressed: state = menu
-        state = MENU;
+        state = STANDBY;
       }
     }
   }
@@ -127,12 +140,12 @@ void setIntervalLoop() {
     while ((key = getKeyDebounce()) != 'S') {
       intervalMenuLCD();
       if (key == 'L') {     // Back button was pressed
-        state = MENU;
+        state = STANDBY;
         break;
       }
     }
 
-    if (state == MENU) {    // Check if back button was pressed
+    if (state == STANDBY) {    // Check if back button was pressed
       break;
     }
     lcd.clear();
@@ -247,16 +260,29 @@ void adjustComponent(uint8_t* timeComp, char key) {
 }
 
 String getCurrentDateTime() {
-  char dateTimeString[20];
-  uint32_t currentEpoch = rtc.getEpoch();
+  char dateTimeString[16];
+  //uint32_t currentEpoch = rtc.getEpoch();
 
-  snprintf(dateTimeString, sizeof(dateTimeString), "%04d-%02d-%02d %02d:%02d:%02d",
-           rtc.getYear(),
+  snprintf(dateTimeString, sizeof(dateTimeString), "%02d-%02d-%02d %02d:%02d",
            rtc.getMonth(),
            rtc.getDay(),
+           rtc.getYear(),
            rtc.getHours(),
-           rtc.getMinutes(),
-           rtc.getSeconds());
+           rtc.getMinutes());
+
+  return String(dateTimeString);
+}
+
+String getNextSampleTime() {
+  char dateTimeString[16];
+  //uint32_t currentEpoch = rtc.getEpoch();
+
+  snprintf(dateTimeString, sizeof(dateTimeString), "%02d-%02d-%02d %02d:%02d",
+           nextSampleTime.Month,
+           nextSampleTime.Day,
+           nextSampleTime.Year,
+           nextSampleTime.Hour,
+           nextSampleTime.Minute);
 
   return String(dateTimeString);
 }

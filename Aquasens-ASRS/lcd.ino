@@ -1,41 +1,64 @@
-void menuLCD(uint8_t x, uint8_t y) {
-
-  lcd.setCursor(1,0);
-  lcd.print("Run");
-  lcd.setCursor(14, 0);
-  lcd.print("Manual");
-  lcd.setCursor(1,1);
-  lcd.print("Timing");
-  lcd.setCursor(11, 1);
-  lcd.print("Set Clock");
+void standbyLCD(uint8_t x, uint8_t y) {
 
   lcd.setCursor(0,0);
-  if (x == 0 && y == 0) {
-    lcd.print("*");
-  } else {
-    lcd.print(" ");
-  }
+  lcd.print("curr: ");
+  lcd.print(getCurrentDateTime());
+  lcd.setCursor(0, 1);
+  lcd.print("next: ");
+  lcd.print(getNextSampleTime());
+  lcd.setCursor(1, 2);
+  lcd.print("Run Sample");
+  lcd.setCursor(1, 3);
+  lcd.print("Settings");
+  lcd.setCursor(0, 2);
   
-  lcd.setCursor(0,1);
-  if (x == 0 && y == 1) {
+  if (x == 0 && y == 2) { //Run Sample
     lcd.print("*");
   } else {
     lcd.print(" ");
   }
 
-  lcd.setCursor(13,0);
-  if (x == 1 && y == 0) {
-  lcd.print("*");
-  } else {
-    lcd.print(" ");
-  }
-
-  lcd.setCursor(10,1);
-  if (x == 1 && y == 1) {
+    if (x == 0 && y == 3) { //Settings
     lcd.print("*");
   } else {
     lcd.print(" ");
   }
+
+  
+  // lcd.setCursor(14, 0);
+  // lcd.print("Manual");
+  // lcd.setCursor(1,1);
+  // lcd.print("Timing");
+  // lcd.setCursor(11, 1);
+  // lcd.print("Set Clock");
+
+  // lcd.setCursor(0,0);
+  // if (x == 0 && y == 0) {
+  //   lcd.print("*");
+  // } else {
+  //   lcd.print(" ");
+  // }
+  
+  // lcd.setCursor(0,1);
+  // if (x == 0 && y == 1) {
+  //   lcd.print("*");
+  // } else {
+  //   lcd.print(" ");
+  // }
+
+  // lcd.setCursor(13,0);
+  // if (x == 1 && y == 0) {
+  // lcd.print("*");
+  // } else {
+  //   lcd.print(" ");
+  // }
+
+  // lcd.setCursor(10,1);
+  // if (x == 1 && y == 1) {
+  //   lcd.print("*");
+  // } else {
+  //   lcd.print(" ");
+  // }
 
 }
 
@@ -60,7 +83,7 @@ void intervalLCD(String timeType, int timeComponent) {
 
 void intervalMenuLCD() {
   lcd.setCursor(0,0);
-  lcd.print(interval);
+  //lcd.print(interval);
   lcd.setCursor(0,1);
   lcd.print("< back | SEL to set.");
 }

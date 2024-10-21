@@ -64,16 +64,19 @@
 
 // Machine States
 enum stateEnum {
-  MENU,                   // Machine is paused, polls keypad
-  ACTIVE,                 // Machine is running (probe drops, timers running)
-  MANUAL,                 // User can move probe up and down themself
-  SET_CLOCK,              // User can set the clock
-  SET_INTERVAL            // User can set probe drop time interval (ex: 1hr b/t drops)
+  INIT,
+  STANDBY,
+  ACTIVE,           
+  MANUAL,
+  SETTING,                 
+  SET_CLOCK,              
+  SET_INTERVAL            
 };
-stateEnum state = MENU;   // Start up will show menu
+stateEnum state = STANDBY;   // Start up will show menu
 
 // Timing
 String interval = "0000-00-00 00:03:00";
+tmElements_t nextSampleTime, sampleInterval;
 Timer<5, millis> dropTimer;
 bool dropFlag = true;                // Set by timers in activeLoop
 
@@ -101,7 +104,7 @@ void gpioInit() {
 
   /* Initialize LCD */
   //P1.writeDiscrete(LOW, 1, 2);    // Outputs 5V power source for LCD
-  lcd.begin(16, 4);               // cols, rows
+  lcd.begin(20, 4);               // cols, rows
 
   /* SD */
   SD.begin(SD_CS);
@@ -116,7 +119,20 @@ void gpioInit() {
 ---------------------------------------------------------*/
 void rtcInit() {
   rtc.begin();
-  rtc.setEpoch(1721163373);  
+  rtc.setEpoch(1729525000);
+  sampleInterval.Year = 0;
+  sampleInterval.Month = 0;
+  sampleInterval.Day = 0;
+  sampleInterval.Hour = 1;
+  sampleInterval.Minute = 0;  
+  sampleInterval.Second = 0;
+  
+  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
+  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
+  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
+  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
+  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+  
 }
 
 /*---------------------------------------------------------
@@ -147,8 +163,8 @@ void setup() {
 
 void loop() {
   switch (state) {
-    case MENU:              // Always starts in MENU
-      menuLoop();
+    case STANDBY:              // Always starts in STANDBY
+      standbyLoop();
       break;
     case ACTIVE:
       activeLoop();
