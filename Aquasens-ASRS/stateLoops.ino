@@ -74,7 +74,6 @@ void standbyLoop()
   while (state == STANDBY) 
   {
     standbyLCD(cursorX, cursorY);
-    
   }
 }
 /*---------------------------------------------------------
