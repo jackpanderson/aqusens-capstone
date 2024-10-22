@@ -68,65 +68,89 @@
 void standbyLoop()
 {
   char key;
-  uint8_t cursorX, cursorY = 0;
+  uint8_t keyPressed;
   lcd.clear();
 
   while (state == STANDBY) 
   {
-    standbyLCD(cursorX, cursorY);
-    
-    // if ((key = getKeyDebounce()) == 'U' && cursorX == 2) 
-    // {  // Check if back button has been pressed: state = menu
-    //   cursorX = 1;
-    // } else if ((key = getKeyDebounce()) == 'D' && cursorX == 1) 
-    // {
-    //   cursorX = 2;
-    // }
+    standbyLCD();
 
-    int newCursor = cursorSelect(1, 2, cursorX);
 
-    if (newCursor == cursorX) {
-      if (cursorX == 1) 
-      {
-        lcd.clear();
-        lcd.print("run");
-      } else if (cursorX == 2)
-      {
-        lcd.clear();
-        lcd.print("settings");
+    keyPressed = cursorSelect(2, 3);
+
+    if (keyPressed == 1) {
+      if (cursorY == 2) {     //Run Sample
+        state = START_SAMPLE;
       }
-    } else if (newCursor >= 0) {
-      cursorX = newCursor;
-    }
 
-    // if ((key = getKeyDebounce()) == 'S') 
-    // {
-    //   if (cursorX == 1) 
-    //   {
-    //     lcd.clear();
-    //     lcd.print("run");
-    //   } else if (cursorX == 2)
-    //   {
-    //     lcd.clear();
-    //     lcd.print("settings");
-    //   }
-    // }
+      else if (cursorY = 3) {
+        state = SETTINGS;
+      }
+    }
   }
 }
 
-int cursorSelect(int begin, int end, int cursorX) 
-{
-  char key;
+void settingsLoop() {
+  uint8_t settingsPage = 1;
+  uint8_t keyPressed;
+  cursorY = 0;
+  cursorX = 0;
+  lcd.clear();
   
-  if ((key = getKeyDebounce()) == 'U' && cursorX > begin) {  // Check if back button has been pressed: state = menu
-    return cursorX - 1;
-  } else if ((key = getKeyDebounce()) == 'D' && cursorX < end) {
-    return cursorX + 1;
-  } else if ((key = getKeyDebounce()) == 'S') {
-    return cursorX;
-  } else {
-    return -1;
+  while (state == SETTINGS) {
+    settingsLCD(settingsPage); //Launch into first page of settings
+
+    if (settingsPage != 3)
+      keyPressed = cursorSelect(0, 2);
+    else
+      keyPressed = cursorSelect(0, 1);
+
+    if (keyPressed == 2) {//left
+      if (settingsPage == 1) {
+        lcd.clear();
+        state = STANDBY;
+        cursorY = 2;
+      }
+      else {
+        lcd.clear();
+        settingsPage--;
+      }
+    }
+    else if (keyPressed == 3 && settingsPage != 3) {//right
+      lcd.clear();
+      settingsPage++;
+      if (settingsPage == 3 && cursorY == 2) //at settings page with only two options...
+        cursorY--;
+    }
   }
+}
+
+int cursorSelect(int begin, int end) 
+{
+  char key = getKeyDebounce();
+  
+  if (key == 'U' && cursorY > begin) {  // Check if back button has been pressed: state = menu
+    lcd.setCursor(0, cursorY);
+    lcd.print(" ");
+    cursorY--;
+  } 
+  else if (key == 'D' && cursorY < end) {
+    lcd.setCursor(0, cursorY);
+    lcd.print(" ");
+    cursorY++;
+  } 
+  else if (key == 'L') {
+    return 2; //want to make this an enum
+  } 
+  else if (key == 'R') {
+    return 3; //want to make this an enum
+  }
+  else if (key == 'S') {
+    return 1;
+  } 
+  
+  return 0;
+  
 }
 
 /*---------------------------------------------------------

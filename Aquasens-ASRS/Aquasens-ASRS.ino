@@ -66,9 +66,10 @@
 enum stateEnum {
   INIT,
   STANDBY,
-  ACTIVE,           
+  ACTIVE,
+  START_SAMPLE,           
   MANUAL,
-  SETTING,                 
+  SETTINGS,                 
   SET_CLOCK,              
   SET_INTERVAL            
 };
@@ -79,6 +80,9 @@ String interval = "0000-00-00 00:03:00";
 tmElements_t nextSampleTime, sampleInterval;
 Timer<5, millis> dropTimer;
 bool dropFlag = true;                // Set by timers in activeLoop
+
+int8_t cursorX = 0;
+int8_t cursorY = 2;
 
 // RTC
 RTCZero rtc;
@@ -164,6 +168,9 @@ void loop() {
   switch (state) {
     case STANDBY:              // Always starts in STANDBY
       standbyLoop();
+      break;
+    case SETTINGS:
+      settingsLoop();
       break;
     case ACTIVE:
       activeLoop();
