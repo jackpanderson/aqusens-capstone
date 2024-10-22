@@ -74,8 +74,61 @@ void standbyLoop()
   while (state == STANDBY) 
   {
     standbyLCD(cursorX, cursorY);
+    
+    // if ((key = getKeyDebounce()) == 'U' && cursorX == 2) 
+    // {  // Check if back button has been pressed: state = menu
+    //   cursorX = 1;
+    // } else if ((key = getKeyDebounce()) == 'D' && cursorX == 1) 
+    // {
+    //   cursorX = 2;
+    // }
+
+    int newCursor = cursorSelect(1, 2, cursorX);
+
+    if (newCursor == cursorX) {
+      if (cursorX == 1) 
+      {
+        lcd.clear();
+        lcd.print("run");
+      } else if (cursorX == 2)
+      {
+        lcd.clear();
+        lcd.print("settings");
+      }
+    } else if (newCursor >= 0) {
+      cursorX = newCursor;
+    }
+
+    // if ((key = getKeyDebounce()) == 'S') 
+    // {
+    //   if (cursorX == 1) 
+    //   {
+    //     lcd.clear();
+    //     lcd.print("run");
+    //   } else if (cursorX == 2)
+    //   {
+    //     lcd.clear();
+    //     lcd.print("settings");
+    //   }
+    // }
   }
 }
+
+int cursorSelect(int begin, int end, int cursorX) 
+{
+  char key;
+  
+  if ((key = getKeyDebounce()) == 'U' && cursorX > begin) {  // Check if back button has been pressed: state = menu
+    return cursorX - 1;
+  } else if ((key = getKeyDebounce()) == 'D' && cursorX < end) {
+    return cursorX + 1;
+  } else if ((key = getKeyDebounce()) == 'S') {
+    return cursorX;
+  } else {
+    return -1;
+  }
+}
+
 /*---------------------------------------------------------
 * Function: activeLoop()
 * Purpose: Backend for when machine is in running mode
