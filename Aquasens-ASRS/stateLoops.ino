@@ -203,6 +203,7 @@ void setClockLoop() {
     if (key != NULL) {
 
       if (key == 'S') {
+        breakTime(makeTime(adjustedTime), adjustedTime);
         rtc.setMonth(adjustedTime.Month);
         rtc.setDay(adjustedTime.Day);
         rtc.setYear(adjustedTime.Year);
