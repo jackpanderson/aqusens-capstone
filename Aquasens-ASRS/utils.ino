@@ -57,6 +57,8 @@ void updateAlarm() {
   nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
   nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+
+  breakTime(makeTime(nextSampleTime), nextSampleTime);
   
   rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
   rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
