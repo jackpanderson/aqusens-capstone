@@ -163,41 +163,60 @@ void dryLoop() {
 void manualLoop(){}
 void alarmLoop(){}
 
+
+void setClockLoop() {
+  tmElements_t adjustedTime;
+  adjustedTime.Month = 1;
+  adjustedTime.Day = 1;
+  adjustedTime.Year = 2024 - 1970; //Years since from 1970
+  adjustedTime.Hour = 0;
+  adjustedTime.Minute = 0;
+  char key;
+  uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00-00-00 00:00"
+                         // Does not include spacing/colons/hyphens, ranges 0 to 9.
+
+  resetLcd();
+  initSetClockLcd();
+  lcd.blink();
+
+  while (state == SET_CLOCK) {
+    key = getKeyDebounce();
+
+    if (key != NULL) {
+
+      if (key == 'S') {
+        rtc.setMonth(adjustedTime.Month);
+        rtc.setDay(adjustedTime.Day);
+        rtc.setYear(adjustedTime.Year);
+        rtc.setHours(adjustedTime.Hour);
+        rtc.setMinutes(adjustedTime.Minute);
+        lcd.noBlink();
+        state = SETTINGS;
+      }
+
+      else if (key == 'L' && cursorPos > 0) {
+        cursorPos--;
+      }
+
+      else if (key == 'R' && cursorPos < 9) {
+      cursorPos++;
+      }
+
+      else if (key == 'U' || key == 'D') {
+        adjustTimeDigit(key, &adjustedTime, &cursorPos);
+      }
+
+      updateSetClockLCD(cursorPos, adjustedTime);
+    } 
+  }
+}
+
 void resetLcd()
 {
   lcd.clear();
   cursorY = 0;
 }
 
-int cursorSelect(int begin, int end) 
-{
-  char key = getKeyDebounce();
-  
-  if (key == 'U' && cursorY > begin) {  // Check if back button has been pressed: state = menu
-    lcd.setCursor(0, cursorY);
-    lcd.print(" ");
-    cursorY--;
-    return 4;
-  } 
-  else if (key == 'D' && cursorY < end) {
-    lcd.setCursor(0, cursorY);
-    lcd.print(" ");
-    cursorY++;
-    return 5;
-  } 
-  else if (key == 'L') {
-    return 2; //want to make this an enum
-  } 
-  else if (key == 'R') {
-    return 3; //want to make this an enum
-  }
-  else if (key == 'S') {
-    return 1;
-  } 
-  
-  return 0;
-  
-}
 
 /*---------------------------------------------------------
 * Function: activeLoop()
@@ -244,8 +263,7 @@ int cursorSelect(int begin, int end)
 // void maintenanceLoop() {
 // }
 
-// void setClockLoop() {
-// }
+
 
 // void manualLoop() {
 // }
@@ -307,68 +325,7 @@ int cursorSelect(int begin, int end)
 
 /* Helper Functions **************************************************************/
 
-/*---------------------------------------------------------
-* Function: fastDrop()
-* Purpose: function called by the timer to start speed up
-*           the drop
-* Params: None                                            
-* Returns: Flag to indicate if function was successful
----------------------------------------------------------*/
-bool fastDrop(void *) {
-  P1.writePWM(50, MICROSTEP, PWM_SLOT, STEPPER_PUL);
-  //dropTimer(dropDistance*1000, stopMotor);  // Need to create new timer that takes dropDistance as param or make
-                                              // dropDistance a global variable. First way cleaner, second way faster
-  return true;
-}
 
-/*---------------------------------------------------------
-* Function: stopMotor()
-* Purpose: function called by the timer to stop the motor
-* Params: None                                            
-* Returns: Flag to indicate if function was successful
----------------------------------------------------------*/
-bool stopMotor(void *) {
-  P1.writePWM(50, 0, PWM_SLOT, STEPPER_PUL);
-  return true;
-}
-
-/*---------------------------------------------------------
-* Function: getKeyDebounce()
-* Purpose: gets key press from user (debounced)
-* Params: None                                            
-* Returns: key pressed by the user
----------------------------------------------------------*/
-char getKeyDebounce() {
-  char key = getKeyPress();
-
-  if (key != NULL) {
-    while (getKeyPress() == key) { ; }
-  }
-
-  return key;
-}
-
-/*---------------------------------------------------------
-* Function: getKeyPress()
-* Purpose: gets any key currently pressed by user
-* Params: None                                            
-* Returns: key pressed by user (NULL if no current key press)
----------------------------------------------------------*/
-char getKeyPress() {
-  if (digitalRead(KEY_U)) {
-    return 'U';
-  } else if (digitalRead(KEY_D)) {
-    return 'D';
-  } else if (digitalRead(KEY_L)) {
-    return 'L';
-  } else if (digitalRead(KEY_R)) {
-    return 'R';
-  } else if (digitalRead(KEY_S)) {
-    return 'S';
-  } else {
-    return NULL;
-  }
-}
 
 // void adjustComponent(uint8_t* timeComp, char key) {
 //   if (key == 'U') {
@@ -380,67 +337,3 @@ char getKeyPress() {
 //   }
 // }
 
-String getCurrentDateTime() {
-  char dateTimeString[16];
-  //uint32_t currentEpoch = rtc.getEpoch();
-
-  snprintf(dateTimeString, sizeof(dateTimeString), "%02d-%02d-%02d %02d:%02d",
-           rtc.getMonth(),
-           rtc.getDay(),
-           rtc.getYear(),
-           rtc.getHours(),
-           rtc.getMinutes());
-
-  return String(dateTimeString);
-}
-
-String getNextSampleTime() {
-  char dateTimeString[16];
-  //uint32_t currentEpoch = rtc.getEpoch();
-
-  snprintf(dateTimeString, sizeof(dateTimeString), "%02d-%02d-%02d %02d:%02d",
-           nextSampleTime.Month,
-           nextSampleTime.Day,
-           nextSampleTime.Year,
-           nextSampleTime.Hour,
-           nextSampleTime.Minute);
-
-  return String(dateTimeString);
-}
-
-tmElements_t parseTime(const char* timeStr) {
-  int year, month, day, hour, minute, second;
-  sscanf(timeStr, "%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &second);
-
-  tmElements_t tm;
-  tm.Year = year;  // Arduino time library uses years since 1970
-  tm.Month = month;
-  tm.Day = day;
-  tm.Hour = hour;
-  tm.Minute = minute;
-  tm.Second = second;
-
-  return tm;
-}
-
-void formatTime(char* buffer, time_t time) {
-  tmElements_t tm;
-  breakTime(time, tm);
-  sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d", tm.Year, tm.Month, tm.Day, tm.Hour, tm.Minute, tm.Second);
-}
-
-
-void addTimes(String time1Str, String time2Str, char* result) {
-  tmElements_t resultTime;
-  tmElements_t time1 = parseTime(time1Str.c_str());
-  tmElements_t time2 = parseTime(time2Str.c_str());
-
-  resultTime.Year = time1.Year + time2.Year; 
-  resultTime.Month = time1.Month + time2.Month;
-  resultTime.Day = time1.Day + time2.Day;
-  resultTime.Hour = time1.Hour + time2.Hour;
-  resultTime.Minute = time1.Minute + time2.Minute;
-  resultTime.Second = 0;
-
-  formatTime(result, makeTime(resultTime));
-}

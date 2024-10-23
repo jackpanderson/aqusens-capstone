@@ -107,6 +107,71 @@ void manualLcd() {
 
 }
 
+void initSetClockLcd() {
+  lcd.setCursor(0, 6);
+  lcd.print("Set Time");
+  lcd.setCursor(2, 3);
+  lcd.print("Mo Da Yr Hr Mn");
+  lcd.setCursor(3, 3);
+  lcd.print("SEL to confirm");
+}
+
+void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+  lcd.noBlink();
+  lcd.setCursor(3, 1);
+  char buff[15];
+
+  uint16_t realYear = adjustedTime.Year + 1970; //Gets the calendar year.
+  sprintf(buff, "%02d-%02d-%02d %02d:%02d", adjustedTime.Month, adjustedTime.Day, realYear - 2000, adjustedTime.Hour, adjustedTime.Minute);
+  lcd.print(buff);
+
+  switch (cursorPos) {
+    case 0:
+      lcd.setCursor(3, 1); //Month Tens Place
+      break;
+    
+    case 1:
+      lcd.setCursor(4, 1); //Month Ones Place
+      break;
+    
+    case 2:
+      lcd.setCursor(6, 1); //Day Tens Place
+      break;
+
+    case 3:
+      lcd.setCursor(7, 1); //Day Ones Place
+      break;
+
+    case 4:
+      lcd.setCursor(9, 1); //Year Tens Place
+      break;
+
+    case 5:
+      lcd.setCursor(10, 1); //Year Ones Place
+      break;
+
+    case 6:
+      lcd.setCursor(12, 1); //Hour Tens Place
+      break;
+
+    case 7:
+      lcd.setCursor(13, 1); //Hour Ones Place
+      break;
+
+    case 8:
+      lcd.setCursor(15, 1); //Min Tens Place
+      break;
+    
+    case 9:
+      lcd.setCursor(16, 1); //Min Ones Place
+      break;
+    default:
+      break;
+  }
+  
+  lcd.blink();
+}
+
 // void activeLCD(String nextDropTime) {
 //   lcd.setCursor(0,0);
 //   lcd.print("Next: ");

@@ -74,7 +74,8 @@ enum stateEnum {
   FLUSH,
   DRY,
   ALARM,
-  MANUAL
+  MANUAL,
+  SET_CLOCK
   // ACTIVE,
   // START_SAMPLE,           
   // MANUAL,
@@ -97,91 +98,6 @@ RTCZero rtc;
 
 // LCD
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
-
-/* Init Functions **************************************************************/
-
-/*---------------------------------------------------------
-* Function: gpioInit()
-* Purpose: initializes all pins on gpio module
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
-void gpioInit() {
-  /* Initialize Stepper PWM */
-  pinMode(KEY_U, INPUT_PULLDOWN);
-  pinMode(KEY_D, INPUT_PULLDOWN);
-  pinMode(KEY_L, INPUT_PULLDOWN);
-  pinMode(KEY_R, INPUT_PULLDOWN);
-  pinMode(KEY_S, INPUT_PULLDOWN);
-
-  /* Initialize LCD */
-  //P1.writeDiscrete(LOW, 1, 2);    // Outputs 5V power source for LCD
-  lcd.begin(20, 4);               // cols, rows
-
-  /* SD */
-  SD.begin(SD_CS);
-}
-
-/*---------------------------------------------------------
-* Function: rtcInit()
-* Purpose: initialize the RTC
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
-void rtcInit() {
-  rtc.begin();
-  rtc.setEpoch(1729623075);
-  sampleInterval.Year = 0;
-  sampleInterval.Month = 0;
-  sampleInterval.Day = 0;
-  sampleInterval.Hour = 0;
-  sampleInterval.Minute = 3;  
-  sampleInterval.Second = 0;
-  
-  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
-  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
-  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
-  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
-  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
-  
-  rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
-  rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
-  rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
-  rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
-}
-
-void alarmTriggered() {
-  // This will be called when the alarm is triggered
-  // You can handle additional tasks here if needed
-  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
-  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
-  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
-  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
-  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
-  
-  breakTime(makeTime(nextSampleTime), nextSampleTime);
-
-  rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
-  rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
-
-  if (state == STANDBY) {
-    state = RELEASE;
-  }
-}
-
-/*---------------------------------------------------------
-* Function: findHomePos()
-* Purpose: Returns the probe to home position
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
-void findHomePos() {
-  // Checks if probe is connected to magnetic sensor
-  // If not:
-  //    Slowly brings the probe up until it is connected
-  //    to magnetic sensor
-  // Need a way to make sure it is not above the sensor
-}
 
 /* Setup and Loop **************************************************************/
 
