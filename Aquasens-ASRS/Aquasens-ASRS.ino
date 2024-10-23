@@ -66,12 +66,21 @@
 enum stateEnum {
   INIT,
   STANDBY,
-  ACTIVE,
-  START_SAMPLE,           
-  MANUAL,
-  SETTINGS,                 
-  SET_CLOCK,              
-  SET_INTERVAL            
+  SETTINGS,
+  RELEASE,
+  SOAK,
+  RECOVER,
+  SAMPLE,
+  FLUSH,
+  DRY,
+  ALARM,
+  MANUAL
+  // ACTIVE,
+  // START_SAMPLE,           
+  // MANUAL,
+  // SETTINGS,                 
+  // SET_CLOCK,              
+  // SET_INTERVAL            
 };
 stateEnum state = STANDBY;   // Start up will show menu
 
@@ -81,7 +90,6 @@ tmElements_t nextSampleTime, sampleInterval;
 Timer<5, millis> dropTimer;
 bool dropFlag = true;                // Set by timers in activeLoop
 
-int8_t cursorX = 0;
 int8_t cursorY = 2;
 
 // RTC
@@ -122,12 +130,12 @@ void gpioInit() {
 ---------------------------------------------------------*/
 void rtcInit() {
   rtc.begin();
-  rtc.setEpoch(1729525000);
+  rtc.setEpoch(1729623075);
   sampleInterval.Year = 0;
   sampleInterval.Month = 0;
   sampleInterval.Day = 0;
-  sampleInterval.Hour = 1;
-  sampleInterval.Minute = 0;  
+  sampleInterval.Hour = 0;
+  sampleInterval.Minute = 3;  
   sampleInterval.Second = 0;
   
   nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
@@ -136,6 +144,29 @@ void rtcInit() {
   nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
   
+  rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
+  rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
+  rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
+  rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
+}
+
+void alarmTriggered() {
+  // This will be called when the alarm is triggered
+  // You can handle additional tasks here if needed
+  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
+  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
+  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
+  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
+  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+  
+  breakTime(makeTime(nextSampleTime), nextSampleTime);
+
+  rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
+  rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
+
+  if (state == STANDBY) {
+    state = RELEASE;
+  }
 }
 
 /*---------------------------------------------------------
@@ -172,18 +203,42 @@ void loop() {
     case SETTINGS:
       settingsLoop();
       break;
-    case ACTIVE:
-      activeLoop();
+    case RELEASE:
+      releaseLoop();
+      break;
+    case SOAK:
+      soakLoop();
+      break;
+    case RECOVER:
+      recoverLoop();
+      break;
+    case SAMPLE:
+      sampleLoop();
+      break;
+    case FLUSH:
+      flushLoop();
+      break;
+    case DRY:
+      dryLoop();
+      break;
+    case ALARM:
+      alarmLoop();
       break;
     case MANUAL:
       manualLoop();
       break;
-    case SET_CLOCK:
-      setClockLoop();
-      break;
-    case SET_INTERVAL:
-      setIntervalLoop();
-      break;
+    // case ACTIVE:
+    //   activeLoop();
+    //   break;
+    // case MANUAL:
+    //   manualLoop();
+    //   break;
+    // case SET_CLOCK:
+    //   setClockLoop();
+    //   break;
+    // case SET_INTERVAL:
+    //   setIntervalLoop();
+      // break;
     default:
       break;
   }

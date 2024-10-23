@@ -5,11 +5,11 @@ void standbyLCD() {
   lcd.setCursor(0, 1);
   lcd.print("next: ");
   lcd.print(getNextSampleTime());
-  lcd.setCursor(1, 2);
-  lcd.print("Run Sample");
   lcd.setCursor(1, 3);
+  lcd.print("Run Sample");
+  lcd.setCursor(1, 2);
   lcd.print("Settings");
-  lcd.setCursor(cursorX, cursorY);
+  lcd.setCursor(0, cursorY);
   lcd.print("*");
 }
 
@@ -23,6 +23,8 @@ void settingsLCD(uint8_t page) {
       lcd.print("Add Events");
       lcd.setCursor(1, 2);
       lcd.print("View Events");
+      lcd.setCursor(15, 3);
+      lcd.print("More>");
       break;
     
     case 2:
@@ -32,6 +34,8 @@ void settingsLCD(uint8_t page) {
       lcd.print("Soak Time");
       lcd.setCursor(1, 2);
       lcd.print("Clock");
+      lcd.setCursor(15, 3);
+      lcd.print("More>");
       break;
     
     case 3:
@@ -42,43 +46,94 @@ void settingsLCD(uint8_t page) {
       break;
   }
 
-  lcd.setCursor(cursorX, cursorY);
+  lcd.setCursor(0, cursorY);
   lcd.print("*");
 
   lcd.setCursor(0, 3);
   lcd.print("<Back");
-
-  lcd.setCursor(15, 3);
-  lcd.print("More>");
 }
 
-void activeLCD(String nextDropTime) {
-  lcd.setCursor(0,0);
-  lcd.print("Next: ");
-  lcd.print(nextDropTime);
+void releaseLcd(String position) {
   lcd.setCursor(0,1);
-  lcd.print("< Back");
+  lcd.print("Releasing device...");
+  lcd.setCursor(0,2);
+  lcd.print("curr position:");
+  lcd.setCursor(15,2);
+  lcd.print(position);
 }
 
-void intervalLCD(String timeType, int timeComponent) {
-
-  lcd.setCursor(0,0);
-  lcd.print(timeType);
-  lcd.print(timeComponent);
-
+void soakLcd(String time) {
   lcd.setCursor(0,1);
-  lcd.print("Press SEL to set.");
-
+  lcd.print("Soaking...");
+  lcd.setCursor(0,2);
+  lcd.print(time);
+  lcd.setCursor(6,2);
+  lcd.print("remaining");
 }
 
-void intervalMenuLCD() {
-  lcd.setCursor(0,0);
-  //lcd.print(interval);
+void recoverLcd(String position) {
   lcd.setCursor(0,1);
-  lcd.print("< back | SEL to set.");
+  lcd.print("Recovering device...");
+  lcd.setCursor(0,2);
+  lcd.print("curr position:");
+  lcd.setCursor(15,2);
+  lcd.print(position);
 }
 
-void clearTopLine() {
-  lcd.setCursor(0,0);
-  lcd.print("                    ");
+void sampleLcd() {
+  lcd.setCursor(0,1);
+  lcd.print("Sampling...");
 }
+
+void flushLcd() {
+  lcd.setCursor(0,1);
+  lcd.print("Flushing...");
+}
+
+void dryLcd(String time) {
+  lcd.setCursor(0,1);
+  lcd.print("Drying...");
+  lcd.setCursor(0,2);
+  lcd.print(time);
+  lcd.setCursor(7,2);
+  lcd.print("remaining");
+}
+
+void alarmLcd(String reason) {
+
+}
+
+void manualLcd() {
+
+}
+
+// void activeLCD(String nextDropTime) {
+//   lcd.setCursor(0,0);
+//   lcd.print("Next: ");
+//   lcd.print(nextDropTime);
+//   lcd.setCursor(0,1);
+//   lcd.print("< Back");
+// }
+
+// void intervalLCD(String timeType, int timeComponent) {
+
+//   lcd.setCursor(0,0);
+//   lcd.print(timeType);
+//   lcd.print(timeComponent);
+
+//   lcd.setCursor(0,1);
+//   lcd.print("Press SEL to set.");
+
+// }
+
+// void intervalMenuLCD() {
+//   lcd.setCursor(0,0);
+//   //lcd.print(interval);
+//   lcd.setCursor(0,1);
+//   lcd.print("< back | SEL to set.");
+// }
+
+// void clearTopLine() {
+//   lcd.setCursor(0,0);
+//   lcd.print("                    ");
+// }
