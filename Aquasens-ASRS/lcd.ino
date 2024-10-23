@@ -108,9 +108,9 @@ void manualLcd() {
 }
 
 void initSetClockLcd() {
-  lcd.setCursor(0, 6);
+  lcd.setCursor(6, 0);
   lcd.print("Set Time");
-  lcd.setCursor(2, 3);
+  lcd.setCursor(3, 2);
   lcd.print("Mo Da Yr Hr Mn");
   lcd.setCursor(3, 3);
   lcd.print("SEL to confirm");

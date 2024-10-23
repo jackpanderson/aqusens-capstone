@@ -38,6 +38,20 @@ void rtcInit() {
   sampleInterval.Minute = 3;  
   sampleInterval.Second = 0;
   
+  // nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
+  // nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
+  // nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
+  // nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
+  // nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+  
+  // rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
+  // rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
+  // rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
+  // rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
+  updateAlarm();
+}
+
+void updateAlarm() {
   nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
   nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
   nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;

@@ -143,6 +143,9 @@ void loop() {
     case MANUAL:
       manualLoop();
       break;
+    case SET_CLOCK:
+      setClockLoop();
+      break;
     // case ACTIVE:
     //   activeLoop();
     //   break;

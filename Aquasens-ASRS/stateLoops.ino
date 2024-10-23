@@ -55,9 +55,26 @@ void settingsLoop() {
         settingsPage--;
       }
     }
+
     else if (keyPressed == 3 && settingsPage != 3) { //right
       resetLcd();
       settingsPage++;
+    }
+
+    else if (keyPressed == 1) {
+      if (settingsPage == 2) {
+        switch(cursorY) { //add more states
+          case 0:
+            //state = SET_DRY_TIME;
+            break;
+          case 1:
+            //state = SET_SOAK_TIME;
+            break;
+          case 2:
+            state = SET_CLOCK;
+            break;
+        }
+      }
     }
 
     if (rtc.getMinutes() == ((lastKeyPress + 5) % 60)) {
@@ -177,6 +194,7 @@ void setClockLoop() {
 
   resetLcd();
   initSetClockLcd();
+  updateSetClockLCD(cursorPos, adjustedTime);
   lcd.blink();
 
   while (state == SET_CLOCK) {
@@ -190,6 +208,7 @@ void setClockLoop() {
         rtc.setYear(adjustedTime.Year);
         rtc.setHours(adjustedTime.Hour);
         rtc.setMinutes(adjustedTime.Minute);
+        updateAlarm();
         lcd.noBlink();
         state = SETTINGS;
       }
