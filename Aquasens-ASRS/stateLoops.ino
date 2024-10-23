@@ -198,8 +198,10 @@ void setClockLoop() {
   lcd.blink();
 
   while (state == SET_CLOCK) {
-    key = getKeyDebounce();
+    updateSetClockLCD(cursorPos, adjustedTime);
 
+    key = getKeyDebounce();
+    
     if (key != NULL) {
 
       if (key == 'S') {
@@ -225,8 +227,6 @@ void setClockLoop() {
       else if (key == 'U' || key == 'D') {
         adjustTimeDigit(key, &adjustedTime, &cursorPos);
       }
-
-      updateSetClockLCD(cursorPos, adjustedTime);
     } 
   }
 }
