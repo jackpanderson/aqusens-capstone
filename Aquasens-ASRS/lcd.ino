@@ -6,11 +6,30 @@ void standbyLCD() {
   lcd.print("NEXT: ");
   lcd.print(getNextSampleTime());
   lcd.setCursor(1, 2);
-  lcd.print("RUN SAMPLE");
-  lcd.setCursor(1, 3);
   lcd.print("SETTINGS");
+  lcd.setCursor(1, 3);
+  lcd.print("RUN SAMPLE");
+  lcd.setCursor(13, 2);
+  lcd.print("STANDBY");
+  lcd.setCursor(16, 3);
+  lcd.print("MODE");
   lcd.setCursor(0, cursorY);
   lcd.print("*");
+}
+
+void ensureSampleStartLCD() {
+  lcd.setCursor(4, 0);
+  lcd.print("START SAMPLE");
+  lcd.setCursor(3, 1);
+  lcd.print("ARE YOU SURE?");
+  lcd.setCursor(1, 2);
+  lcd.print("START SAMPLE");
+  lcd.setCursor(1, 3);
+  lcd.print("EXIT");
+
+  lcd.setCursor(0, cursorY);
+  lcd.print("*");
+
 }
 
 void settingsLCD(uint8_t page) {
@@ -20,37 +39,55 @@ void settingsLCD(uint8_t page) {
       lcd.setCursor(1, 0);
       lcd.print("INTERVAL");
       lcd.setCursor(1, 1);
-      lcd.print("ADD EVENTS");
+      lcd.print("START TIME");
       lcd.setCursor(1, 2);
-      lcd.print("VIEW EVENTS");
+      lcd.print("SET CLOCK");
+      lcd.setCursor(0, 3);
+      lcd.print("<EXIT");
       lcd.setCursor(15, 3);
       lcd.print("MORE>");
       break;
     
     case 2:
       lcd.setCursor(1, 0);
-      lcd.print("DRY TIME");
-      lcd.setCursor(1, 1);
       lcd.print("SOAK TIME");
+      lcd.setCursor(1, 1);
+      lcd.print("FLUSH TIME");
       lcd.setCursor(1, 2);
-      lcd.print("SET CLOCK");
+      lcd.print("DRY TIME");
+      lcd.setCursor(0, 3);
+      lcd.print("<BACK");
       lcd.setCursor(15, 3);
       lcd.print("MORE>");
       break;
     
     case 3:
       lcd.setCursor(1, 0);
-      lcd.print("FILTER STATUS");
+      lcd.print("ADD EVENT");
       lcd.setCursor(1, 1);
-      lcd.print("BRIGHTNESS");
+      lcd.print("VIEW EVENTS");
+      lcd.setCursor(1, 2);
+      lcd.print("FILTER STATUS");
+      lcd.setCursor(0, 3);
+      lcd.print("<BACK");
+      lcd.setCursor(15, 3);
+      lcd.print("MORE>");
       break;
+
+    case 4:
+      lcd.setCursor(1, 0);
+      lcd.print("SET BRIGHTNESS");
+      lcd.setCursor(1, 1);
+      lcd.print("SET CONTRAST");
+      lcd.setCursor(0, 3);
+      lcd.print("<BACK");
+      break;
+    
   }
 
   lcd.setCursor(0, cursorY);
   lcd.print("*");
 
-  lcd.setCursor(0, 3);
-  lcd.print("<Back");
 }
 
 void releaseLcd(String position) {

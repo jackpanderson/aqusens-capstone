@@ -76,9 +76,13 @@ enum stateEnum {
   SAMPLE,
   FLUSH,
   DRY,
-  ALARM,
+  MOTOR_ALARM,
+  ESTOP_ALARM,
   MANUAL,
   SET_INTERVAL,
+  ENSURE_SAMPLE_START,
+  SET_START_TIME,
+  SET_FLUSH_TIME,
   ADD_EVENT,
   VIEW_EVENTS,
   SET_CLOCK,
@@ -144,7 +148,10 @@ void loop() {
     case DRY:
       dryLoop();
       break;
-    case ALARM:
+    case MOTOR_ALARM:
+      alarmLoop();
+      break;
+    case ESTOP_ALARM:
       alarmLoop();
       break;
     case MANUAL:
@@ -164,6 +171,9 @@ void loop() {
       break;
     case SET_BRIGHTNESS:
       setBrightnessLoop();
+      break;
+    case ENSURE_SAMPLE_START:
+      ensureSampleStartLoop();
       break;
     // case ACTIVE:
     //   activeLoop();

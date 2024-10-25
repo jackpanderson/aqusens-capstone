@@ -105,7 +105,7 @@ void findHomePos() {
   // Need a way to make sure it is not above the sensor
 }
 
-int cursorSelect(int begin, int end) 
+char cursorSelect(int begin, int end) 
 {
   char key = getKeyDebounce();
   
@@ -113,25 +113,29 @@ int cursorSelect(int begin, int end)
     lcd.setCursor(0, cursorY);
     lcd.print(" ");
     cursorY--;
-    return 4;
+    return 'U';
   } 
   else if (key == 'D' && cursorY < end) {
     lcd.setCursor(0, cursorY);
     lcd.print(" ");
     cursorY++;
-    return 5;
+    return 'D';
   } 
-  else if (key == 'L') {
-    return 2; //want to make this an enum
-  } 
-  else if (key == 'R') {
-    return 3; //want to make this an enum
+
+  else {
+    return key;
   }
-  else if (key == 'S') {
-    return 1;
-  } 
+  // else if (key == 'L') {
+  //   return 'L'; //want to make this an enum
+  // } 
+  // else if (key == 'R') {
+  //   return 'R'; //want to make this an enum
+  // }
+  // else if (key == 'S') {
+  //   return 'S';
+  // } 
   
-  return 0;
+  // return NULL;
   
 }
 

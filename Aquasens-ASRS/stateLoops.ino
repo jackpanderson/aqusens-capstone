@@ -16,7 +16,7 @@ void standbyLoop()
 
     if (keyPressed == 1) {
       if (cursorY == 2) {
-        state = RELEASE;
+        state = ENSURE_SAMPLE_START;
       }
 
       else if (cursorY = 3) {
@@ -26,27 +26,47 @@ void standbyLoop()
   }
 }
 
+void ensureSampleStartLoop() {
+  char keyPressed;
+  resetLcd();
+  cursorY = 3;
+  ensureSampleStartLCD();
+  
+  while (state == ENSURE_SAMPLE_START) {
+    keyPressed = cursorSelect(2, 3);
+    
+    if (keyPressed == 'S') {
+      if (cursorY == 3) {
+        state = SAMPLE;
+      }
+      else if (cursorY = 2) {
+        state = STANDBY;
+      }
+    }
+  }
+}
+
 void settingsLoop() {
   uint8_t settingsPage = 1;
   uint8_t lastKeyPress = rtc.getMinutes();
-  uint8_t keyPressed;
+  char keyPressed;
   resetLcd();
   
   while (state == SETTINGS) {
     settingsLCD(settingsPage); //Launch into first page of settings
 
-    if (settingsPage != 3)
+    if (settingsPage != 4)
       keyPressed = cursorSelect(0, 2);
     else
-      keyPressed = cursorSelect(0, 1);
+      keyPressed = cursorSelect(0, 0);
 
     if (keyPressed > 0) {
       lastKeyPress = rtc.getMinutes();
     }
 
-    if (keyPressed == 2) {//left
+    if (keyPressed == 'L') {//left
       if (settingsPage == 1) {
-        lcd.clear();
+        resetLcd();
         state = STANDBY;
         cursorY = 2;
       }
@@ -56,12 +76,12 @@ void settingsLoop() {
       }
     }
 
-    else if (keyPressed == 3 && settingsPage != 3) { //right
+    else if (keyPressed == 'R' && settingsPage != 3) { //right
       resetLcd();
       settingsPage++;
     }
 
-    else if (keyPressed == 1) {
+    else if (keyPressed == 'S') {
       if (settingsPage == 1) {
         switch(cursorY) {
           case 0:
@@ -69,26 +89,7 @@ void settingsLoop() {
             break;
           
           case 1:
-            state = ADD_EVENT;
-            break;
-          
-          case 2:
-            state = VIEW_EVENTS;
-            break;
-          
-          default:
-            break;
-        }
-      }
-
-      else if (settingsPage == 2) {
-        switch(cursorY) { //add more states
-          case 0:
-            state = SET_DRY_TIME;
-            break;
-          
-          case 1:
-            state = SET_SOAK_TIME;
+            state = SET_START_TIME;
             break;
           
           case 2:
@@ -100,17 +101,51 @@ void settingsLoop() {
         }
       }
 
-      else if (settingsPage == 3) {
-        switch(cursorY) {
+      else if (settingsPage == 2) {
+        switch(cursorY) { //add more states
           case 0:
-            state = FILTER_STATUS;
+            state = SET_SOAK_TIME;
             break;
           
           case 1:
-            state = SET_BRIGHTNESS;
+            state = SET_FLUSH_TIME;
+            break;
+          
+          case 2:
+            state = SET_DRY_TIME;
             break;
           
           default:
+            break;
+        }
+      }
+
+      else if (settingsPage == 3) {
+        switch(cursorY) {
+          case 0:
+            state = ADD_EVENT;
+            break;
+          
+          case 1:
+            state = VIEW_EVENTS;
+            break;
+          
+          case 2:
+            state = FILTER_STATUS;
+            break;
+          
+          default:
+            break;
+        }
+      }
+
+      else if (settingsPage == 4) {
+        switch(cursorY) {
+          case 0:
+            state = SET_BRIGHTNESS;
+            break;
+          case 1:
+            state = SET_CONTRAST;
             break;
         }
       }
