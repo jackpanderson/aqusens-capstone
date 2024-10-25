@@ -37,6 +37,12 @@ void rtcInit() {
   sampleInterval.Hour = 0;
   sampleInterval.Minute = 3;  
   sampleInterval.Second = 0;
+
+  soakTime.Hour = 0;
+  soakTime.Minute = 5;
+
+  dryTime.Hour = 0;
+  dryTime.Minute = 20;
   
   // nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
   // nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
@@ -257,7 +263,7 @@ char getKeyPress() {
   }
 }
 
-void adjustTimeDigit(char key, tmElements_t* adjustedTime, uint8_t* cursorPos) {
+void adjustSetTimeDigit(char key, tmElements_t* adjustedTime, uint8_t* cursorPos) {
   switch (*cursorPos) {
     case 0: //Month Tens Place
       if (key == 'U' && (adjustedTime -> Month) < 10) {
@@ -352,20 +358,128 @@ void adjustTimeDigit(char key, tmElements_t* adjustedTime, uint8_t* cursorPos) {
     default:
       break;
   }
+}
 
-  if ((adjustedTime -> Month) > 12) {
-    (adjustedTime -> Month) = 12;
+void adjustSetIntervalDigit(char key, tmElements_t* newInterval, uint8_t* cursorPos) {
+  switch (*cursorPos) {
+    case 0: //Day Tens Place
+      if (key == 'U' && (newInterval -> Day) <= 21) { //Max 31, only true if we can validly add 10 to the day
+        (newInterval -> Day) += 10;
+      }
+      else if (key == 'D' && (newInterval -> Day) >= 11) { //Min 1, only can deduct 10 if greater than 10
+        (newInterval -> Day) -= 10;
+      }
+      break;
+    
+    case 1: //Day Ones Place
+      if (key == 'U' && (newInterval -> Day) < 31) {
+        (newInterval -> Day) += 1;
+      }
+      else if (key == 'D' && (newInterval -> Day) > 1) {
+        (newInterval -> Day) -= 1;
+      }
+      break;
+    
+    case 2: //Hours Tens Place, using military/24 hour time
+      if (key == 'U' && (newInterval -> Hour) <= 14) { //Max 24 
+        (newInterval -> Hour) += 10;
+      }
+      else if (key == 'D' && (newInterval -> Hour) >= 10) { //Min 0
+        (newInterval -> Hour) -= 10;
+      }
+      break;
+    
+    case 3: //Hours Ones Place
+      if (key == 'U' && (newInterval -> Hour) < 24) { 
+        (newInterval -> Hour) += 1;
+      }
+      else if (key == 'D' && (newInterval -> Hour) > 0) {
+        (newInterval -> Hour) -= 1;
+      }
+      break;
+    
+    case 4: //Minutes Tens Place
+      if (key == 'U' && (newInterval -> Minute) < 49) { //Max 59
+        (newInterval -> Minute) += 10;
+      }
+      else if (key == 'D' && (newInterval -> Minute) >= 10) { //Min 0
+        (newInterval -> Minute) -= 10;
+      }
+      break;
+    
+    case 5:  //Minutes Ones Place
+      if (key == 'U' && (newInterval -> Minute) < 59) { 
+        (newInterval -> Minute) += 1;
+      }
+      else if (key == 'D' && (newInterval -> Minute) > 0) {
+        (newInterval -> Minute) -= 1;
+      }
+      break;
+    
+    default:
+      break;
   }
-  if ((adjustedTime -> Day) > 31) {
-    (adjustedTime -> Day) = 31;
+
+  if ((newInterval -> Day) > 31) {
+    (newInterval -> Day) = 31;
   }
-  if ((adjustedTime -> Year) > 129) {
-    (adjustedTime -> Year) = 129;
+
+  if ((newInterval -> Hour) > 23) {
+    (newInterval -> Hour) = 23;
   }
-  if ((adjustedTime -> Hour) > 23) {
-    (adjustedTime -> Hour) = 23;
+
+  if ((newInterval -> Minute) > 59) {
+    (newInterval -> Minute) = 59;
   }
-  if ((adjustedTime -> Minute) > 59) {
-    (adjustedTime -> Minute) = 59;
+}
+
+void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos) {
+  switch (*cursorPos) {
+    case 0: //Hours Tens Place, using military/24 hour time
+      if (key == 'U' && (newTime -> Hour) <= 14) { //Max 24 
+        (newTime -> Hour) += 10;
+      }
+      else if (key == 'D' && (newTime -> Hour) >= 10) { //Min 0
+        (newTime -> Hour) -= 10;
+      }
+      break;
+    
+    case 1: //Hours Ones Place
+      if (key == 'U' && (newTime -> Hour) < 24) { 
+        (newTime -> Hour) += 1;
+      }
+      else if (key == 'D' && (newTime -> Hour) > 0) {
+        (newTime -> Hour) -= 1;
+      }
+      break;
+    
+    case 2: //Minutes Tens Place
+      if (key == 'U' && (newTime -> Minute) < 49) { //Max 59
+        (newTime -> Minute) += 10;
+      }
+      else if (key == 'D' && (newTime -> Minute) >= 10) { //Min 0
+        (newTime -> Minute) -= 10;
+      }
+      break;
+    
+    case 3:  //Minutes Ones Place
+      if (key == 'U' && (newTime -> Minute) < 59) { 
+        (newTime -> Minute) += 1;
+      }
+      else if (key == 'D' && (newTime -> Minute) > 0) {
+        (newTime -> Minute) -= 1;
+      }
+      break;
+    
+    default:
+      break;
+  }
+
+  if ((newTime -> Hour) > 23) {
+    (newTime -> Hour) = 23;
+  }
+
+  if ((newTime -> Minute) > 59) {
+    (newTime -> Minute) = 59;
   }
 }

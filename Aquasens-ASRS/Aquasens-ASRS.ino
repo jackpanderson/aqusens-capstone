@@ -21,6 +21,7 @@
 #include <RTCZero.h>
 #include <SimpleKeypad.h>
 #include <TimeLib.h>
+#include <math.h>
 
 /* Pin Mapping ********************************************************************/
 
@@ -58,6 +59,8 @@
 #define FLUSH_TIME 100        // Time in sec to flush probe
 #define MICROSTEP 3200        // Number of pulses for one revolution of motor
 #define TIDE_FILE "tides.txt"
+#define NUM_CONTRAST_STEPS 20
+#define NUM_BRIGHTNESS_STEPS 20
 
 
 /* Variable Declarations *********************************************************/
@@ -75,23 +78,27 @@ enum stateEnum {
   DRY,
   ALARM,
   MANUAL,
-  SET_CLOCK
-  // ACTIVE,
-  // START_SAMPLE,           
-  // MANUAL,
-  // SETTINGS,                 
-  // SET_CLOCK,              
-  // SET_INTERVAL            
+  SET_INTERVAL,
+  ADD_EVENT,
+  VIEW_EVENTS,
+  SET_CLOCK,
+  SET_DRY_TIME,
+  SET_SOAK_TIME,
+  FILTER_STATUS,
+  SET_BRIGHTNESS,
+  SET_CONTRAST      
 };
 stateEnum state = STANDBY;   // Start up will show menu
 
 // Timing
-String interval = "0000-00-00 00:03:00";
-tmElements_t nextSampleTime, sampleInterval;
+String interval = "0000-00-00 00:30:00";
+tmElements_t nextSampleTime, sampleInterval,soakTime, dryTime;
 Timer<5, millis> dropTimer;
 bool dropFlag = true;                // Set by timers in activeLoop
 
 int8_t cursorY = 2;
+uint8_t screenBrightness = 10;
+uint8_t screenContrast = 10; //change to a sensible init val, is half of num of steps
 
 // RTC
 RTCZero rtc;
@@ -145,6 +152,18 @@ void loop() {
       break;
     case SET_CLOCK:
       setClockLoop();
+      break;
+    case SET_INTERVAL:
+      setIntervalLoop();
+      break;
+    case SET_SOAK_TIME:
+      setSoakTimeLoop();
+      break;
+    case SET_DRY_TIME:
+      setDryTimeLoop();
+      break;
+    case SET_BRIGHTNESS:
+      setBrightnessLoop();
       break;
     // case ACTIVE:
     //   activeLoop();

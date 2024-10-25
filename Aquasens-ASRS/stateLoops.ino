@@ -15,11 +15,11 @@ void standbyLoop()
     keyPressed = cursorSelect(2, 3);
 
     if (keyPressed == 1) {
-      if (cursorY == 3) {
+      if (cursorY == 2) {
         state = RELEASE;
       }
 
-      else if (cursorY = 2) {
+      else if (cursorY = 3) {
         state = SETTINGS;
       }
     }
@@ -62,16 +62,55 @@ void settingsLoop() {
     }
 
     else if (keyPressed == 1) {
-      if (settingsPage == 2) {
+      if (settingsPage == 1) {
+        switch(cursorY) {
+          case 0:
+            state = SET_INTERVAL;
+            break;
+          
+          case 1:
+            state = ADD_EVENT;
+            break;
+          
+          case 2:
+            state = VIEW_EVENTS;
+            break;
+          
+          default:
+            break;
+        }
+      }
+
+      else if (settingsPage == 2) {
         switch(cursorY) { //add more states
           case 0:
-            //state = SET_DRY_TIME;
+            state = SET_DRY_TIME;
             break;
+          
           case 1:
-            //state = SET_SOAK_TIME;
+            state = SET_SOAK_TIME;
             break;
+          
           case 2:
             state = SET_CLOCK;
+            break;
+          
+          default:
+            break;
+        }
+      }
+
+      else if (settingsPage == 3) {
+        switch(cursorY) {
+          case 0:
+            state = FILTER_STATUS;
+            break;
+          
+          case 1:
+            state = SET_BRIGHTNESS;
+            break;
+          
+          default:
             break;
         }
       }
@@ -182,12 +221,15 @@ void alarmLoop(){}
 
 
 void setClockLoop() {
+
+  Serial.println(rtc.getYear());
+
   tmElements_t adjustedTime;
-  adjustedTime.Month = 1;
-  adjustedTime.Day = 1;
-  adjustedTime.Year = 2024 - 1970; //Years since from 1970
-  adjustedTime.Hour = 0;
-  adjustedTime.Minute = 0;
+  adjustedTime.Month = rtc.getMonth();
+  adjustedTime.Day = rtc.getDay();
+  adjustedTime.Year = rtc.getYear(); 
+  adjustedTime.Hour = rtc.getHours();
+  adjustedTime.Minute = rtc.getMinutes();
   char key;
   uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00-00-00 00:00"
                          // Does not include spacing/colons/hyphens, ranges 0 to 9.
@@ -198,12 +240,9 @@ void setClockLoop() {
   lcd.blink();
 
   while (state == SET_CLOCK) {
-    updateSetClockLCD(cursorPos, adjustedTime);
-
     key = getKeyDebounce();
     
     if (key != NULL) {
-
       if (key == 'S') {
         breakTime(makeTime(adjustedTime), adjustedTime);
         rtc.setMonth(adjustedTime.Month);
@@ -225,7 +264,170 @@ void setClockLoop() {
       }
 
       else if (key == 'U' || key == 'D') {
-        adjustTimeDigit(key, &adjustedTime, &cursorPos);
+        adjustSetTimeDigit(key, &adjustedTime, &cursorPos);
+      }
+      if (state == SET_CLOCK) {
+        updateSetClockLCD(cursorPos, adjustedTime);
+      }
+    } 
+  }
+}
+
+void setIntervalLoop() {
+  tmElements_t newInterval;
+  newInterval.Day = sampleInterval.Day;
+  newInterval.Hour = sampleInterval.Hour;
+  newInterval.Minute = sampleInterval.Minute;
+  char key;
+  uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00 00 00" (Day Hour Min)
+                         // Does not include spacing/colons/hyphens, ranges 0 to 5.
+
+  resetLcd();
+  initSetIntervalLCD();
+  updateSetIntervalLCD(cursorPos, newInterval);
+  lcd.blink();
+
+  while (state == SET_INTERVAL) {
+    key = getKeyDebounce();
+    
+    if (key != NULL) {
+      if (key == 'S') {
+        breakTime(makeTime(newInterval), newInterval);
+        sampleInterval.Day = newInterval.Day;
+        sampleInterval.Hour = newInterval.Hour;
+        sampleInterval.Minute = newInterval.Minute;
+        updateAlarm();
+        lcd.noBlink();
+        state = SETTINGS;
+      }
+
+      else if (key == 'L' && cursorPos > 0) {
+        cursorPos--;
+      }
+
+      else if (key == 'R' && cursorPos < 5) {
+      cursorPos++;
+      }
+
+      else if (key == 'U' || key == 'D') {
+        adjustSetIntervalDigit(key, &newInterval, &cursorPos);
+      }
+      if (state == SET_INTERVAL) {
+        updateSetIntervalLCD(cursorPos, newInterval);
+      }
+    } 
+  }
+}
+
+void setSoakTimeLoop() {
+  tmElements_t newSoakTime;
+  newSoakTime.Hour = soakTime.Hour;
+  newSoakTime.Minute = soakTime.Minute;
+  char key;
+  uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
+                         // Does not include spacing/colons/hyphens, ranges 0 to 3.
+
+  resetLcd();
+  initSetSoakOrDryLCD();
+  updateSetSoakOrDryLCD(cursorPos, newSoakTime);
+  lcd.blink();
+
+  while (state == SET_SOAK_TIME) {
+    key = getKeyDebounce();
+    
+    if (key != NULL) {
+      if (key == 'S') {
+        //breakTime(makeTime(newInterval), newInterval);
+        soakTime.Hour = newSoakTime.Hour;
+        soakTime.Minute = newSoakTime.Minute;
+        lcd.noBlink();
+        state = SETTINGS;
+      }
+
+      else if (key == 'L' && cursorPos > 0) {
+        cursorPos--;
+      }
+
+      else if (key == 'R' && cursorPos < 3) {
+      cursorPos++;
+      }
+
+      else if (key == 'U' || key == 'D') {
+        adjustSetSoakOrDryDigit(key, &newSoakTime, &cursorPos);
+      }
+      if (state == SET_SOAK_TIME) {
+        updateSetSoakOrDryLCD(cursorPos, newSoakTime);
+        }
+    } 
+  }
+}
+
+void setDryTimeLoop() {
+  tmElements_t newDryTime;
+  newDryTime.Hour = dryTime.Hour;
+  newDryTime.Minute = dryTime.Minute;
+  char key;
+  uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
+                         // Does not include spacing/colons/hyphens, ranges 0 to 3.
+
+  resetLcd();
+  initSetSoakOrDryLCD();
+  updateSetSoakOrDryLCD(cursorPos, newDryTime);
+  lcd.blink();
+
+  while (state == SET_DRY_TIME) {
+    key = getKeyDebounce();
+    
+    if (key != NULL) {
+
+      if (key == 'S') {
+        //breakTime(makeTime(newInterval), newInterval);
+        dryTime.Hour = newDryTime.Hour;
+        dryTime.Minute = newDryTime.Minute;
+        lcd.noBlink();
+        state = SETTINGS;
+      }
+
+      else if (key == 'L' && cursorPos > 0) {
+        cursorPos--;
+      }
+
+      else if (key == 'R' && cursorPos < 3) {
+      cursorPos++;
+      }
+
+      else if (key == 'U' || key == 'D') {
+        adjustSetSoakOrDryDigit(key, &newDryTime, &cursorPos);
+      }
+
+      if (state == SET_DRY_TIME) {
+      updateSetSoakOrDryLCD(cursorPos, newDryTime);
+      }
+    } 
+  }
+}
+
+void setBrightnessLoop() {
+  char key;
+
+  resetLcd();
+  initSetBrightnessOrConstrastLCD();
+
+  while (state == SET_BRIGHTNESS) {
+    key = getKeyDebounce();
+    
+    if (key != NULL) {
+
+      if (key == 'S') {
+        state = SETTINGS;
+      }
+
+      else if (key == 'L' && screenBrightness > 1) {
+        updateBrightnessOrContrastLCD(false);
+      }
+
+      else if (key == 'R' && screenBrightness < 20) {
+        updateBrightnessOrContrastLCD(true);
       }
     } 
   }

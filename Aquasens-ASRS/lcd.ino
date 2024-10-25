@@ -1,14 +1,14 @@
 void standbyLCD() {
   lcd.setCursor(0,0);
-  lcd.print("curr: ");
+  lcd.print("CURR: ");
   lcd.print(getCurrentDateTime());
   lcd.setCursor(0, 1);
-  lcd.print("next: ");
+  lcd.print("NEXT: ");
   lcd.print(getNextSampleTime());
-  lcd.setCursor(1, 3);
-  lcd.print("Run Sample");
   lcd.setCursor(1, 2);
-  lcd.print("Settings");
+  lcd.print("RUN SAMPLE");
+  lcd.setCursor(1, 3);
+  lcd.print("SETTINGS");
   lcd.setCursor(0, cursorY);
   lcd.print("*");
 }
@@ -18,31 +18,31 @@ void settingsLCD(uint8_t page) {
   switch (page) {
     case 1:
       lcd.setCursor(1, 0);
-      lcd.print("Interval");
+      lcd.print("INTERVAL");
       lcd.setCursor(1, 1);
-      lcd.print("Add Events");
+      lcd.print("ADD EVENTS");
       lcd.setCursor(1, 2);
-      lcd.print("View Events");
+      lcd.print("VIEW EVENTS");
       lcd.setCursor(15, 3);
-      lcd.print("More>");
+      lcd.print("MORE>");
       break;
     
     case 2:
       lcd.setCursor(1, 0);
-      lcd.print("Dry Time");
+      lcd.print("DRY TIME");
       lcd.setCursor(1, 1);
-      lcd.print("Soak Time");
+      lcd.print("SOAK TIME");
       lcd.setCursor(1, 2);
-      lcd.print("Clock");
+      lcd.print("SET CLOCK");
       lcd.setCursor(15, 3);
-      lcd.print("More>");
+      lcd.print("MORE>");
       break;
     
     case 3:
       lcd.setCursor(1, 0);
-      lcd.print("Filter Status");
+      lcd.print("FILTER STATUS");
       lcd.setCursor(1, 1);
-      lcd.print("Brightness");
+      lcd.print("BRIGHTNESS");
       break;
   }
 
@@ -109,11 +109,62 @@ void manualLcd() {
 
 void initSetClockLcd() {
   lcd.setCursor(6, 0);
-  lcd.print("Set Time");
+  lcd.print("SET TIME");
   lcd.setCursor(3, 2);
-  lcd.print("Mo Da Yr Hr Mn");
+  lcd.print("MO DA YR HR MN");
   lcd.setCursor(3, 3);
-  lcd.print("SEL to confirm");
+  lcd.print("SEL TO CONFIRM");
+}
+
+void initSetIntervalLCD() {
+  lcd.setCursor(0, 0);
+  lcd.print("SET SAMPLE INTERVAL");
+  lcd.setCursor(6, 2);
+  lcd.print("DA HR MN");
+  lcd.setCursor(3, 3);
+  lcd.print("SEL TO CONFIRM");
+}
+
+void initSetSoakOrDryLCD() {
+  if (state == SET_SOAK_TIME) {
+    lcd.setCursor(3, 0);
+    lcd.print("SET SOAK TIME");
+  }
+  else if (state == SET_DRY_TIME) {
+    lcd.setCursor(4, 0);
+    lcd.print("SET DRY TIME");
+  }
+  lcd.setCursor(7, 2);
+  lcd.print("HR MN");
+  lcd.setCursor(3, 3);
+  lcd.print("SEL TO CONFIRM");
+}
+
+void initSetBrightnessOrConstrastLCD() {
+  resetLcd();
+
+  if (state == SET_BRIGHTNESS) {
+    lcd.setCursor(3, 0);
+    lcd.print("SET BRIGHTNESS");
+
+    for (int i = 0; i < screenBrightness; i++) {
+      lcd.setCursor(i, 1);
+      lcd.print(char(255));
+    }
+  }
+
+  else if (state == SET_CONTRAST) {
+    lcd.setCursor(4, 0);
+    lcd.print("SET CONTRAST");
+    
+    for (int i = 0; i < screenBrightness; i++) {
+      lcd.setCursor(i, 1);
+      lcd.print(char(255));
+    }
+  }
+
+  lcd.setCursor(3, 3);
+  lcd.print("SEL TO CONFIRM"); 
 }
 
 void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
@@ -121,8 +172,7 @@ void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.setCursor(3, 1);
   char buff[15];
 
-  uint16_t realYear = adjustedTime.Year + 1970; //Gets the calendar year.
-  sprintf(buff, "%02d-%02d-%02d %02d:%02d", adjustedTime.Month, adjustedTime.Day, realYear - 2000, adjustedTime.Hour, adjustedTime.Minute);
+  sprintf(buff, "%02d-%02d-%02d %02d:%02d", adjustedTime.Month, adjustedTime.Day, adjustedTime.Year, adjustedTime.Hour, adjustedTime.Minute);
   lcd.print(buff);
 
   switch (cursorPos) {
@@ -170,6 +220,85 @@ void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   }
   
   lcd.blink();
+}
+
+void updateSetIntervalLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+  lcd.noBlink();
+  lcd.setCursor(6, 1);
+  char buff[9];
+
+  sprintf(buff, "%02d %02d %02d", adjustedTime.Day, adjustedTime.Hour, adjustedTime.Minute);
+  lcd.print(buff);
+
+  switch (cursorPos) {
+    case 0:
+      lcd.setCursor(6, 1); //Day Tens Place
+      break;
+    
+    case 1:
+      lcd.setCursor(7, 1); //Day Ones Place
+      break;
+    
+    case 2:
+      lcd.setCursor(9, 1); //Hour Tens Place
+      break;
+
+    case 3:
+      lcd.setCursor(10, 1); //Hour Ones Place
+      break;
+
+    case 4:
+      lcd.setCursor(12, 1); //Min Tens Place
+      break;
+
+    case 5:
+      lcd.setCursor(13, 1); //Min Ones Place
+      break;
+  }
+  
+  lcd.blink();
+}
+
+void updateSetSoakOrDryLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+  lcd.noBlink();
+  lcd.setCursor(7, 1);
+  char buff[6];
+
+  sprintf(buff, "%02d %02d", adjustedTime.Hour, adjustedTime.Minute);
+  lcd.print(buff);
+
+  switch (cursorPos) {
+    case 0:
+      lcd.setCursor(7, 1); //Hour Tens Place
+      break;
+    
+    case 1:
+      lcd.setCursor(8, 1); //Hour Ones Place
+      break;
+    
+    case 2:
+      lcd.setCursor(10, 1); //Min Tens Place
+      break;
+
+    case 3:
+      lcd.setCursor(11, 1); //Min Ones Place
+      break;
+  }
+  
+  lcd.blink();
+}
+
+void updateBrightnessOrContrastLCD(bool increasingBar) {
+  if (increasingBar) {
+    screenBrightness++;
+    lcd.setCursor(screenBrightness - 1, 1);
+    lcd.print(char(255)); //prints black rect
+  }
+  else {
+    lcd.setCursor(screenBrightness - 1, 1);
+    screenBrightness--;
+    lcd.print(char(254)); //prints blank rect
+  }
 }
 
 // void activeLCD(String nextDropTime) {
