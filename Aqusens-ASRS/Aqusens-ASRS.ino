@@ -1,11 +1,11 @@
-//  -Aquasens-ASRS
-//  -Aquasens - Automated Sample Retrevial System V1.0
+//  -Aqusens-ASRS
+//  -Aqusens - Automated Sample Retrevial System V1.0
 //  -Date of Last Revision: 8/1/23
 //  -Califonia Polytechnic State University
 //  -Bailey College of Science and Mathamatics Biology Department
 //  -Primary Owner: Alexis Pasulka
 //  -Design Engineers: Doug Brewster and Rob Brewster
-//  -Contributors: Sarah Martin (Add contributirs here)
+//  -Contributors: Sarah Martin, Deeba Khosravi, Emma Lucke, Jack Anderson, Jorge Ramirez
 //  -Microcontroller: P1AM-100 ProOpen 
 //  -Arduino IDE version:2.3.3
 //  -See User Manual For Project Description
@@ -16,7 +16,6 @@
 #include <P1AM.h>
 #include <SD.h>
 #include <LiquidCrystal.h>
-//#include <Time.h>
 #include <arduino-timer.h>
 #include <RTCZero.h>
 #include <SimpleKeypad.h>
@@ -175,18 +174,6 @@ void loop() {
     case ENSURE_SAMPLE_START:
       ensureSampleStartLoop();
       break;
-    // case ACTIVE:
-    //   activeLoop();
-    //   break;
-    // case MANUAL:
-    //   manualLoop();
-    //   break;
-    // case SET_CLOCK:
-    //   setClockLoop();
-    //   break;
-    // case SET_INTERVAL:
-    //   setIntervalLoop();
-      // break;
     default:
       break;
   }
