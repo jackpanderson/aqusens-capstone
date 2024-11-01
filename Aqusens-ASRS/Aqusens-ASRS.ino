@@ -103,7 +103,8 @@ bool dropFlag = true;                // Set by timers in activeLoop
 int8_t cursorY = 2;
 uint8_t screenBrightness = 10;
 uint8_t screenContrast = 10; //change to a sensible init val, is half of num of steps
-
+uint8_t lastSettingPage = 4;
+uint8_t settingsPage = 1;
 // RTC
 RTCZero rtc;
 

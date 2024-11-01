@@ -110,7 +110,7 @@ char cursorSelect(int begin, int end)
     lcd.print(" ");
     cursorY++;
     return 'D';
-  } 
+  }
 
   else {
     return key;

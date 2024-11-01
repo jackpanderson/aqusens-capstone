@@ -14,12 +14,13 @@ void standbyLoop()
 
     keyPressed = cursorSelect(2, 3);
 
-    if (keyPressed == 1) {
-      if (cursorY == 2) {
+    if (keyPressed == 'S') {
+      if (cursorY == 3) {
         state = ENSURE_SAMPLE_START;
       }
 
-      else if (cursorY = 3) {
+      else if (cursorY == 2) {
+        settingsPage = 1;
         state = SETTINGS;
       }
     }
@@ -30,16 +31,17 @@ void ensureSampleStartLoop() {
   char keyPressed;
   resetLcd();
   cursorY = 3;
-  ensureSampleStartLCD();
   
   while (state == ENSURE_SAMPLE_START) {
+    ensureSampleStartLCD();
+
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 3) {
-        state = SAMPLE;
+      if (cursorY == 2) {
+        state = RELEASE;
       }
-      else if (cursorY = 2) {
+      else if (cursorY == 3) {
         state = STANDBY;
       }
     }
@@ -47,7 +49,6 @@ void ensureSampleStartLoop() {
 }
 
 void settingsLoop() {
-  uint8_t settingsPage = 1;
   uint8_t lastKeyPress = rtc.getMinutes();
   char keyPressed;
   resetLcd();
@@ -55,10 +56,10 @@ void settingsLoop() {
   while (state == SETTINGS) {
     settingsLCD(settingsPage); //Launch into first page of settings
 
-    if (settingsPage != 4)
+    if (settingsPage != lastSettingPage)
       keyPressed = cursorSelect(0, 2);
     else
-      keyPressed = cursorSelect(0, 0);
+      keyPressed = cursorSelect(0, 1);
 
     if (keyPressed > 0) {
       lastKeyPress = rtc.getMinutes();
@@ -76,7 +77,7 @@ void settingsLoop() {
       }
     }
 
-    else if (keyPressed == 'R' && settingsPage != 3) { //right
+    else if (keyPressed == 'R' && settingsPage != lastSettingPage) { //right
       resetLcd();
       settingsPage++;
     }
@@ -164,7 +165,9 @@ void releaseLoop() {
 
   while (state == RELEASE) 
   {
-    snprintf(pos, sizeof(pos), "%03dcm", position);
+    int meter = position / 100;
+    int deci = position % 100;
+    snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
     releaseLcd(pos);
 
     delay(33);
@@ -183,7 +186,7 @@ void soakLoop() {
   {
     soakLcd("0 min");
 
-    delay(10000);
+    delay(5000);
 
     state = RECOVER;
 
@@ -250,7 +253,9 @@ void recoverLoop() {
 
   while (state == RECOVER) 
   {
-    snprintf(pos, sizeof(pos), "%03dcm", position);
+    int meter = position / 100;
+    int deci = position % 100;
+    snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
     recoverLcd(pos);
 
     delay(33);
@@ -269,7 +274,7 @@ void sampleLoop() {
   {
     sampleLcd();
 
-    delay(10000);
+    delay(5000);
 
     state = FLUSH;
 
@@ -283,7 +288,7 @@ void flushLoop() {
   {
     flushLcd();
 
-    delay(10000);
+    delay(5000);
 
     state = DRY;
 
@@ -297,7 +302,7 @@ void dryLoop() {
   {
     dryLcd("00 min");
 
-    delay(10000);
+    delay(5000);
 
     state = STANDBY;
 
@@ -380,7 +385,6 @@ void setIntervalLoop() {
     
     if (key != NULL) {
       if (key == 'S') {
-        breakTime(makeTime(newInterval), newInterval);
         sampleInterval.Day = newInterval.Day;
         sampleInterval.Hour = newInterval.Hour;
         sampleInterval.Minute = newInterval.Minute;

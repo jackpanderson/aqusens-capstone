@@ -92,48 +92,48 @@ void settingsLCD(uint8_t page) {
 
 void releaseLcd(String position) {
   lcd.setCursor(0,1);
-  lcd.print("Releasing device...");
+  lcd.print("RELEASING DEVICE...");
   lcd.setCursor(0,2);
-  lcd.print("curr position:");
+  lcd.print("CURR POSITION:");
   lcd.setCursor(15,2);
   lcd.print(position);
 }
 
 void soakLcd(String time) {
   lcd.setCursor(0,1);
-  lcd.print("Soaking...");
+  lcd.print("SOAKING...");
   lcd.setCursor(0,2);
   lcd.print(time);
   lcd.setCursor(6,2);
-  lcd.print("remaining");
+  lcd.print("REMAINING");
 }
 
 void recoverLcd(String position) {
   lcd.setCursor(0,1);
-  lcd.print("Recovering device...");
+  lcd.print("RECOVERING DEVICE...");
   lcd.setCursor(0,2);
-  lcd.print("curr position:");
+  lcd.print("CURR POSITION:");
   lcd.setCursor(15,2);
   lcd.print(position);
 }
 
 void sampleLcd() {
   lcd.setCursor(0,1);
-  lcd.print("Sampling...");
+  lcd.print("SAMPLING...");
 }
 
 void flushLcd() {
   lcd.setCursor(0,1);
-  lcd.print("Flushing...");
+  lcd.print("FLUSHING...");
 }
 
 void dryLcd(String time) {
   lcd.setCursor(0,1);
-  lcd.print("Drying...");
+  lcd.print("DRYING...");
   lcd.setCursor(0,2);
   lcd.print(time);
   lcd.setCursor(7,2);
-  lcd.print("remaining");
+  lcd.print("REMAINING");
 }
 
 void alarmLcd(String reason) {
@@ -337,34 +337,3 @@ void updateBrightnessOrContrastLCD(bool increasingBar) {
     lcd.print(char(254)); //prints blank rect
   }
 }
-
-// void activeLCD(String nextDropTime) {
-//   lcd.setCursor(0,0);
-//   lcd.print("Next: ");
-//   lcd.print(nextDropTime);
-//   lcd.setCursor(0,1);
-//   lcd.print("< Back");
-// }
-
-// void intervalLCD(String timeType, int timeComponent) {
-
-//   lcd.setCursor(0,0);
-//   lcd.print(timeType);
-//   lcd.print(timeComponent);
-
-//   lcd.setCursor(0,1);
-//   lcd.print("Press SEL to set.");
-
-// }
-
-// void intervalMenuLCD() {
-//   lcd.setCursor(0,0);
-//   //lcd.print(interval);
-//   lcd.setCursor(0,1);
-//   lcd.print("< back | SEL to set.");
-// }
-
-// void clearTopLine() {
-//   lcd.setCursor(0,0);
-//   lcd.print("                    ");
-// }
