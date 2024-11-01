@@ -221,6 +221,19 @@ void setStartTimeLoop() {
         nextSampleTime.Year = adjustedStartTime.Year + sampleInterval.Year;
         nextSampleTime.Hour = adjustedStartTime.Hour + sampleInterval.Hour;
         nextSampleTime.Minute = adjustedStartTime.Minute + sampleInterval.Minute;
+
+        // Serial.println("DAY");
+        // Serial.println(nextSampleTime.Day);
+        // Serial.println("Month");
+        // Serial.println(nextSampleTime.Month);
+        // Serial.println("Year");
+        // Serial.println(nextSampleTime.Year);
+        // Serial.println("Hour");
+        // Serial.println(nextSampleTime.Hour);
+        // Serial.println("Minute");
+        // Serial.println(nextSampleTime.Minute);
+
+        
         breakTime(makeTime(nextSampleTime), nextSampleTime);
         updateAlarm();
         lcd.noBlink();
@@ -385,6 +398,7 @@ void setIntervalLoop() {
     
     if (key != NULL) {
       if (key == 'S') {
+        //TODO: FIX SET INTERVAL WHEN YOU HAVE START TIME OFFSET
         sampleInterval.Day = newInterval.Day;
         sampleInterval.Hour = newInterval.Hour;
         sampleInterval.Minute = newInterval.Minute;

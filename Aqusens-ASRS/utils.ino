@@ -38,6 +38,12 @@ void rtcInit() {
   sampleInterval.Minute = 3;  
   sampleInterval.Second = 0;
 
+  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
+  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
+  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
+  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
+  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+
   soakTime.Hour = 0;
   soakTime.Minute = 5;
 
@@ -47,12 +53,19 @@ void rtcInit() {
   updateAlarm();
 }
 
+// void updateStartTime() {
+//   rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
+//   rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
+//   rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
+//   rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
+// }
+
 void updateAlarm() {
-  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
-  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
-  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
-  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
-  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+  // nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
+  // nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
+  // nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
+  // nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
+  // nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
 
   breakTime(makeTime(nextSampleTime), nextSampleTime);
   
@@ -148,7 +161,6 @@ String getCurrentDateTime() {
 
 String getNextSampleTime() {
   char dateTimeString[16];
-  //uint32_t currentEpoch = rtc.getEpoch();
 
   snprintf(dateTimeString, sizeof(dateTimeString), "%02d-%02d-%02d %02d:%02d",
            nextSampleTime.Month,
@@ -465,14 +477,14 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
   }
 }
 
-bool isEstopPressed() {
-  return digitalRead(ESTOP_IN);
-}
+// bool isEstopPressed() {
+//   return digitalRead(ESTOP_IN);
+// }
 
-void initEstopInterrupt() {
-  attachInterrupt(digitalPinToInterrupt(ESTOP_IN), setModeEstop, RISING);
-}
+// void initEstopInterrupt() {
+//   attachInterrupt(digitalPinToInterrupt(ESTOP_IN), setModeEstop, RISING);
+// }
 
-void setModeEstop() {
-  state = 
-}
+// void setModeEstop() {
+//   state = 
+// }
