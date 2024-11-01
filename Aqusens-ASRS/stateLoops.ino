@@ -190,6 +190,59 @@ void soakLoop() {
   }
 }
 
+void setStartTimeLoop() {
+  tmElements_t adjustedStartTime;
+  adjustedStartTime.Month = rtc.getMonth();
+  adjustedStartTime.Day = rtc.getDay();
+  adjustedStartTime.Year = rtc.getYear(); 
+  adjustedStartTime.Hour = rtc.getHours();
+  adjustedStartTime.Minute = rtc.getMinutes();
+  char key;
+  uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00-00-00 00:00"
+                         // Does not include spacing/colons/hyphens, ranges 0 to 9.
+
+  resetLcd();
+  initSetClockLcd();
+  updateSetClockLCD(cursorPos, adjustedStartTime);
+  lcd.blink();
+
+  while (state == SET_START_TIME) {
+    key = getKeyDebounce();
+    
+    if (key != NULL) {
+      if (key == 'S') {
+        //breakTime(makeTime(adjustedStartTime), adjustedStartTime);
+
+        nextSampleTime.Day = adjustedStartTime.Day + sampleInterval.Day;
+        nextSampleTime.Month = adjustedStartTime.Month + sampleInterval.Month;
+        nextSampleTime.Year = adjustedStartTime.Year + sampleInterval.Year;
+        nextSampleTime.Hour = adjustedStartTime.Hour + sampleInterval.Hour;
+        nextSampleTime.Minute = adjustedStartTime.Minute + sampleInterval.Minute;
+        breakTime(makeTime(nextSampleTime), nextSampleTime);
+        updateAlarm();
+        lcd.noBlink();
+        state = SETTINGS;
+      }
+
+      else if (key == 'L' && cursorPos > 0) {
+        cursorPos--;
+      }
+
+      else if (key == 'R' && cursorPos < 9) {
+      cursorPos++;
+      }
+
+      else if (key == 'U' || key == 'D') {
+        adjustSetTimeDigit(key, &adjustedStartTime, &cursorPos);
+      }
+      if (state == SET_START_TIME) {
+        updateSetClockLCD(cursorPos, adjustedStartTime);
+      }
+    } 
+  }
+
+}
+
 void recoverLoop() {
   resetLcd();
   int position = 900;

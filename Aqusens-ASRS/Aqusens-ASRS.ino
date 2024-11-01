@@ -39,6 +39,7 @@
 #define KEY_L 13
 #define KEY_R 14
 #define SD_CS 28
+#define ESTOP_IN 4 //Change to real value
 
 // Outputs
 #define STEPPER_PUL 1    // Stepper pulse output
@@ -91,7 +92,7 @@ enum stateEnum {
   SET_BRIGHTNESS,
   SET_CONTRAST      
 };
-stateEnum state = STANDBY;   // Start up will show menu
+volatile stateEnum state = STANDBY;   // Start up will show menu
 
 // Timing
 String interval = "0000-00-00 00:30:00";
@@ -161,6 +162,9 @@ void loop() {
       break;
     case SET_INTERVAL:
       setIntervalLoop();
+      break;
+    case SET_START_TIME:
+      setStartTimeLoop();
       break;
     case SET_SOAK_TIME:
       setSoakTimeLoop();

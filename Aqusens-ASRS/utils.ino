@@ -464,3 +464,15 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
     (newTime -> Minute) = 59;
   }
 }
+
+bool isEstopPressed() {
+  return digitalRead(ESTOP_IN);
+}
+
+void initEstopInterrupt() {
+  attachInterrupt(digitalPinToInterrupt(ESTOP_IN), setModeEstop, RISING);
+}
+
+void setModeEstop() {
+  state = 
+}
