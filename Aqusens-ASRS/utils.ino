@@ -60,12 +60,42 @@ void rtcInit() {
 //   rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
 // }
 
+// void startDelayAlarm(tmElements_t newStartTime) {
+
+//   breakTime(makeTime(newStartTime), newStartTime);
+  
+//   rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
+//   rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
+//   rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
+//   rtc.attachInterrupt(delayAlarmTriggered); // Attach the ISR for the alarm interrupt
+// }
+
+
+void updateAlarm(tmElements_t delayTime) {
+
+  breakTime(makeTime(nextSampleTime), nextSampleTime);
+
+  nextSampleTime.Year = delayTime.Year;
+  nextSampleTime.Month = delayTime.Month;
+  nextSampleTime.Day = delayTime.Day;
+  nextSampleTime.Hour = delayTime.Hour;
+  nextSampleTime.Minute = delayTime.Minute;
+
+
+  
+  rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
+  rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
+  rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
+  rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
+}
+
 void updateAlarm() {
-  // nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
-  // nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
-  // nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
-  // nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
-  // nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+  nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
+  nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
+  nextSampleTime.Day = rtc.getDay() + sampleInterval.Day;
+  nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
+  nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
+
 
   breakTime(makeTime(nextSampleTime), nextSampleTime);
   

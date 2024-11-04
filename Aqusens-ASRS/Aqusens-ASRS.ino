@@ -93,6 +93,7 @@ enum stateEnum {
   SET_CONTRAST      
 };
 volatile stateEnum state = STANDBY;   // Start up will show menu
+volatile bool isDelayingStartTime = false;
 
 // Timing
 String interval = "0000-00-00 00:30:00";
