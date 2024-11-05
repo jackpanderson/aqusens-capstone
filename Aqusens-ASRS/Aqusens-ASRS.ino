@@ -16,6 +16,7 @@
 #include <P1AM.h>
 #include <SD.h>
 #include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <arduino-timer.h>
 #include <RTCZero.h>
 #include <SimpleKeypad.h>
@@ -33,13 +34,13 @@
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
 #define SWITCH_IN {HV_GPIO_SLOT, 2}     // Switch input (for manual operation)
 #define E_STOP_IN {HV_GPIO_SLOT, 3}     // E Stop input
-#define KEY_S 7
-#define KEY_D 11
-#define KEY_U 12
-#define KEY_L 13
-#define KEY_R 14
+#define KEY_S 0
+#define KEY_D 1
+#define KEY_U 2
+#define KEY_L 3
+#define KEY_R 4
 #define SD_CS 28
-#define ESTOP_IN 4 //Change to real value
+//#define ESTOP_IN 4 //Change to real value
 
 // Outputs
 #define STEPPER_PUL 1    // Stepper pulse output
@@ -112,6 +113,8 @@ RTCZero rtc;
 // LCD
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 
+LiquidCrystal_I2C lcd2(0x27, 20, 4);
+
 /* Setup and Loop **************************************************************/
 
 void setup() {
@@ -121,10 +124,17 @@ void setup() {
 
   rtcInit();
   gpioInit();
+
+  lcd2.init();          // Initialize the LCD
+  lcd2.backlight();      // Turn on the backlight
+  lcd2.setCursor(0, 0);  // Set cursor to column 0, row 0
+  lcd2.print("Hello, P1AM-100!"); // Print a message
   //findHomePos();          // Bring probe back to home position
 }
 
 void loop() {
+  lcd2.print("poop");
+  delay(500);
   switch (state) {
     case STANDBY:              // Always starts in STANDBY
       standbyLoop();

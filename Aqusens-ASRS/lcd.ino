@@ -19,11 +19,11 @@ void standbyLCD() {
 
 void ensureSampleStartLCD() {
   lcd.setCursor(4, 0);
-  lcd.print("START SAMPLE");
+  lcd.print("RUN SAMPLE");
   lcd.setCursor(3, 1);
   lcd.print("ARE YOU SURE?");
   lcd.setCursor(1, 2);
-  lcd.print("START SAMPLE");
+  lcd.print("RUN SAMPLE");
   lcd.setCursor(1, 3);
   lcd.print("EXIT");
 
