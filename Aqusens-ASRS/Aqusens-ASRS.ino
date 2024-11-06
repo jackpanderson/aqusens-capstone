@@ -135,12 +135,12 @@ void setup() {
 void loop() {
 
 
-  Serial.println(KEY_U);
-  Serial.println(KEY_L);
-  Serial.println(KEY_R);
-  Serial.println(KEY_D);
-  Serial.println(KEY_S);
-  delay(500);
+  Serial.println(digitalRead(KEY_U));
+  Serial.println(digitalRead(KEY_L));
+  Serial.println(digitalRead(KEY_R));
+  Serial.println(digitalRead(KEY_D));
+  Serial.println(digitalRead(KEY_S));
+  delay(750);
 
 
 

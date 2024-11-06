@@ -140,6 +140,7 @@ void findHomePos() {
 
 char cursorSelect(int begin, int end) 
 { 
+  char key = getKeyDebounce();
   if (key == 'U' && cursorY > begin) {  // Check if back button has been pressed: state = menu
     lcd2.setCursor(0, cursorY);
     lcd2.print(" ");
