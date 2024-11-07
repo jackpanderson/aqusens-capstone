@@ -5,7 +5,7 @@ void standbyLoop()
 {
   char key;
   uint8_t keyPressed;
-  lcd.clear();
+  lcd2.clear();
   cursorY = 2;
 
   while (state == STANDBY) 

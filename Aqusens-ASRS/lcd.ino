@@ -1,34 +1,34 @@
 void standbyLCD() {
-  lcd.setCursor(0,0);
-  lcd.print("CURR: ");
-  lcd.print(getCurrentDateTime());
-  lcd.setCursor(0, 1);
-  lcd.print("NEXT: ");
-  lcd.print(getNextSampleTime());
-  lcd.setCursor(1, 2);
-  lcd.print("SETTINGS");
-  lcd.setCursor(1, 3);
-  lcd.print("RUN SAMPLE");
-  lcd.setCursor(13, 2);
-  lcd.print("STANDBY");
-  lcd.setCursor(16, 3);
-  lcd.print("MODE");
-  lcd.setCursor(0, cursorY);
-  lcd.print("*");
+  lcd2.setCursor(0,0);
+  lcd2.print("CURR: ");
+  lcd2.print(getCurrentDateTime());
+  lcd2.setCursor(0, 1);
+  lcd2.print("NEXT: ");
+  lcd2.print(getNextSampleTime());
+  lcd2.setCursor(1, 2);
+  lcd2.print("SETTINGS");
+  lcd2.setCursor(1, 3);
+  lcd2.print("RUN SAMPLE");
+  lcd2.setCursor(13, 2);
+  lcd2.print("STANDBY");
+  lcd2.setCursor(16, 3);
+  lcd2.print("MODE");
+  lcd2.setCursor(0, cursorY);
+  lcd2.print("*");
 }
 
 void ensureSampleStartLCD() {
-  lcd.setCursor(4, 0);
-  lcd.print("RUN SAMPLE");
-  lcd.setCursor(3, 1);
-  lcd.print("ARE YOU SURE?");
-  lcd.setCursor(1, 2);
-  lcd.print("RUN SAMPLE");
-  lcd.setCursor(1, 3);
-  lcd.print("EXIT");
+  lcd2.setCursor(4, 0);
+  lcd2.print("RUN SAMPLE");
+  lcd2.setCursor(3, 1);
+  lcd2.print("ARE YOU SURE?");
+  lcd2.setCursor(1, 2);
+  lcd2.print("RUN SAMPLE");
+  lcd2.setCursor(1, 3);
+  lcd2.print("EXIT");
 
-  lcd.setCursor(0, cursorY);
-  lcd.print("*");
+  lcd2.setCursor(0, cursorY);
+  lcd2.print("*");
 
 }
 
@@ -36,16 +36,16 @@ void settingsLCD(uint8_t page) {
 
   switch (page) {
     case 1:
-      lcd.setCursor(1, 0);
-      lcd.print("INTERVAL");
-      lcd.setCursor(1, 1);
-      lcd.print("START TIME");
-      lcd.setCursor(1, 2);
-      lcd.print("SET CLOCK");
-      lcd.setCursor(0, 3);
-      lcd.print("<EXIT");
-      lcd.setCursor(15, 3);
-      lcd.print("MORE>");
+      lcd2.setCursor(1, 0);
+      lcd2.print("INTERVAL");
+      lcd2.setCursor(1, 1);
+      lcd2.print("START TIME");
+      lcd2.setCursor(1, 2);
+      lcd2.print("SET CLOCK");
+      lcd2.setCursor(0, 3);
+      lcd2.print("<EXIT");
+      lcd2.setCursor(15, 3);
+      lcd2.print("MORE>");
       break;
     
     case 2:

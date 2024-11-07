@@ -16,7 +16,7 @@ void gpioInit() {
 
   /* Initialize LCD */
   //P1.writeDiscrete(LOW, 1, 2);    // Outputs 5V power source for LCD
-  lcd.begin(20, 4);               // cols, rows
+  //lcd.begin(20, 4);               // cols, rows
 
   /* SD */
   SD.begin(SD_CS);
@@ -139,18 +139,16 @@ void findHomePos() {
 }
 
 char cursorSelect(int begin, int end) 
-{
-  char key = getKeyDebounce();
-  
+{ 
   if (key == 'U' && cursorY > begin) {  // Check if back button has been pressed: state = menu
-    lcd.setCursor(0, cursorY);
-    lcd.print(" ");
+    lcd2.setCursor(0, cursorY);
+    lcd2.print(" ");
     cursorY--;
     return 'U';
   } 
   else if (key == 'D' && cursorY < end) {
-    lcd.setCursor(0, cursorY);
-    lcd.print(" ");
+    lcd2.setCursor(0, cursorY);
+    lcd2.print(" ");
     cursorY++;
     return 'D';
   }

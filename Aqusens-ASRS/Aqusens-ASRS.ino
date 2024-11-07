@@ -128,69 +128,78 @@ void setup() {
   lcd2.init();          // Initialize the LCD
   lcd2.backlight();      // Turn on the backlight
   lcd2.setCursor(0, 0);  // Set cursor to column 0, row 0
-  lcd2.print("Hello, P1AM-100!"); // Print a message
+  lcd2.print("BOOTING..."); // Print a message
   //findHomePos();          // Bring probe back to home position
 }
 
 void loop() {
-  lcd2.print("poop");
+
+
+  Serial.println(KEY_U);
+  Serial.println(KEY_L);
+  Serial.println(KEY_R);
+  Serial.println(KEY_D);
+  Serial.println(KEY_S);
   delay(500);
-  switch (state) {
-    case STANDBY:              // Always starts in STANDBY
-      standbyLoop();
-      break;
-    case SETTINGS:
-      settingsLoop();
-      break;
-    case RELEASE:
-      releaseLoop();
-      break;
-    case SOAK:
-      soakLoop();
-      break;
-    case RECOVER:
-      recoverLoop();
-      break;
-    case SAMPLE:
-      sampleLoop();
-      break;
-    case FLUSH:
-      flushLoop();
-      break;
-    case DRY:
-      dryLoop();
-      break;
-    case MOTOR_ALARM:
-      alarmLoop();
-      break;
-    case ESTOP_ALARM:
-      alarmLoop();
-      break;
-    case MANUAL:
-      manualLoop();
-      break;
-    case SET_CLOCK:
-      setClockLoop();
-      break;
-    case SET_INTERVAL:
-      setIntervalLoop();
-      break;
-    case SET_START_TIME:
-      setStartTimeLoop();
-      break;
-    case SET_SOAK_TIME:
-      setSoakTimeLoop();
-      break;
-    case SET_DRY_TIME:
-      setDryTimeLoop();
-      break;
-    case SET_BRIGHTNESS:
-      setBrightnessLoop();
-      break;
-    case ENSURE_SAMPLE_START:
-      ensureSampleStartLoop();
-      break;
-    default:
-      break;
-  }
+
+
+
+  // switch (state) {
+  //   case STANDBY:              // Always starts in STANDBY
+  //     standbyLoop();
+  //     break;
+  //   case SETTINGS:
+  //     settingsLoop();
+  //     break;
+  //   case RELEASE:
+  //     releaseLoop();
+  //     break;
+  //   case SOAK:
+  //     soakLoop();
+  //     break;
+  //   case RECOVER:
+  //     recoverLoop();
+  //     break;
+  //   case SAMPLE:
+  //     sampleLoop();
+  //     break;
+  //   case FLUSH:
+  //     flushLoop();
+  //     break;
+  //   case DRY:
+  //     dryLoop();
+  //     break;
+  //   case MOTOR_ALARM:
+  //     alarmLoop();
+  //     break;
+  //   case ESTOP_ALARM:
+  //     alarmLoop();
+  //     break;
+  //   case MANUAL:
+  //     manualLoop();
+  //     break;
+  //   case SET_CLOCK:
+  //     setClockLoop();
+  //     break;
+  //   case SET_INTERVAL:
+  //     setIntervalLoop();
+  //     break;
+  //   case SET_START_TIME:
+  //     setStartTimeLoop();
+  //     break;
+  //   case SET_SOAK_TIME:
+  //     setSoakTimeLoop();
+  //     break;
+  //   case SET_DRY_TIME:
+  //     setDryTimeLoop();
+  //     break;
+  //   case SET_BRIGHTNESS:
+  //     setBrightnessLoop();
+  //     break;
+  //   case ENSURE_SAMPLE_START:
+  //     ensureSampleStartLoop();
+  //     break;
+  //   default:
+  //     break;
+  // }
 }
