@@ -2,16 +2,16 @@
 /* State Machine Functions ******************************************************/
 
 void standbyLoop()
-{
+{ 
   char key;
   uint8_t keyPressed;
-  lcd.clear();
+  lcd2.clear();
   cursorY = 2;
 
   while (state == STANDBY) 
   {
     standbyLCD();
-
+    
     keyPressed = cursorSelect(2, 3);
 
     if (keyPressed == 'S') {
@@ -159,6 +159,10 @@ void settingsLoop() {
 }
 
 void releaseLoop() {
+
+  setMotorDir('D');
+  setMotorSpeed(50000);
+
   resetLcd();
   int position = 0;
   char pos[6];
@@ -175,11 +179,13 @@ void releaseLoop() {
 
     if (position == 900) {
       state = SOAK;
+      setMotorSpeed(0);
     }
   }
 }
 
 void soakLoop() {
+  setMotorSpeed(0);
   resetLcd();
 
   while (state == SOAK) 
@@ -207,7 +213,7 @@ void setStartTimeLoop() {
   resetLcd();
   initSetClockLcd();
   updateSetClockLCD(cursorPos, adjustedStartTime);
-  lcd.blink();
+  lcd2.blink();
 
   while (state == SET_START_TIME) {
     key = getKeyDebounce();
@@ -215,7 +221,7 @@ void setStartTimeLoop() {
     if (key != NULL) {
       if (key == 'S') {
         updateAlarm(adjustedStartTime);
-        lcd.noBlink();
+        lcd2.noBlink();
         state = SETTINGS;
       }
 
@@ -239,6 +245,8 @@ void setStartTimeLoop() {
 }
 
 void recoverLoop() {
+  setMotorDir('U');
+  setMotorSpeed(50000);
   resetLcd();
   int position = 900;
   char pos[6];
@@ -255,6 +263,7 @@ void recoverLoop() {
 
     if (position < 0) {
       state = SAMPLE;
+      setMotorSpeed(0);
     }
   }
 }
@@ -302,7 +311,10 @@ void dryLoop() {
 }
 
 void manualLoop(){}
-void alarmLoop(){}
+void alarmLoop(){
+  delay(500);
+  lcd2.print("ESTOP");
+}
 
 
 void setClockLoop() {
@@ -322,7 +334,7 @@ void setClockLoop() {
   resetLcd();
   initSetClockLcd();
   updateSetClockLCD(cursorPos, adjustedTime);
-  lcd.blink();
+  lcd2.blink();
 
   while (state == SET_CLOCK) {
     key = getKeyDebounce();
@@ -336,7 +348,7 @@ void setClockLoop() {
         rtc.setHours(adjustedTime.Hour);
         rtc.setMinutes(adjustedTime.Minute);
         updateAlarm();
-        lcd.noBlink();
+        lcd2.noBlink();
         state = SETTINGS;
       }
 
@@ -370,7 +382,7 @@ void setIntervalLoop() {
   resetLcd();
   initSetIntervalLCD();
   updateSetIntervalLCD(cursorPos, newInterval);
-  lcd.blink();
+  lcd2.blink();
 
   while (state == SET_INTERVAL) {
     key = getKeyDebounce();
@@ -381,7 +393,7 @@ void setIntervalLoop() {
         sampleInterval.Hour = newInterval.Hour;
         sampleInterval.Minute = newInterval.Minute;
         updateAlarm();
-        lcd.noBlink();
+        lcd2.noBlink();
         state = SETTINGS;
       }
 
@@ -414,7 +426,7 @@ void setSoakTimeLoop() {
   resetLcd();
   initSetSoakOrDryLCD();
   updateSetSoakOrDryLCD(cursorPos, newSoakTime);
-  lcd.blink();
+  lcd2.blink();
 
   while (state == SET_SOAK_TIME) {
     key = getKeyDebounce();
@@ -424,7 +436,7 @@ void setSoakTimeLoop() {
         //breakTime(makeTime(newInterval), newInterval);
         soakTime.Hour = newSoakTime.Hour;
         soakTime.Minute = newSoakTime.Minute;
-        lcd.noBlink();
+        lcd2.noBlink();
         state = SETTINGS;
       }
 
@@ -457,7 +469,7 @@ void setDryTimeLoop() {
   resetLcd();
   initSetSoakOrDryLCD();
   updateSetSoakOrDryLCD(cursorPos, newDryTime);
-  lcd.blink();
+  lcd2.blink();
 
   while (state == SET_DRY_TIME) {
     key = getKeyDebounce();
@@ -468,7 +480,7 @@ void setDryTimeLoop() {
         //breakTime(makeTime(newInterval), newInterval);
         dryTime.Hour = newDryTime.Hour;
         dryTime.Minute = newDryTime.Minute;
-        lcd.noBlink();
+        lcd2.noBlink();
         state = SETTINGS;
       }
 
@@ -519,6 +531,6 @@ void setBrightnessLoop() {
 
 void resetLcd()
 {
-  lcd.clear();
+  lcd2.clear();
   cursorY = 0;
 }

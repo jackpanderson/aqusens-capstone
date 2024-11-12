@@ -14,14 +14,30 @@ void gpioInit() {
   pinMode(KEY_R, INPUT_PULLDOWN);
   pinMode(KEY_S, INPUT_PULLDOWN);
 
+  pinMode(STEP_POS_PIN, OUTPUT);
+  pinMode(STEP_NEG_PIN, OUTPUT);
+  pinMode(DIR_POS_PIN, OUTPUT);
+  pinMode(DIR_NEG_PIN, OUTPUT);
+
   /* Initialize LCD */
   //P1.writeDiscrete(LOW, 1, 2);    // Outputs 5V power source for LCD
-  lcd.begin(20, 4);               // cols, rows
+  //lcd2.begin(20, 4);               // cols, rows
 
   /* SD */
   SD.begin(SD_CS);
 }
 
+void estopInit() {
+  pinMode(A1, INPUT_PULLDOWN);
+
+  attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, FALLING);
+}
+
+
+void onHighTrigger() {
+  setMotorSpeed(0);
+  state=ESTOP_ALARM;
+}
 /*---------------------------------------------------------
 * Function: rtcInit()
 * Purpose: initialize the RTC
@@ -52,6 +68,31 @@ void rtcInit() {
   
   updateAlarm();
 }
+
+void setMotorDir(char ch) {
+  if (ch == 'U') {
+    digitalWrite(DIR_POS_PIN, 0);
+    digitalWrite(DIR_NEG_PIN, 1);
+  }
+  else {
+    digitalWrite(DIR_POS_PIN, 1);
+    digitalWrite(DIR_NEG_PIN, 0);
+  }
+}
+
+void setMotorSpeed(int speed)
+{
+  if (speed == 0)
+  {
+    // Use DC = 0 to stop stepper
+    stepper->setPWM(STEP_POS_PIN, 500, 0);
+  }
+  else
+  {
+    stepper->setPWM(STEP_POS_PIN, abs(speed), 50);
+  }
+}
+
 
 // void updateStartTime() {
 //   rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
@@ -143,14 +184,14 @@ char cursorSelect(int begin, int end)
   char key = getKeyDebounce();
   
   if (key == 'U' && cursorY > begin) {  // Check if back button has been pressed: state = menu
-    lcd.setCursor(0, cursorY);
-    lcd.print(" ");
+    lcd2.setCursor(0, cursorY);
+    lcd2.print(" ");
     cursorY--;
     return 'U';
   } 
   else if (key == 'D' && cursorY < end) {
-    lcd.setCursor(0, cursorY);
-    lcd.print(" ");
+    lcd2.setCursor(0, cursorY);
+    lcd2.print(" ");
     cursorY++;
     return 'D';
   }
@@ -167,11 +208,14 @@ char cursorSelect(int begin, int end)
 * Returns: key pressed by the user
 ---------------------------------------------------------*/
 char getKeyDebounce() {
+
   char key = getKeyPress();
+  //Serial.println(key);
 
   if (key != NULL) {
-    while (getKeyPress() == key) { ; }
+    while (getKeyPress() == key) {;}
   }
+
 
   return key;
 }
@@ -247,7 +291,7 @@ void addTimes(String time1Str, String time2Str, char* result) {
 * Returns: Flag to indicate if function was successful
 ---------------------------------------------------------*/
 bool fastDrop(void *) {
-  P1.writePWM(50, MICROSTEP, PWM_SLOT, STEPPER_PUL);
+  //P1.writePWM(50, MICROSTEP, PWM_SLOT, STEPPER_PUL);
   //dropTimer(dropDistance*1000, stopMotor);  // Need to create new timer that takes dropDistance as param or make
                                               // dropDistance a global variable. First way cleaner, second way faster
   return true;
@@ -260,7 +304,7 @@ bool fastDrop(void *) {
 * Returns: Flag to indicate if function was successful
 ---------------------------------------------------------*/
 bool stopMotor(void *) {
-  P1.writePWM(50, 0, PWM_SLOT, STEPPER_PUL);
+  //P1.writePWM(50, 0, PWM_SLOT, STEPPER_PUL);
   return true;
 }
 

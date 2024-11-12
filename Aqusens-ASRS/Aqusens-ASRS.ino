@@ -22,6 +22,7 @@
 #include <SimpleKeypad.h>
 #include <TimeLib.h>
 #include <math.h>
+#include "SAMD_PWM.h"
 
 /* Pin Mapping ********************************************************************/
 
@@ -34,24 +35,31 @@
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
 #define SWITCH_IN {HV_GPIO_SLOT, 2}     // Switch input (for manual operation)
 #define E_STOP_IN {HV_GPIO_SLOT, 3}     // E Stop input
-#define KEY_S 0
-#define KEY_D 1
-#define KEY_U 2
-#define KEY_L 3
-#define KEY_R 4
+#define KEY_S 14
+#define KEY_D 13
+#define KEY_U 7
+#define KEY_L 9
+#define KEY_R 8
 #define SD_CS 28
 //#define ESTOP_IN 4 //Change to real value
 
+//Motor
+#define STEP_POS_PIN  4
+#define STEP_NEG_PIN 5
+
+#define DIR_POS_PIN   0
+#define DIR_NEG_PIN  1
+
 // Outputs
-#define STEPPER_PUL 1    // Stepper pulse output
-#define STEPPER_DIR 2   // Stepper direction output
-#define LCD_POWER {HV_GPIO_SLOT, 10}
-#define LCD_RS 0
-#define LCD_E  1
-#define LCD_D4 2
-#define LCD_D5 3
-#define LCD_D6 4
-#define LCD_D7 6
+// #define STEPPER_PUL 1    // Stepper pulse output
+// #define STEPPER_DIR 2   // Stepper direction output
+// #define LCD_POWER {HV_GPIO_SLOT, 10}
+// #define LCD_RS 0
+// #define LCD_E  1
+// #define LCD_D4 2
+// #define LCD_D5 3
+// #define LCD_D6 4
+// #define LCD_D7 6
 
 
 /* Hardcoded Macros **************************************************************/
@@ -95,6 +103,7 @@ enum stateEnum {
 };
 volatile stateEnum state = STANDBY;   // Start up will show menu
 volatile bool isDelayingStartTime = false;
+volatile bool estopPressed = false;
 
 // Timing
 String interval = "0000-00-00 00:30:00";
@@ -110,9 +119,10 @@ uint8_t settingsPage = 1;
 // RTC
 RTCZero rtc;
 
-// LCD
-LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
+//PWM
+SAMD_PWM* stepper;
 
+//I2C LCD Screen
 LiquidCrystal_I2C lcd2(0x27, 20, 4);
 
 /* Setup and Loop **************************************************************/
@@ -124,17 +134,25 @@ void setup() {
 
   rtcInit();
   gpioInit();
+  estopInit();
 
   lcd2.init();          // Initialize the LCD
   lcd2.backlight();      // Turn on the backlight
   lcd2.setCursor(0, 0);  // Set cursor to column 0, row 0
   lcd2.print("Hello, P1AM-100!"); // Print a message
+  stepper = new SAMD_PWM(STEP_POS_PIN, 0, 0);
+
+  // setMotorDir('D');
+  // setMotorSpeed(50000);
   //findHomePos();          // Bring probe back to home position
 }
 
 void loop() {
-  lcd2.print("poop");
-  delay(500);
+
+  if (estopPressed) {
+    setMotorSpeed(0);
+  }
+
   switch (state) {
     case STANDBY:              // Always starts in STANDBY
       standbyLoop();
