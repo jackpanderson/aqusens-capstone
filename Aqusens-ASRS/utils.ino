@@ -35,8 +35,8 @@ void estopInit() {
 
 
 void onHighTrigger() {
-  setMotorSpeed(0);
-  state=ESTOP_ALARM;
+  //setMotorSpeed(0);
+  //state=ESTOP_ALARM;
 }
 /*---------------------------------------------------------
 * Function: rtcInit()

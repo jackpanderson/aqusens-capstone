@@ -120,13 +120,14 @@ uint8_t settingsPage = 1;
 RTCZero rtc;
 
 //PWM
-SAMD_PWM* stepper;
+SAMD_PWM* stepper; //With 50:1 ggearbox, max stable speed is around 47000-50000
 
 //I2C LCD Screen
 LiquidCrystal_I2C lcd2(0x27, 20, 4);
 
 /* Setup and Loop **************************************************************/
 
+int spped = 800;
 void setup() {
 
   Serial.begin(115200);
@@ -139,8 +140,6 @@ void setup() {
   lcd2.init();          // Initialize the LCD
   lcd2.backlight();      // Turn on the backlight
   lcd2.setCursor(0, 0);  // Set cursor to column 0, row 0
-  lcd2.print("Hello, P1AM-100!"); // Print a message
-  stepper = new SAMD_PWM(STEP_POS_PIN, 0, 0);
 
   // setMotorDir('D');
   // setMotorSpeed(50000);
@@ -148,7 +147,6 @@ void setup() {
 }
 
 void loop() {
-
   if (estopPressed) {
     setMotorSpeed(0);
   }
