@@ -35,20 +35,20 @@
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
 #define SWITCH_IN {HV_GPIO_SLOT, 2}     // Switch input (for manual operation)
 #define E_STOP_IN {HV_GPIO_SLOT, 3}     // E Stop input
-#define KEY_S 14
-#define KEY_D 13
-#define KEY_U 7
-#define KEY_L 9
-#define KEY_R 8
+#define KEY_S 0
+#define KEY_D 1
+#define KEY_U 2
+#define KEY_L 3
+#define KEY_R 4
 #define SD_CS 28
-//#define ESTOP_IN 4 //Change to real value
+// #define ESTOP_IN 4 //Change to real value
 
 //Motor
-#define STEP_POS_PIN  4
-#define STEP_NEG_PIN 5
+// #define STEP_POS_PIN  4
+// #define STEP_NEG_PIN 5
 
-#define DIR_POS_PIN   0
-#define DIR_NEG_PIN  1
+// #define DIR_POS_PIN   0
+// #define DIR_NEG_PIN  1
 
 // Outputs
 // #define STEPPER_PUL 1    // Stepper pulse output
@@ -76,7 +76,7 @@
 
 // Machine States
 enum stateEnum {
-  INIT,
+  CALIBRATE,
   STANDBY,
   SETTINGS,
   RELEASE,
@@ -106,8 +106,7 @@ volatile bool isDelayingStartTime = false;
 volatile bool estopPressed = false;
 
 // Timing
-String interval = "0000-00-00 00:30:00";
-tmElements_t nextSampleTime, sampleInterval,soakTime, dryTime;
+tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
 Timer<5, millis> dropTimer;
 bool dropFlag = true;                // Set by timers in activeLoop
 
@@ -116,14 +115,15 @@ uint8_t screenBrightness = 10;
 uint8_t screenContrast = 10; //change to a sensible init val, is half of num of steps
 uint8_t lastSettingPage = 4;
 uint8_t settingsPage = 1;
+
 // RTC
 RTCZero rtc;
 
 //PWM
-SAMD_PWM* stepper; //With 50:1 ggearbox, max stable speed is around 47000-50000
+SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 
 //I2C LCD Screen
-LiquidCrystal_I2C lcd2(0x27, 20, 4);
+LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 /* Setup and Loop **************************************************************/
 
@@ -137,9 +137,9 @@ void setup() {
   gpioInit();
   estopInit();
 
-  lcd2.init();          // Initialize the LCD
-  lcd2.backlight();      // Turn on the backlight
-  lcd2.setCursor(0, 0);  // Set cursor to column 0, row 0
+  lcd.init();          // Initialize the LCD
+  lcd.backlight();      // Turn on the backlight
+  lcd.setCursor(0, 0);  // Set cursor to column 0, row 0
 
   // setMotorDir('D');
   // setMotorSpeed(50000);
@@ -148,10 +148,13 @@ void setup() {
 
 void loop() {
   if (estopPressed) {
-    setMotorSpeed(0);
+    // setMotorSpeed(0);
   }
 
   switch (state) {
+    case CALIBRATE:
+      calibrateLoop();
+      break;
     case STANDBY:              // Always starts in STANDBY
       standbyLoop();
       break;

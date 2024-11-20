@@ -14,14 +14,14 @@ void gpioInit() {
   pinMode(KEY_R, INPUT_PULLDOWN);
   pinMode(KEY_S, INPUT_PULLDOWN);
 
-  pinMode(STEP_POS_PIN, OUTPUT);
-  pinMode(STEP_NEG_PIN, OUTPUT);
-  pinMode(DIR_POS_PIN, OUTPUT);
-  pinMode(DIR_NEG_PIN, OUTPUT);
+  // pinMode(STEP_POS_PIN, OUTPUT);
+  // pinMode(STEP_NEG_PIN, OUTPUT);
+  // pinMode(DIR_POS_PIN, OUTPUT);
+  // pinMode(DIR_NEG_PIN, OUTPUT);
 
   /* Initialize LCD */
   //P1.writeDiscrete(LOW, 1, 2);    // Outputs 5V power source for LCD
-  //lcd2.begin(20, 4);               // cols, rows
+  //lcd.begin(20, 4);               // cols, rows
 
   /* SD */
   SD.begin(SD_CS);
@@ -36,7 +36,7 @@ void estopInit() {
 
 void onHighTrigger() {
   //setMotorSpeed(0);
-  //state=ESTOP_ALARM;
+  state = ESTOP_ALARM;
 }
 /*---------------------------------------------------------
 * Function: rtcInit()
@@ -69,29 +69,29 @@ void rtcInit() {
   updateAlarm();
 }
 
-void setMotorDir(char ch) {
-  if (ch == 'U') {
-    digitalWrite(DIR_POS_PIN, 0);
-    digitalWrite(DIR_NEG_PIN, 1);
-  }
-  else {
-    digitalWrite(DIR_POS_PIN, 1);
-    digitalWrite(DIR_NEG_PIN, 0);
-  }
-}
+// void setMotorDir(char ch) {
+//   if (ch == 'U') {
+//     digitalWrite(DIR_POS_PIN, 0);
+//     digitalWrite(DIR_NEG_PIN, 1);
+//   }
+//   else {
+//     digitalWrite(DIR_POS_PIN, 1);
+//     digitalWrite(DIR_NEG_PIN, 0);
+//   }
+// }
 
-void setMotorSpeed(int speed)
-{
-  if (speed == 0)
-  {
-    // Use DC = 0 to stop stepper
-    stepper->setPWM(STEP_POS_PIN, 500, 0);
-  }
-  else
-  {
-    stepper->setPWM(STEP_POS_PIN, abs(speed), 50);
-  }
-}
+// void setMotorSpeed(int speed)
+// {
+//   if (speed == 0)
+//   {
+//     // Use DC = 0 to stop stepper
+//     stepper->setPWM(STEP_POS_PIN, 500, 0);
+//   }
+//   else
+//   {
+//     stepper->setPWM(STEP_POS_PIN, abs(speed), 50);
+//   }
+// }
 
 
 // void updateStartTime() {
@@ -184,14 +184,14 @@ char cursorSelect(int begin, int end)
   char key = getKeyDebounce();
   
   if (key == 'U' && cursorY > begin) {  // Check if back button has been pressed: state = menu
-    lcd2.setCursor(0, cursorY);
-    lcd2.print(" ");
+    lcd.setCursor(0, cursorY);
+    lcd.print(" ");
     cursorY--;
     return 'U';
   } 
   else if (key == 'D' && cursorY < end) {
-    lcd2.setCursor(0, cursorY);
-    lcd2.print(" ");
+    lcd.setCursor(0, cursorY);
+    lcd.print(" ");
     cursorY++;
     return 'D';
   }
