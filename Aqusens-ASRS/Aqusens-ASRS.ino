@@ -101,21 +101,21 @@ enum stateEnum {
   SET_BRIGHTNESS,
   SET_CONTRAST      
 };
-volatile stateEnum state = STANDBY;   // Start up will show menu
-volatile bool isDelayingStartTime = false;
-volatile bool estopPressed = false;
+
+volatile stateEnum state = STANDBY;   // Start up will show standby state
+// volatile bool isDelayingStartTime = false; 
 
 // Timing
 tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
 Timer<5, millis> dropTimer;
-bool dropFlag = true;                // Set by timers in activeLoop
-bool estopDepressed = false;
+bool dropFlag = true; // Set by timers in activeLoop
+bool estopPressed = false; // Flag to keep track of E-stop pressed/released
 
-int8_t cursorY = 2;
-uint8_t screenBrightness = 10;
-uint8_t screenContrast = 10; //change to a sensible init val, is half of num of steps
-uint8_t lastSettingPage = 4;
-uint8_t settingsPage = 1;
+int8_t cursorY = 2; // keeps track of current cursor position
+uint8_t screenBrightness = 10; 
+uint8_t screenContrast = 10; // change to a sensible init val, is half of num of steps
+uint8_t lastSettingPage = 4; // amount of settings pages
+uint8_t settingsPage = 1; // current settings page
 
 // RTC
 RTCZero rtc;
@@ -132,15 +132,15 @@ int spped = 800;
 void setup() {
 
   Serial.begin(115200);
-  while (!P1.init()) {;}    // Initialize controller
+  while (!P1.init()) {;} // Initialize controller
 
   rtcInit();
   gpioInit();
   estopInit();
 
-  lcd.init();          // Initialize the LCD
-  lcd.backlight();      // Turn on the backlight
-  lcd.setCursor(0, 0);  // Set cursor to column 0, row 0
+  lcd.init(); // Initialize the LCD
+  lcd.backlight(); // Turn on the backlight
+  lcd.setCursor(0, 0); // Set cursor to column 0, row 0
 
   // setMotorDir('D');
   // setMotorSpeed(50000);
@@ -148,66 +148,63 @@ void setup() {
 }
 
 void loop() {
-  if (estopPressed) {
-    // setMotorSpeed(0);
-  }
 
   switch (state) {
-    case CALIBRATE:
+    case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();
       break;
-    case STANDBY:              // Always starts in STANDBY
+    case STANDBY: // Always starts in STANDBY
       standbyLoop();
       break;
-    case SETTINGS:
+    case SETTINGS: // Pages of parameters that can be modified or checked
       settingsLoop();
       break;
-    case RELEASE:
+    case RELEASE: // Releasing the sample device to the ocean
       releaseLoop();
       break;
-    case SOAK:
+    case SOAK: // Device on the surface of the ocean, collecting sample
       soakLoop();
       break;
-    case RECOVER:
+    case RECOVER: // Recovering the sample device from the ocean surface to the home position
       recoverLoop();
       break;
-    case SAMPLE:
+    case SAMPLE: // Sample is sent through the Aqusens device
       sampleLoop();
       break;
-    case FLUSH:
+    case FLUSH: // Aqusens and Sample device are flushed with filtered freshwater/air
       flushLoop();
       break;
-    case DRY:
+    case DRY: // Sample device is dried for predetermined amount of time
       dryLoop();
       break;
-    case MOTOR_ALARM:
+    case MOTOR_ALARM: // Alarm mode is tripped due to motor alarm
       alarmLoop();
       break;
-    case ESTOP_ALARM:
+    case ESTOP_ALARM: // Alarm mode is tripped due to E-stop press
       alarmLoop();
       break;
-    case MANUAL:
+    case MANUAL: // Manual control of motor/solenoids, only entered from alarm mode
       manualLoop();
       break;
-    case SET_CLOCK:
+    case SET_CLOCK: // Settings option to set current time
       setClockLoop();
       break;
-    case SET_INTERVAL:
+    case SET_INTERVAL: // Settings option to set sampling interval
       setIntervalLoop();
       break;
-    case SET_START_TIME:
+    case SET_START_TIME: // Settings option to set start time
       setStartTimeLoop();
       break;
-    case SET_SOAK_TIME:
+    case SET_SOAK_TIME: // Settings option to set soak time
       setSoakTimeLoop();
       break;
-    case SET_DRY_TIME:
+    case SET_DRY_TIME: // Settings option to set dry time
       setDryTimeLoop();
       break;
-    case SET_BRIGHTNESS:
+    case SET_BRIGHTNESS: // Settings option to set brightness of lcd
       setBrightnessLoop();
       break;
-    case ENSURE_SAMPLE_START:
+    case ENSURE_SAMPLE_START: // "Are you sure?" screen for manually starting sample run
       ensureSampleStartLoop();
       break;
     default:

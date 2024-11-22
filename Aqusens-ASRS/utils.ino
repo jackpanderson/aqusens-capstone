@@ -37,7 +37,7 @@ void estopInit() {
 void onHighTrigger() {
   //setMotorSpeed(0);
   // state = ESTOP_ALARM;
-  estopDepressed = !estopDepressed;
+  estopPressed = !estopPressed;
 }
 /*---------------------------------------------------------
 * Function: rtcInit()
@@ -553,23 +553,7 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
 }
 
 void checkEstop() {
-  if (estopDepressed) {
+  if (estopPressed) {
     state = ESTOP_ALARM;
   }
 }
-
-// uint_8 compareTime(tmElements_t start, tmElements_t end) {
-
-// }
-
-// bool isEstopPressed() {
-//   return digitalRead(ESTOP_IN);
-// }
-
-// void initEstopInterrupt() {
-//   attachInterrupt(digitalPinToInterrupt(ESTOP_IN), setModeEstop, RISING);
-// }
-
-// void setModeEstop() {
-//   state = 
-// }

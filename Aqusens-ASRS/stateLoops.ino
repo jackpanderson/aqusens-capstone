@@ -1,6 +1,11 @@
 
 /* State Machine Functions ******************************************************/
 
+// STANDBY
+// Two selection options:
+//    - Settings: proceeds to first page of settings page
+//    - Run Sample: proceeds to "Are you sure?" screen for manually running sample
+// Checks for E-stop press
 void standbyLoop()
 { 
   char key;
@@ -17,18 +22,22 @@ void standbyLoop()
     keyPressed = cursorSelect(2, 3);
 
     if (keyPressed == 'S') {
-      if (cursorY == 3) {
-        state = ENSURE_SAMPLE_START;
-      }
-
-      else if (cursorY == 2) {
+      if (cursorY == 2) {
         settingsPage = 1;
         state = SETTINGS;
+      }
+
+      else if (cursorY == 3) {
+        state = ENSURE_SAMPLE_START;
       }
     }
   }
 }
 
+// ENSURE_SAMPLE_START
+// Two selection options:
+//    - Exit: returns to standby mode
+//    - Run Sample: proceeds to release mode
 void ensureSampleStartLoop() {
   char keyPressed;
   resetLcd();
@@ -50,6 +59,8 @@ void ensureSampleStartLoop() {
   }
 }
 
+// SETTINGS
+// 
 void settingsLoop() {
   uint8_t lastKeyPress = rtc.getMinutes();
   char keyPressed;
@@ -68,13 +79,13 @@ void settingsLoop() {
       lastKeyPress = rtc.getMinutes();
     }
 
-    if (keyPressed == 'L') {//left
-      if (settingsPage == 1) {
+    if (keyPressed == 'L') { // left
+      if (settingsPage == 1) { // exits to STANDBY mode on first page left select
         resetLcd();
         state = STANDBY;
         cursorY = 2;
       }
-      else {
+      else { // else, returns to previous settings page
         resetLcd();
         settingsPage--;
       }
@@ -347,11 +358,11 @@ void alarmLoop() {
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 3 && !estopDepressed) {
+      if (cursorY == 3 && !estopPressed) {
         state = CALIBRATE;
       }
 
-      else if (cursorY == 3 && estopDepressed) {
+      else if (cursorY == 3 && estopPressed) {
         lcd.clear();
         releaseEstopLCD();
         delay(1500);

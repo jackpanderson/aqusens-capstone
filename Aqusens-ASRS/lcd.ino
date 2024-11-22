@@ -1,3 +1,4 @@
+// Displays current time and next sample time
 void standbyLCD() {
   lcd.setCursor(0,0);
   lcd.print("CURR: ");
@@ -13,10 +14,12 @@ void standbyLCD() {
   lcd.print("STANDBY");
   lcd.setCursor(16, 3);
   lcd.print("MODE");
+
   lcd.setCursor(0, cursorY);
   lcd.print("*");
 }
 
+// "Are you sure?" screen for manually running sample procedure
 void ensureSampleStartLCD() {
   lcd.setCursor(4, 0);
   lcd.print("RUN SAMPLE");
@@ -29,9 +32,11 @@ void ensureSampleStartLCD() {
 
   lcd.setCursor(0, cursorY);
   lcd.print("*");
-
 }
 
+// Settings screen pages
+// page: the current settings page to be displayed
+// Every page has a maximum of three setting options
 void settingsLCD(uint8_t page) {
 
   switch (page) {
@@ -42,8 +47,9 @@ void settingsLCD(uint8_t page) {
       lcd.print("START TIME");
       lcd.setCursor(1, 2);
       lcd.print("SET CLOCK");
+
       lcd.setCursor(0, 3);
-      lcd.print("<EXIT");
+      lcd.print("<EXIT"); // first page has "exit" option to return to standby
       lcd.setCursor(15, 3);
       lcd.print("MORE>");
       break;
@@ -55,6 +61,7 @@ void settingsLCD(uint8_t page) {
       lcd.print("FLUSH TIME");
       lcd.setCursor(1, 2);
       lcd.print("DRY TIME");
+
       lcd.setCursor(0, 3);
       lcd.print("<BACK");
       lcd.setCursor(15, 3);
@@ -68,6 +75,7 @@ void settingsLCD(uint8_t page) {
       lcd.print("VIEW EVENTS");
       lcd.setCursor(1, 2);
       lcd.print("FILTER STATUS");
+
       lcd.setCursor(0, 3);
       lcd.print("<BACK");
       lcd.setCursor(15, 3);
@@ -79,8 +87,9 @@ void settingsLCD(uint8_t page) {
       lcd.print("SET BRIGHTNESS");
       lcd.setCursor(1, 1);
       lcd.print("SET CONTRAST");
+
       lcd.setCursor(0, 3);
-      lcd.print("<BACK");
+      lcd.print("<BACK"); // final page has no "more" option
       break;
     
   }
@@ -90,6 +99,8 @@ void settingsLCD(uint8_t page) {
 
 }
 
+// Displays the current position of motor releasing sample
+// position: String of current position of sample device in meters
 void releaseLcd(String position) {
   lcd.setCursor(0,1);
   lcd.print("RELEASING DEVICE...");
@@ -99,6 +110,8 @@ void releaseLcd(String position) {
   lcd.print(position);
 }
 
+// Displays the time remaining in soak procedure
+// time: String of time remaining in soak time in minutes
 void soakLcd(String time) {
   lcd.setCursor(0,1);
   lcd.print("SOAKING...");
@@ -108,6 +121,8 @@ void soakLcd(String time) {
   lcd.print("REMAINING");
 }
 
+// Displays the current position of motor recovering sample
+// position: String of current position of sample device in meters
 void recoverLcd(String position) {
   lcd.setCursor(0,1);
   lcd.print("RECOVERING DEVICE...");
@@ -117,16 +132,20 @@ void recoverLcd(String position) {
   lcd.print(position);
 }
 
+// Displays the Sampling screen
 void sampleLcd() {
   lcd.setCursor(0,1);
   lcd.print("SAMPLING...");
 }
 
+// Displays the Flsuhing screen
 void flushLcd() {
   lcd.setCursor(0,1);
   lcd.print("FLUSHING...");
 }
 
+// Displays the time remaining in dry procedure
+// time: String of time remaining in dry time in minutes
 void dryLcd(String time) {
   lcd.setCursor(0,1);
   lcd.print("DRYING...");
@@ -144,6 +163,7 @@ void manualLcd() {
 
 }
 
+// Settings page option to set clock
 void initSetClockLcd() {
   lcd.setCursor(6, 0);
   lcd.print("SET TIME");
@@ -153,6 +173,7 @@ void initSetClockLcd() {
   lcd.print("SEL TO CONFIRM");
 }
 
+// Settings page option to set sampling interval
 void initSetIntervalLCD() {
   lcd.setCursor(0, 0);
   lcd.print("SET SAMPLE INTERVAL");
@@ -162,6 +183,7 @@ void initSetIntervalLCD() {
   lcd.print("SEL TO CONFIRM");
 }
 
+// Settings page option to set soak or dry time
 void initSetSoakOrDryLCD() {
   if (state == SET_SOAK_TIME) {
     lcd.setCursor(3, 0);
@@ -177,6 +199,7 @@ void initSetSoakOrDryLCD() {
   lcd.print("SEL TO CONFIRM");
 }
 
+// Settings page option to set brightness/contrast
 void initSetBrightnessOrConstrastLCD() {
   resetLcd();
 
@@ -338,6 +361,11 @@ void updateBrightnessOrContrastLCD(bool increasingBar) {
   }
 }
 
+// Displays Alarm mode for E-stop/Motor alarm
+// Two selection options:
+//    - Exit: returns to standby mode if alarm is resolved
+//            otherwise, flashes warning
+//    - Manual Mode: proceeds to manual mode
 void alarmLCD() {
   lcd.setCursor(7, 0);
   lcd.print("ALARM");
@@ -359,6 +387,7 @@ void alarmLCD() {
   lcd.print("*");
 }
 
+// Displays warning for trying to exit alarm mode without releasing E-stop
 void releaseEstopLCD() {
   lcd.setCursor(1, 1);
   lcd.print("RELEASE E-STOP TO");
