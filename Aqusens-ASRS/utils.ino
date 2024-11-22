@@ -30,13 +30,14 @@ void gpioInit() {
 void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
-  attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, FALLING);
+  attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, CHANGE);
 }
 
 
 void onHighTrigger() {
   //setMotorSpeed(0);
-  state = ESTOP_ALARM;
+  // state = ESTOP_ALARM;
+  estopDepressed = !estopDepressed;
 }
 /*---------------------------------------------------------
 * Function: rtcInit()
@@ -550,6 +551,16 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
     (newTime -> Minute) = 59;
   }
 }
+
+void checkEstop() {
+  if (estopDepressed) {
+    state = ESTOP_ALARM;
+  }
+}
+
+// uint_8 compareTime(tmElements_t start, tmElements_t end) {
+
+// }
 
 // bool isEstopPressed() {
 //   return digitalRead(ESTOP_IN);

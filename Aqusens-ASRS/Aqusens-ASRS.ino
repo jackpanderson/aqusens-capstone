@@ -109,6 +109,7 @@ volatile bool estopPressed = false;
 tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
 Timer<5, millis> dropTimer;
 bool dropFlag = true;                // Set by timers in activeLoop
+bool estopDepressed = false;
 
 int8_t cursorY = 2;
 uint8_t screenBrightness = 10;

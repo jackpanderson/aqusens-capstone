@@ -358,3 +358,10 @@ void alarmLCD() {
   lcd.setCursor(0, cursorY);
   lcd.print("*");
 }
+
+void releaseEstopLCD() {
+  lcd.setCursor(1, 1);
+  lcd.print("RELEASE E-STOP TO");
+  lcd.setCursor(2, 2);
+  lcd.print("EXIT ALARM MODE");
+}

@@ -10,6 +10,8 @@ void standbyLoop()
 
   while (state == STANDBY) 
   {
+    checkEstop();
+
     standbyLCD();
     
     keyPressed = cursorSelect(2, 3);
@@ -54,6 +56,7 @@ void settingsLoop() {
   resetLcd();
   
   while (state == SETTINGS) {
+    checkEstop();
     settingsLCD(settingsPage); //Launch into first page of settings
 
     if (settingsPage != lastSettingPage)
@@ -169,6 +172,7 @@ void releaseLoop() {
 
   while (state == RELEASE) 
   {
+    checkEstop();
     int meter = position / 100;
     int deci = position % 100;
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
@@ -187,14 +191,32 @@ void releaseLoop() {
 void soakLoop() {
   // setMotorSpeed(0);
   resetLcd();
+  tmElements_t endSoak;
 
+  endSoak.Year = rtc.getYear() + 30;
+  endSoak.Month = rtc.getMonth();
+  endSoak.Day = rtc.getDay();
+  endSoak.Hour = rtc.getHours() + soakTime.Hour;
+  endSoak.Minute = rtc.getMinutes() + soakTime.Minute;
+
+  time_t end = rtc.getEpoch() + 60 * soakTime.Minute;
+  char time[6];
+  int min;
   while (state == SOAK) 
   {
-    soakLcd("0 min");
+    checkEstop();
+    Serial.println(end - rtc.getEpoch());
+    min = (end - rtc.getEpoch()) / 60 + 1;
+    
+    if (min > soakTime.Minute) {
+      min = soakTime.Minute;
+    }
 
-    delay(5000);
-
-    state = RECOVER;
+    snprintf(time, sizeof(time), "%01d MIN", min);
+    soakLcd(time);
+    if (end - rtc.getEpoch() <= 0) {
+      state = RECOVER;
+    }
 
   }
 }
@@ -253,6 +275,7 @@ void recoverLoop() {
 
   while (state == RECOVER) 
   {
+    checkEstop();
     int meter = position / 100;
     int deci = position % 100;
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
@@ -322,17 +345,19 @@ void alarmLoop() {
     alarmLCD();
     
     keyPressed = cursorSelect(2, 3);
+    
+    if (keyPressed == 'S') {
+      if (cursorY == 3 && !estopDepressed) {
+        state = CALIBRATE;
+      }
 
-    // if (keyPressed == 'S') {
-    //   if (cursorY == 3) {
-    //     state = ENSURE_SAMPLE_START;
-    //   }
-
-    //   else if (cursorY == 2) {
-    //     settingsPage = 1;
-    //     state = SETTINGS;
-    //   }
-    // }
+      else if (cursorY == 3 && estopDepressed) {
+        lcd.clear();
+        releaseEstopLCD();
+        delay(1500);
+        lcd.clear();
+      }
+    }
   }
 }
 
