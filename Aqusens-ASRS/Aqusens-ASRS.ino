@@ -44,11 +44,11 @@
 // #define ESTOP_IN 4 //Change to real value
 
 //Motor
-// #define STEP_POS_PIN  4
-// #define STEP_NEG_PIN 5
+#define STEP_POS_PIN  6
+#define STEP_NEG_PIN 7
 
-// #define DIR_POS_PIN   0
-// #define DIR_NEG_PIN  1
+#define DIR_POS_PIN   13
+#define DIR_NEG_PIN  14
 
 // Outputs
 // #define STEPPER_PUL 1    // Stepper pulse output
@@ -137,18 +137,27 @@ void setup() {
   rtcInit();
   gpioInit();
   estopInit();
+  motorInit();
 
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
-
-  // setMotorDir('D');
-  // setMotorSpeed(50000);
+  
+  motorInit();
+  //Serial.println("Setting DOWN!");
+  //setMotorDir('D');
+  //setMotorSpeed(20000);
+  //delay(10000);
   //findHomePos();          // Bring probe back to home position
 }
 
 void loop() {
-
+  setMotorDir('D');
+  while(1) {
+    digitalWrite(STEP_POS_PIN, HIGH);
+    delay(1000);
+    digitalWrite(STEP_POS_PIN, LOW);
+  }
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();

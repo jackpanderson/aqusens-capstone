@@ -70,6 +70,27 @@ void rtcInit() {
   updateAlarm();
 }
 
+void motorInit() {
+  stepper = new SAMD_PWM(STEP_POS_PIN, 500, 0);
+  digitalWrite(STEP_NEG_PIN, 0);
+  setMotorDir('D');
+}
+
+void setMotorDir(char dir) {
+  if (dir == 'U') {
+    digitalWrite(DIR_POS_PIN, 0);
+    digitalWrite(DIR_NEG_PIN, 1);
+  }
+
+  else if (dir == 'D') {
+    digitalWrite(DIR_POS_PIN, 1);
+    digitalWrite(DIR_NEG_PIN, 0);
+    }
+}
+
+void setMotorSpeed(int speed) {
+  stepper->setPWM(STEP_POS_PIN, speed, 50);
+}
 // void setMotorDir(char ch) {
 //   if (ch == 'U') {
 //     digitalWrite(DIR_POS_PIN, 0);
