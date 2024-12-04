@@ -33,12 +33,12 @@ void estopInit() {
   attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, CHANGE);
 }
 
-
 void onHighTrigger() {
   //setMotorSpeed(0);
   // state = ESTOP_ALARM;
   estopPressed = !estopPressed;
 }
+
 /*---------------------------------------------------------
 * Function: rtcInit()
 * Purpose: initialize the RTC

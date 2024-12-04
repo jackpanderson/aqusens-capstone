@@ -165,8 +165,8 @@ void loop() {
     case STANDBY: // Always starts in STANDBY
       standbyLoop();
       break;
-    case SETTINGS: // Pages of parameters that can be modified or checked
-      settingsLoop();
+    case ENSURE_SAMPLE_START: // "Are you sure?" screen for manually starting sample run
+      ensureSampleStartLoop();
       break;
     case RELEASE: // Releasing the sample device to the ocean
       releaseLoop();
@@ -195,6 +195,9 @@ void loop() {
     case MANUAL: // Manual control of motor/solenoids, only entered from alarm mode
       manualLoop();
       break;
+    case SETTINGS: // Pages of parameters that can be modified or checked
+      settingsLoop();
+      break;
     case SET_CLOCK: // Settings option to set current time
       setClockLoop();
       break;
@@ -212,9 +215,6 @@ void loop() {
       break;
     case SET_BRIGHTNESS: // Settings option to set brightness of lcd
       setBrightnessLoop();
-      break;
-    case ENSURE_SAMPLE_START: // "Are you sure?" screen for manually starting sample run
-      ensureSampleStartLoop();
       break;
     default:
       break;

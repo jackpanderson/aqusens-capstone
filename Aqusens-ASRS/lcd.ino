@@ -35,8 +35,8 @@ void ensureSampleStartLCD() {
 }
 
 // Settings screen pages
-// page: the current settings page to be displayed
-// Every page has a maximum of three setting options
+//    page: the current settings page to be displayed
+//    Every page has a maximum of three setting options
 void settingsLCD(uint8_t page) {
 
   switch (page) {
@@ -100,7 +100,7 @@ void settingsLCD(uint8_t page) {
 }
 
 // Displays the current position of motor releasing sample
-// position: String of current position of sample device in meters
+//    position: String of current position of sample device in meters
 void releaseLcd(String position) {
   lcd.setCursor(0,1);
   lcd.print("RELEASING DEVICE...");
@@ -111,7 +111,7 @@ void releaseLcd(String position) {
 }
 
 // Displays the time remaining in soak procedure
-// time: String of time remaining in soak time in minutes
+//    time: String of time remaining in soak time in minutes
 void soakLcd(String time) {
   lcd.setCursor(0,1);
   lcd.print("SOAKING...");
@@ -122,7 +122,7 @@ void soakLcd(String time) {
 }
 
 // Displays the current position of motor recovering sample
-// position: String of current position of sample device in meters
+//    position: String of current position of sample device in meters
 void recoverLcd(String position) {
   lcd.setCursor(0,1);
   lcd.print("RECOVERING DEVICE...");
@@ -145,7 +145,7 @@ void flushLcd() {
 }
 
 // Displays the time remaining in dry procedure
-// time: String of time remaining in dry time in minutes
+//    time: String of time remaining in dry time in minutes
 void dryLcd(String time) {
   lcd.setCursor(0,1);
   lcd.print("DRYING...");
@@ -362,10 +362,6 @@ void updateBrightnessOrContrastLCD(bool increasingBar) {
 }
 
 // Displays Alarm mode for E-stop/Motor alarm
-// Two selection options:
-//    - Exit: returns to standby mode if alarm is resolved
-//            otherwise, flashes warning
-//    - Manual Mode: proceeds to manual mode
 void alarmLCD() {
   lcd.setCursor(7, 0);
   lcd.print("ALARM");
@@ -393,4 +389,10 @@ void releaseEstopLCD() {
   lcd.print("RELEASE E-STOP TO");
   lcd.setCursor(2, 2);
   lcd.print("EXIT ALARM MODE");
+}
+
+void resetLcd()
+{
+  lcd.clear();
+  cursorY = 0;
 }
