@@ -4,7 +4,7 @@
 // CALIBRATE
 // No selection options
 void calibrateLoop() {
-  resetLcd();
+  resetLCD();
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
   delay(5000);
@@ -50,11 +50,11 @@ void standbyLoop()
 //    - Run Sample: proceeds to release mode
 void ensureSampleStartLoop() {
   char keyPressed;
-  resetLcd();
+  resetLCD();
   cursorY = 3;
   
   while (state == ENSURE_SAMPLE_START) {
-    ensureSampleStartLCD();
+    ensureLCD("RUN SAMPLE");
 
     keyPressed = cursorSelect(2, 3);
     
@@ -78,7 +78,7 @@ void releaseLoop() {
   // setMotorDir('D');
   // setMotorSpeed(50000);
 
-  resetLcd();
+  resetLCD();
   int position = 0;
   char pos[6];
 
@@ -88,7 +88,7 @@ void releaseLoop() {
     int meter = position / 100;
     int deci = position % 100;
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
-    releaseLcd(pos);
+    releaseLCD(pos);
 
     delay(33);
     position++;
@@ -105,7 +105,7 @@ void releaseLoop() {
 // Checks for E-stop press
 void soakLoop() {
   // setMotorSpeed(0);
-  resetLcd();
+  resetLCD();
   tmElements_t endSoak;
 
   endSoak.Year = rtc.getYear() + 30;
@@ -128,7 +128,7 @@ void soakLoop() {
     }
 
     snprintf(time, sizeof(time), "%01d MIN", min);
-    soakLcd(time);
+    soakLCD(time);
     if (end - rtc.getEpoch() <= 0) {
       state = RECOVER;
     }
@@ -143,7 +143,7 @@ void soakLoop() {
 void recoverLoop() {
   // setMotorDir('U');
   // setMotorSpeed(50000);
-  resetLcd();
+  resetLCD();
   int position = 900;
   char pos[6];
 
@@ -153,7 +153,7 @@ void recoverLoop() {
     int meter = position / 100;
     int deci = position % 100;
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
-    recoverLcd(pos);
+    recoverLCD(pos);
 
     delay(33);
     position--;
@@ -168,11 +168,11 @@ void recoverLoop() {
 // SAMPLE
 // No selection options
 void sampleLoop() {
-  resetLcd();
+  resetLCD();
 
   while (state == SAMPLE) 
   {
-    sampleLcd();
+    sampleLCD();
 
     delay(5000);
 
@@ -184,11 +184,11 @@ void sampleLoop() {
 // FLUSH
 // No selection options
 void flushLoop() {
-  resetLcd();
+  resetLCD();
 
   while (state == FLUSH) 
   {
-    flushLcd();
+    flushLCD();
 
     delay(5000);
 
@@ -200,11 +200,11 @@ void flushLoop() {
 // DRY
 // No selection options
 void dryLoop() {
-  resetLcd();
+  resetLCD();
 
   while (state == DRY) 
   {
-    dryLcd("00 min");
+    dryLCD("00 min");
 
     delay(5000);
 
@@ -212,9 +212,6 @@ void dryLoop() {
 
   }
 }
-
-// MANUAL
-void manualLoop(){}
 
 // ALARM
 // Two selection options:
@@ -243,6 +240,48 @@ void alarmLoop() {
         delay(1500);
         lcd.clear();
       }
+
+      else if (cursorY == 2) {
+        state = MANUAL;
+      }
+    }
+  }
+}
+
+// MANUAL
+void manualLoop() {
+  char key;
+  uint8_t keyPressed;
+  lcd.clear();
+  cursorY = 1;
+  while (state == MANUAL) {
+    manualLCD();
+    keyPressed = cursorSelect(1, 3);
+
+    if (keyPressed == 'S') {
+      if (cursorY == 1) {
+        state = MOTOR_CONTROL;
+      } //else if (cursorY == 2) {
+
+      //} 
+      else if (cursorY == 3) {
+        state = ESTOP_ALARM; // TODO: change to previous state
+      }
+    }
+  }
+}
+
+void motorControlLoop() {
+  char key;
+  uint8_t keyPressed;
+  lcd.clear();
+  cursorY = 1;
+  while (state == MOTOR_CONTROL) {
+    motorControlLCD();
+    keyPressed = cursorSelect(1, 1); // TODO: change to use different controls
+
+    if (keyPressed == 'S') {
+      state = MANUAL;
     }
   }
 }

@@ -7,7 +7,7 @@
 void settingsLoop() {
   uint8_t lastKeyPress = rtc.getMinutes();
   char keyPressed;
-  resetLcd();
+  resetLCD();
   
   while (state == SETTINGS) {
     checkEstop();
@@ -24,18 +24,18 @@ void settingsLoop() {
 
     if (keyPressed == 'L') { // left
       if (settingsPage == 1) { // exits to STANDBY mode on first page left select
-        resetLcd();
+        resetLCD();
         state = STANDBY;
         cursorY = 2;
       }
       else { // else, returns to previous settings page
-        resetLcd();
+        resetLCD();
         settingsPage--;
       }
     }
 
     else if (keyPressed == 'R' && settingsPage != lastSettingPage) { //right
-      resetLcd();
+      resetLCD();
       settingsPage++;
     }
 
@@ -126,8 +126,8 @@ void setStartTimeLoop() {
   uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00-00-00 00:00"
                          // Does not include spacing/colons/hyphens, ranges 0 to 9.
 
-  resetLcd();
-  initSetClockLcd();
+  resetLCD();
+  initSetClockLCD();
   updateSetClockLCD(cursorPos, adjustedStartTime);
   lcd.blink();
 
@@ -174,8 +174,8 @@ void setClockLoop() {
   uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00-00-00 00:00"
                          // Does not include spacing/colons/hyphens, ranges 0 to 9.
 
-  resetLcd();
-  initSetClockLcd();
+  resetLCD();
+  initSetClockLCD();
   updateSetClockLCD(cursorPos, adjustedTime);
   lcd.blink();
 
@@ -222,7 +222,7 @@ void setIntervalLoop() {
   uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00 00 00" (Day Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 5.
 
-  resetLcd();
+  resetLCD();
   initSetIntervalLCD();
   updateSetIntervalLCD(cursorPos, newInterval);
   lcd.blink();
@@ -266,7 +266,7 @@ void setSoakTimeLoop() {
   uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 3.
 
-  resetLcd();
+  resetLCD();
   initSetSoakOrDryLCD();
   updateSetSoakOrDryLCD(cursorPos, newSoakTime);
   lcd.blink();
@@ -309,7 +309,7 @@ void setDryTimeLoop() {
   uint8_t cursorPos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 3.
 
-  resetLcd();
+  resetLCD();
   initSetSoakOrDryLCD();
   updateSetSoakOrDryLCD(cursorPos, newDryTime);
   lcd.blink();
@@ -349,7 +349,7 @@ void setDryTimeLoop() {
 void setBrightnessLoop() {
   char key;
 
-  resetLcd();
+  resetLCD();
   initSetBrightnessOrConstrastLCD();
 
   while (state == SET_BRIGHTNESS) {

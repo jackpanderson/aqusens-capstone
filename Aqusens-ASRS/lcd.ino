@@ -19,14 +19,14 @@ void standbyLCD() {
   lcd.print("*");
 }
 
-// "Are you sure?" screen for manually running sample procedure
-void ensureSampleStartLCD() {
+// "Are you sure?" screen
+void ensureLCD(String ensure) {
   lcd.setCursor(4, 0);
-  lcd.print("RUN SAMPLE");
+  lcd.print(ensure);
   lcd.setCursor(3, 1);
   lcd.print("ARE YOU SURE?");
   lcd.setCursor(1, 2);
-  lcd.print("RUN SAMPLE");
+  lcd.print(ensure);
   lcd.setCursor(1, 3);
   lcd.print("EXIT");
 
@@ -101,7 +101,7 @@ void settingsLCD(uint8_t page) {
 
 // Displays the current position of motor releasing sample
 //    position: String of current position of sample device in meters
-void releaseLcd(String position) {
+void releaseLCD(String position) {
   lcd.setCursor(0,1);
   lcd.print("RELEASING DEVICE...");
   lcd.setCursor(0,2);
@@ -112,7 +112,7 @@ void releaseLcd(String position) {
 
 // Displays the time remaining in soak procedure
 //    time: String of time remaining in soak time in minutes
-void soakLcd(String time) {
+void soakLCD(String time) {
   lcd.setCursor(0,1);
   lcd.print("SOAKING...");
   lcd.setCursor(0,2);
@@ -123,7 +123,7 @@ void soakLcd(String time) {
 
 // Displays the current position of motor recovering sample
 //    position: String of current position of sample device in meters
-void recoverLcd(String position) {
+void recoverLCD(String position) {
   lcd.setCursor(0,1);
   lcd.print("RECOVERING DEVICE...");
   lcd.setCursor(0,2);
@@ -133,20 +133,20 @@ void recoverLcd(String position) {
 }
 
 // Displays the Sampling screen
-void sampleLcd() {
+void sampleLCD() {
   lcd.setCursor(0,1);
   lcd.print("SAMPLING...");
 }
 
 // Displays the Flsuhing screen
-void flushLcd() {
+void flushLCD() {
   lcd.setCursor(0,1);
   lcd.print("FLUSHING...");
 }
 
 // Displays the time remaining in dry procedure
 //    time: String of time remaining in dry time in minutes
-void dryLcd(String time) {
+void dryLCD(String time) {
   lcd.setCursor(0,1);
   lcd.print("DRYING...");
   lcd.setCursor(0,2);
@@ -155,16 +155,8 @@ void dryLcd(String time) {
   lcd.print("REMAINING");
 }
 
-void alarmLcd(String reason) {
-
-}
-
-void manualLcd() {
-
-}
-
 // Settings page option to set clock
-void initSetClockLcd() {
+void initSetClockLCD() {
   lcd.setCursor(6, 0);
   lcd.print("SET TIME");
   lcd.setCursor(3, 2);
@@ -201,7 +193,7 @@ void initSetSoakOrDryLCD() {
 
 // Settings page option to set brightness/contrast
 void initSetBrightnessOrConstrastLCD() {
-  resetLcd();
+  resetLCD();
 
   if (state == SET_BRIGHTNESS) {
     lcd.setCursor(3, 0);
@@ -391,7 +383,44 @@ void releaseEstopLCD() {
   lcd.print("EXIT ALARM MODE");
 }
 
-void resetLcd()
+void manualLCD() {
+  lcd.setCursor(5, 0);
+  lcd.print("MANUAL MODE");
+  lcd.setCursor(1, 1);
+  lcd.print("MOTOR");
+  lcd.setCursor(1, 2);
+  lcd.print("SOLENOIDS");
+  lcd.setCursor(1, 3);
+  lcd.print("EXIT");
+  
+  lcd.setCursor(0, cursorY);
+  lcd.print("*");
+}
+
+void motorControlLCD() {
+  lcd.setCursor(3, 0);
+  lcd.print("MOTOR CONTROLS");
+  lcd.setCursor(1, 1);
+  lcd.print("SEL TO RESET MOTOR");
+  lcd.setCursor(0, 2);
+  lcd.print("^RAISE");
+  lcd.setCursor(14, 2);
+  lcd.print("vLOWER");
+  lcd.setCursor(0, 3);
+  lcd.print("<BACK");
+  lcd.setCursor(10, 3);
+  lcd.print("CURR: 5.5m");
+  
+  lcd.setCursor(0, cursorY);
+  lcd.print("*");
+}
+
+void resetMotorLCD() {
+  lcd.setCursor(0,1);
+  lcd.print("RESETTING...");
+}
+
+void resetLCD()
 {
   lcd.clear();
   cursorY = 0;

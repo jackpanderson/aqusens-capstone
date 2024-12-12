@@ -78,7 +78,6 @@
 enum stateEnum {
   CALIBRATE,
   STANDBY,
-  SETTINGS,
   RELEASE,
   SOAK,
   RECOVER,
@@ -88,6 +87,8 @@ enum stateEnum {
   MOTOR_ALARM,
   ESTOP_ALARM,
   MANUAL,
+  MOTOR_CONTROL,
+  SETTINGS,
   SET_INTERVAL,
   ENSURE_SAMPLE_START,
   SET_START_TIME,
@@ -128,7 +129,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 /* Setup and Loop **************************************************************/
 
-int spped = 800;
+int speed = 800;
 void setup() {
 
   Serial.begin(115200);
@@ -143,21 +144,22 @@ void setup() {
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
-  motorInit();
-  //Serial.println("Setting DOWN!");
-  //setMotorDir('D');
-  //setMotorSpeed(20000);
-  //delay(10000);
+  setMotorSpeed(40000);
+  // motorInit();
+  // Serial.println("Setting DOWN!");
+  // setMotorDir('D');
+  // setMotorSpeed(20000);
+  // delay(10000);
   //findHomePos();          // Bring probe back to home position
 }
 
 void loop() {
-  setMotorDir('D');
-  while(1) {
-    digitalWrite(STEP_POS_PIN, HIGH);
-    delay(1000);
-    digitalWrite(STEP_POS_PIN, LOW);
-  }
+  // setMotorDir('D');
+  // while(1) {
+  //   digitalWrite(STEP_POS_PIN, HIGH);
+  //   delay(1000);
+  //   digitalWrite(STEP_POS_PIN, LOW);
+  // }
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();
@@ -195,6 +197,9 @@ void loop() {
     case MANUAL: // Manual control of motor/solenoids, only entered from alarm mode
       manualLoop();
       break;
+    case MOTOR_CONTROL:
+      motorControlLoop();
+      break;
     case SETTINGS: // Pages of parameters that can be modified or checked
       settingsLoop();
       break;
@@ -216,7 +221,4 @@ void loop() {
     case SET_BRIGHTNESS: // Settings option to set brightness of lcd
       setBrightnessLoop();
       break;
-    default:
-      break;
-  }
-}
+    defa

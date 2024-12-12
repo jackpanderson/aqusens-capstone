@@ -76,44 +76,25 @@ void motorInit() {
   setMotorDir('D');
 }
 
-void setMotorDir(char dir) {
-  if (dir == 'U') {
+void setMotorDir(char ch) {
+  if (ch == 'U') {
     digitalWrite(DIR_POS_PIN, 0);
     digitalWrite(DIR_NEG_PIN, 1);
-  }
-
-  else if (dir == 'D') {
+  } else {
     digitalWrite(DIR_POS_PIN, 1);
     digitalWrite(DIR_NEG_PIN, 0);
-    }
+  }
 }
 
-void setMotorSpeed(int speed) {
-  stepper->setPWM(STEP_POS_PIN, speed, 50);
+void setMotorSpeed(int speed)
+{
+  if (speed == 0) {
+    // Use DC = 0 to stop stepper
+    stepper->setPWM(STEP_POS_PIN, 500, 0);
+  } else {
+    stepper->setPWM(STEP_POS_PIN, abs(speed), 50);
+  }
 }
-// void setMotorDir(char ch) {
-//   if (ch == 'U') {
-//     digitalWrite(DIR_POS_PIN, 0);
-//     digitalWrite(DIR_NEG_PIN, 1);
-//   }
-//   else {
-//     digitalWrite(DIR_POS_PIN, 1);
-//     digitalWrite(DIR_NEG_PIN, 0);
-//   }
-// }
-
-// void setMotorSpeed(int speed)
-// {
-//   if (speed == 0)
-//   {
-//     // Use DC = 0 to stop stepper
-//     stepper->setPWM(STEP_POS_PIN, 500, 0);
-//   }
-//   else
-//   {
-//     stepper->setPWM(STEP_POS_PIN, abs(speed), 50);
-//   }
-// }
 
 
 // void updateStartTime() {
