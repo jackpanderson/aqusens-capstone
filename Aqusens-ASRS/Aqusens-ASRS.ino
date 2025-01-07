@@ -24,6 +24,33 @@
 #include <math.h>
 #include "SAMD_PWM.h"
 
+/*Function Prototypes**************************************************************/
+// void rtcInit();
+// void gpioInit();
+// void setMotorDir(char ch);
+// void estopInit();
+// void motorInit();
+// void setMotorSpeed(int speed);
+// void calibrateLoop();
+// void standbyLoop();
+// void ensureSampleStartLoop();
+// void releaseLoop();
+// void soakLoop();
+// void recoverLoop();
+// void sampleLoop();
+// void flushLoop();
+// void dryLoop();
+// void alarmLoop();
+// void manualLoop();
+// void motorControlLoop();
+// void settingsLoop();
+// void setClockLoop();
+// void setIntervalLoop();
+// void setStartTimeLoop();
+// void setSoakTimeLoop();
+// void setDryTimeLoop();
+// void setBrightnessLoop(); 
+
 /* Pin Mapping ********************************************************************/
 
 // Slots
@@ -47,7 +74,7 @@
 #define STEP_POS_PIN  6
 #define STEP_NEG_PIN 7
 
-#define DIR_POS_PIN   13
+#define DIR_POS_PIN   14
 #define DIR_NEG_PIN  14
 
 // Outputs
@@ -129,7 +156,6 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 /* Setup and Loop **************************************************************/
 
-int speed = 800;
 void setup() {
 
   Serial.begin(115200);
@@ -144,7 +170,11 @@ void setup() {
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
-  setMotorSpeed(40000);
+  setMotorDir('U');
+  setMotorSpeed(500);
+  delay(10000);
+  setMotorDir('D');
+  
   // motorInit();
   // Serial.println("Setting DOWN!");
   // setMotorDir('D');
@@ -221,4 +251,7 @@ void loop() {
     case SET_BRIGHTNESS: // Settings option to set brightness of lcd
       setBrightnessLoop();
       break;
-    defa
+    default:
+      break;
+  }
+}

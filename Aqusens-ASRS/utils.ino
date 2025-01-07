@@ -13,6 +13,9 @@ void gpioInit() {
   pinMode(KEY_L, INPUT_PULLDOWN);
   pinMode(KEY_R, INPUT_PULLDOWN);
   pinMode(KEY_S, INPUT_PULLDOWN);
+  pinMode(DIR_POS_PIN, OUTPUT);
+  pinMode(DIR_NEG_PIN, OUTPUT);
+  pinMode(STEP_NEG_PIN, OUTPUT);
 
   // pinMode(STEP_POS_PIN, OUTPUT);
   // pinMode(STEP_NEG_PIN, OUTPUT);
