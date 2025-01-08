@@ -16,6 +16,7 @@ void gpioInit() {
   pinMode(DIR_POS_PIN, OUTPUT);
   pinMode(DIR_NEG_PIN, OUTPUT);
   pinMode(STEP_NEG_PIN, OUTPUT);
+  digitalWrite(STEP_NEG_PIN, 0);
 
   // pinMode(STEP_POS_PIN, OUTPUT);
   // pinMode(STEP_NEG_PIN, OUTPUT);
@@ -34,6 +35,13 @@ void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
   attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, CHANGE);
+}
+
+void controlSolenoid(int value, int solenoidNumber) {
+  if (solenoidNumber == SOLENOID_ONE || solenoidNumber == SOLENOID_TWO) {
+      P1.writeDiscrete(value, RELAY_SLOT, solenoidNumber);
+  }
+
 }
 
 void onHighTrigger() {

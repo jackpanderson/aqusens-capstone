@@ -74,8 +74,15 @@
 #define STEP_POS_PIN  6
 #define STEP_NEG_PIN 7
 
-#define DIR_POS_PIN   14
+#define DIR_POS_PIN   13
 #define DIR_NEG_PIN  14
+
+//Relays
+#define RELAY_SLOT 1
+#define SOLENOID_ONE 1
+#define SOLENOID_TWO 2
+#define SOLENOID_ENABLE 1
+#define SOLENOID_DISABLE 0
 
 // Outputs
 // #define STEPPER_PUL 1    // Stepper pulse output
@@ -133,6 +140,8 @@ enum stateEnum {
 volatile stateEnum state = STANDBY;   // Start up will show standby state
 // volatile bool isDelayingStartTime = false; 
 
+volatile uint32_t steps = 0;
+
 // Timing
 tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
 Timer<5, millis> dropTimer;
@@ -170,10 +179,9 @@ void setup() {
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
-  setMotorDir('U');
-  setMotorSpeed(500);
-  delay(10000);
-  setMotorDir('D');
+  setMotorSpeed(5000);
+
+  
   
   // motorInit();
   // Serial.println("Setting DOWN!");
@@ -184,12 +192,15 @@ void setup() {
 }
 
 void loop() {
-  // setMotorDir('D');
-  // while(1) {
-  //   digitalWrite(STEP_POS_PIN, HIGH);
-  //   delay(1000);
-  //   digitalWrite(STEP_POS_PIN, LOW);
+
+  // while (1) {
+  //   controlSolenoid(SOLENOID_ENABLE, SOLENOID_ONE);
+  //   delay(2000);
+  //   controlSolenoid(SOLENOID_DISABLE, SOLENOID_ONE);
+  //   delay(2000);
   // }
+
+
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();
