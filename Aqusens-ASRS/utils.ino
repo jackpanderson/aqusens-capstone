@@ -15,8 +15,8 @@ void gpioInit() {
   pinMode(KEY_S, INPUT_PULLDOWN);
   pinMode(DIR_POS_PIN, OUTPUT);
   pinMode(DIR_NEG_PIN, OUTPUT);
-  pinMode(STEP_NEG_PIN, OUTPUT);
-  digitalWrite(STEP_NEG_PIN, 0);
+  // pinMode(STEP_NEG_PIN, OUTPUT);
+  // digitalWrite(STEP_NEG_PIN, 0);
 
   // pinMode(STEP_POS_PIN, OUTPUT);
   // pinMode(STEP_NEG_PIN, OUTPUT);
@@ -79,32 +79,6 @@ void rtcInit() {
   dryTime.Minute = 20;
   
   updateAlarm();
-}
-
-void motorInit() {
-  stepper = new SAMD_PWM(STEP_POS_PIN, 500, 0);
-  digitalWrite(STEP_NEG_PIN, 0);
-  setMotorDir('D');
-}
-
-void setMotorDir(char ch) {
-  if (ch == 'U') {
-    digitalWrite(DIR_POS_PIN, 0);
-    digitalWrite(DIR_NEG_PIN, 1);
-  } else {
-    digitalWrite(DIR_POS_PIN, 1);
-    digitalWrite(DIR_NEG_PIN, 0);
-  }
-}
-
-void setMotorSpeed(int speed)
-{
-  if (speed == 0) {
-    // Use DC = 0 to stop stepper
-    stepper->setPWM(STEP_POS_PIN, 500, 0);
-  } else {
-    stepper->setPWM(STEP_POS_PIN, abs(speed), 50);
-  }
 }
 
 
