@@ -183,6 +183,12 @@ void setup() {
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
+  setMotorSpeed(50000);
+  // setMotorSpeed(3400);
+  // delay(2000);
+  // setMotorSpeed(0);
+  Serial.println("HI");
+  for (;;);
 
   // motorInit();
   // Serial.println("Setting DOWN!");
@@ -193,14 +199,6 @@ void setup() {
 }
 
 void loop() {
-
-  // while (1) {
-  //   controlSolenoid(SOLENOID_ENABLE, SOLENOID_ONE);
-  //   delay(2000);
-  //   controlSolenoid(SOLENOID_DISABLE, SOLENOID_ONE);
-  //   delay(2000);
-  // }
-
 
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
