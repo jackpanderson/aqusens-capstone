@@ -144,7 +144,7 @@ enum stateEnum {
 volatile stateEnum state = STANDBY;   // Start up will show standby state
 // volatile bool isDelayingStartTime = false; 
 
-volatile uint32_t steps = 0;
+volatile uint32_t motorPulses = 0;
 
 // Timing
 tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
@@ -178,17 +178,18 @@ void setup() {
   gpioInit();
   estopInit();
   motorInit();
+  //Serial.println("u");
 
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
-  setMotorSpeed(50000);
+  //setMotorFreq(50000);
   // setMotorSpeed(3400);
   // delay(2000);
   // setMotorSpeed(0);
-  Serial.println("HI");
-  for (;;);
+  //Serial.println("HI");
+  //for (;;);
 
   // motorInit();
   // Serial.println("Setting DOWN!");
@@ -199,6 +200,16 @@ void setup() {
 }
 
 void loop() {
+
+  // while(1)
+  // {
+  //   setMotorFreq(500);
+  //   delay(2000);
+  //   setMotorFreq(10000);
+  //   delay(2000);
+  //   setMotorFreq(0);
+  //   delay(2000);
+  // }
 
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
