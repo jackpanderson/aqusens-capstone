@@ -178,7 +178,7 @@ void setup() {
   gpioInit();
   estopInit();
   motorInit();
-  // //Serial.println("u");
+  // // //Serial.println("u");
 
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
@@ -203,9 +203,18 @@ void loop() {
   // while(1)
   // {
   //   setMotorFreq(500);
-  //   delay(2000);
+  //   delay(5000);
+  //   setMotorFreq(0);
+  //   delay(1);
+  //   Serial.println(motorPulses);
+  //   motorPulses = 0;
   //   setMotorFreq(10000);
   //   delay(2000);
+  //   setMotorFreq(0);
+  //   delay(1);
+  //   Serial.print("10000 did\n");
+  //   Serial.println(motorPulses);
+  //   motorPulses = 0;
   //   setMotorFreq(0);
   //   delay(2000);
   // }
