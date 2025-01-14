@@ -178,7 +178,7 @@ void setup() {
   gpioInit();
   estopInit();
   motorInit();
-  //Serial.println("u");
+  // //Serial.println("u");
 
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
@@ -191,7 +191,6 @@ void setup() {
   //Serial.println("HI");
   //for (;;);
 
-  // motorInit();
   // Serial.println("Setting DOWN!");
   // setMotorDir('D');
   // setMotorSpeed(20000);
