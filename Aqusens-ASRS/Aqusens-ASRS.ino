@@ -150,7 +150,7 @@ volatile uint32_t motorPulses = 0;
 tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
 Timer<5, millis> dropTimer;
 bool dropFlag = true; // Set by timers in activeLoop
-bool estopPressed = false; // Flag to keep track of E-stop pressed/released
+volatile bool estopPressed = false; // Flag to keep track of E-stop pressed/released
 
 int8_t cursorY = 2; // keeps track of current cursor position
 uint8_t screenBrightness = 10; 
