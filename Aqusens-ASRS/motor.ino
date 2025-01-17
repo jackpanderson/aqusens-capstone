@@ -11,6 +11,8 @@ typedef enum MotorDir {
 #define MAX_MOTOR_FREQ          (300000)
 #define SYSTEM_CLOCK_FREQ 48000000
 #define PRESCALER_VAL 16
+#define REEL_RAD_CM         (2.7f)
+#define PULSE_PER_REV       (8000)
 
 volatile bool toggle = false;
 
@@ -21,16 +23,13 @@ void setMotorDir(MotorDir dir);
 void motorInit() {
   //stepper = new SAMD_PWM(STEP_POS_PIN, DEFAULT_MOTOR_FREQ_Hz, 
   //                    DEFAULT_MOTOR_DC); // uses old lib
-  // stepper->setPWM(STEP_POS_PIN, 3000, 50); // this doesnt work
-  // stepper->setPWM(STEP_POS_PIN, 500, 50); // this works
+  // TODO: motor constructor
   pinMode(STEP_POS_PIN, OUTPUT);
 }
 
 
 // TODO: make just if else
 void setMotorDir(MotorDir dir) {
-  // digitalWrite(DIR_POS_PIN, dir == CW);
-  
   if (dir == CW) {
     digitalWrite(DIR_POS_PIN, HIGH);
   } else {
@@ -38,25 +37,21 @@ void setMotorDir(MotorDir dir) {
   }
 }
 
-// TODO: what unit should speed be?
-// right now speed is -100% - 100% of max freq
-// void setMotorSpeed(int rpm) {
-//   stepper->setPWM(STEP_POS_PIN, DEFAULT_MOTOR_FREQ_Hz, DEFAULT_MOTOR_DC);
-  
-//   if (rpm > 0) {
-//     setMotorDir(CW);
-//     stepper->setPWM(STEP_POS_PIN, rpm * 2, 50); 
-//     Serial.println(rpm);
-//   } else if (rpm < 0) {
-//     setMotorDir(CCW);
-//     stepper->setPWM(STEP_POS_PIN, -rpm * 2, 50);
-//   }
-// }
+// TODO: does this work for negative
+inline uint32_t speed_to_freq(float cm_per_sec) {
+  return (cm_per_sec * PULSE_PER_REV) / (2 * PI * REEL_RAD_CM);
+}
+
+void setMotorSpeed(float cm_per_sec) {
+  setMotorFreq(speed_to_freq(cm_per_sec));
+}
+
 
 void setMotorFreq(uint32_t frequency) {
 
+    //Disables timer clock, disabling output
     if (frequency == 0) {
-      GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); //Disables timer clock, disabling output
+      GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); 
       return;
     }
 
@@ -79,7 +74,6 @@ void setMotorFreq(uint32_t frequency) {
     while (TC5->COUNT16.STATUS.bit.SYNCBUSY); 
 
     // Set compare value
-
     uint16_t compareVal = countValFromFreq(frequency);
 
     TC5->COUNT16.CC[0].reg = compareVal;
@@ -91,6 +85,8 @@ void setMotorFreq(uint32_t frequency) {
     // Enable TC5
     TC5->COUNT16.CTRLA.bit.ENABLE = 1;
     while (TC5->COUNT16.STATUS.bit.SYNCBUSY);
+
+    return;
 }
 
 uint16_t countValFromFreq(uint16_t frequency) 
