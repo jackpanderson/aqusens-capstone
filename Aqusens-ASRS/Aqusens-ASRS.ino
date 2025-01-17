@@ -62,24 +62,20 @@
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
 #define SWITCH_IN {HV_GPIO_SLOT, 2}     // Switch input (for manual operation)
 #define E_STOP_IN {HV_GPIO_SLOT, 3}     // E Stop input
-// #define KEY_S 0
-#define KEY_S 3
+
+#define KEY_S 0
 #define KEY_D 1
 #define KEY_U 2
-// #define KEY_L 3
-#define KEY_L 16
-// #define KEY_R 4
-#define KEY_R 14
+#define KEY_L 3
+#define KEY_R 4
+
 #define SD_CS 28
 // #define ESTOP_IN 4 //Change to real value
 
 //Motor
-// #define STEP_POS_PIN  6
-#define STEP_POS_PIN  7
-// #define STEP_NEG_PIN 7
-
-#define DIR_POS_PIN   6
-#define DIR_NEG_PIN  4
+#define STEP_POS_PIN  6
+#define DIR_POS_PIN   13
+// #define DIR_NEG_PIN  4
 
 //Relays
 #define RELAY_SLOT 1
