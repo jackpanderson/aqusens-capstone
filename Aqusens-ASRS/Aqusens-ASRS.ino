@@ -7,7 +7,7 @@
 //  -Design Engineers: Doug Brewster and Rob Brewster
 //  -Contributors: Sarah Martin, Deeba Khosravi, Emma Lucke, Jack Anderson, Jorge Ramirez
 //  -Microcontroller: P1AM-100 ProOpen 
-//  -Arduino IDE version:2.3.3
+//  -Arduino IDE version:2.3.4
 //  -See User Manual For Project Description
 //  -non-stock libraries needed: (add library reference here)
 
@@ -24,39 +24,11 @@
 #include <math.h>
 #include "SAMD_PWM.h"
 
-/*Function Prototypes**************************************************************/
-// void rtcInit();
-// void gpioInit();
-// void setMotorDir(char ch);
-// void estopInit();
-// void motorInit();
-// void setMotorSpeed(int speed);
-// void calibrateLoop();
-// void standbyLoop();
-// void ensureSampleStartLoop();
-// void releaseLoop();
-// void soakLoop();
-// void recoverLoop();
-// void sampleLoop();
-// void flushLoop();
-// void dryLoop();
-// void alarmLoop();
-// void manualLoop();
-// void motorControlLoop();
-// void settingsLoop();
-// void setClockLoop();
-// void setIntervalLoop();
-// void setStartTimeLoop();
-// void setSoakTimeLoop();
-// void setDryTimeLoop();
-// void setBrightnessLoop(); 
-
 /* Pin Mapping ********************************************************************/
 
 // Slots
 #define HV_GPIO_SLOT 1                  // High voltage GPIO (P1-15CDD1)
-#define PWM_SLOT 2
-#define RELAY_SLOT 3
+#define RELAY_SLOT 2                    // Relay module (P1-04TRS)
 
 // Inputs
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
@@ -75,12 +47,12 @@
 //Motor
 #define STEP_POS_PIN  6
 #define DIR_POS_PIN   13
-// #define DIR_NEG_PIN  4
 
 //Relays
-#define RELAY_SLOT 1
-#define SOLENOID_ONE 1
-#define SOLENOID_TWO 2
+#define RELAY_SLOT 2
+#define MOTOR_POWER 1
+#define SOLENOID_ONE 2
+#define SOLENOID_TWO 3
 #define SOLENOID_ENABLE 1
 #define SOLENOID_DISABLE 0
 
@@ -174,47 +146,16 @@ void setup() {
   gpioInit();
   estopInit();
   motorInit();
-  // // //Serial.println("u");
 
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
-  
-  //setMotorFreq(50000);
-  // setMotorSpeed(3400);
-  // delay(2000);
-  // setMotorSpeed(0);
-  //Serial.println("HI");
-  //for (;;);
-
-  // Serial.println("Setting DOWN!");
-  // setMotorDir('D');
-  // setMotorSpeed(20000);
-  // delay(10000);
   //findHomePos();          // Bring probe back to home position
+
+  setMotorSpeed(-200);
 }
 
 void loop() {
-
-  // while(1)
-  // {
-  //   setMotorFreq(500);
-  //   delay(5000);
-  //   setMotorFreq(0);
-  //   delay(1);
-  //   Serial.println(motorPulses);
-  //   motorPulses = 0;
-  //   setMotorFreq(10000);
-  //   delay(2000);
-  //   setMotorFreq(0);
-  //   delay(1);
-  //   Serial.print("10000 did\n");
-  //   Serial.println(motorPulses);
-  //   motorPulses = 0;
-  //   setMotorFreq(0);
-  //   delay(2000);
-  // }
-
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();

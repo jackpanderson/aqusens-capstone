@@ -219,6 +219,7 @@ void dryLoop() {
 //            otherwise, flashes warning
 //    - Manual Mode: proceeds to manual mode
 void alarmLoop() {
+  setMotorSpeed(0);
   char key;
   uint8_t keyPressed;
   lcd.clear();

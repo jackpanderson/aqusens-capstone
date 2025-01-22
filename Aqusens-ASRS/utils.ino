@@ -14,7 +14,7 @@ void gpioInit() {
   pinMode(KEY_R, INPUT_PULLDOWN);
   pinMode(KEY_S, INPUT_PULLDOWN);
   pinMode(DIR_POS_PIN, OUTPUT);
-  pinMode(DIR_NEG_PIN, OUTPUT);
+  //pinMode(DIR_NEG_PIN, OUTPUT);
   // pinMode(STEP_NEG_PIN, OUTPUT);
   // digitalWrite(STEP_NEG_PIN, 0);
 
@@ -41,7 +41,6 @@ void controlSolenoid(int value, int solenoidNumber) {
   if (solenoidNumber == SOLENOID_ONE || solenoidNumber == SOLENOID_TWO) {
       P1.writeDiscrete(value, RELAY_SLOT, solenoidNumber);
   }
-
 }
 
 void onHighTrigger() {

@@ -10,9 +10,9 @@ typedef enum MotorDir {
 #define MOTOR_OFF(x)            (x == 0)
 #define MAX_MOTOR_FREQ          (300000)
 #define SYSTEM_CLOCK_FREQ 48000000
-#define PRESCALER_VAL 16
+#define PRESCALER_VAL       16
 #define REEL_RAD_CM         (2.7f)
-#define PULSE_PER_REV       (8000)
+#define PULSE_PER_REV       (1600)
 
 volatile bool toggle = false;
 
@@ -43,9 +43,22 @@ inline uint32_t speed_to_freq(float cm_per_sec) {
 }
 
 void setMotorSpeed(float cm_per_sec) {
-  setMotorFreq(speed_to_freq(cm_per_sec));
+  if (cm_per_sec < 0) {
+    setMotorDir(CCW);
+  }
+  else if (cm_per_sec > 0) {
+    setMotorDir(CW);
+  }
+
+  setMotorFreq(speed_to_freq(abs(cm_per_sec)));
 }
 
+void resetMotor(void) {
+  /*Resets power to the motor in the case of a fault*/
+  P1.writeDiscrete(1, RELAY_SLOT, MOTOR_POWER);
+  delay(1000);
+  P1.writeDiscrete(0, RELAY_SLOT, MOTOR_POWER);
+}
 
 void setMotorFreq(uint32_t frequency) {
 

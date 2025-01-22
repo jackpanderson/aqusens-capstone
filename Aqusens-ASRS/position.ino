@@ -10,9 +10,9 @@
 #define DROP_DISTANCE_CM    (DROP_DISTANCE_M * 100)
 
 #define REEL_RAD_CM         (2.7f)
-#define PULSE_PER_REV       (8000)
-// #define FREQ_TIMER          (1000) // 1kHz
+#define PULSE_PER_REV       (1600)
 #define PUL_TOLERANCE       (50)
+#define GEARBOX_RATIO       (50) // Gearbox is 50:1, i.e. 50 stepper revoltuions = 1 gearbox drum rotation
 
 #define MOTOR_STEPS         (3)
 #define NUM_VEL_BINS        (2 * MOTOR_STEPS + 1)
@@ -34,7 +34,7 @@ static volatile bool sample_flag = false;
 static volatile bool dropping_flag = false;
 
 inline float vel_reel(unsigned int motor_freq) {
-    return 2 * PI * motor_freq / PULSE_PER_REV;
+    return (2 * PI * motor_freq * REEL_RAD_CM) / (PULSE_PER_REV * GEARBOX_RATIO);
 }
 
 void init_pos_tracking() {
