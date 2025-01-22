@@ -48,6 +48,9 @@
 #define STEP_POS_PIN  6
 #define DIR_POS_PIN   13
 
+//HV GPIO
+#define MAG_SENSOR_IO_SLOT 1
+
 //Relays
 #define RELAY_SLOT 2
 #define MOTOR_POWER 1
