@@ -135,6 +135,9 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 //I2C LCD Screen
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
+// Tube position
+unsigned int tube_position;
+
 /* Setup and Loop **************************************************************/
 
 void setup() {
@@ -152,8 +155,9 @@ void setup() {
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   //findHomePos();          // Bring probe back to home position
 
-  setMotorSpeed(-200);
+
 }
+
 
 void loop() {
   switch (state) {
