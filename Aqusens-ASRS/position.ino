@@ -150,6 +150,7 @@ bool drop_motor(unsigned int distance_cm) {
   return false;
 }
 
+// TODO: implement mag switch for homing;
 #define RAISE_SPEED_CM_SEC      (5.0f)
 bool raise_motor(unsigned int distance_cm) {  
   // start the drop
@@ -159,6 +160,7 @@ bool raise_motor(unsigned int distance_cm) {
   static unsigned int drop_time_ms;
   
   if (!raise_flag) {
+      // TODO: if distance is greater than position so no buckling
       raise_flag = true;
       tube_position = 0;                    // reset pos
       start_time = millis();                // FIXME: either this or get count from the timer

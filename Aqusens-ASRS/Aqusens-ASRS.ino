@@ -162,9 +162,6 @@ void setup() {
   delay(1000);
   while(!raise_motor(20));
 
-  Serial.println("DONE");
-  while(1);
-
 }
 
 
