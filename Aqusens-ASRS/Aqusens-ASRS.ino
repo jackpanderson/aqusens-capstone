@@ -158,6 +158,12 @@ void setup() {
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   //findHomePos();          // Bring probe back to home position
 
+  while(!drop_motor(20));
+  delay(1000);
+  while(!raise_motor(20));
+
+  Serial.println("DONE");
+  while(1);
 
 }
 

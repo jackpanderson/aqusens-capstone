@@ -39,10 +39,12 @@ void setMotorDir(MotorDir dir) {
 }
 
 // TODO: does this work for negative
+// FIXME: breaks with anything 26+
 inline uint32_t speed_to_freq(float cm_per_sec) {
   return (cm_per_sec * PULSE_PER_REV * GEAR_RATIO) / (2 * PI * REEL_RAD_CM);
 }
 
+// FIXME: turn off motor first incase does 180 and snaps
 void setMotorSpeed(float cm_per_sec) {
   if (cm_per_sec < 0) {
     setMotorDir(CCW);

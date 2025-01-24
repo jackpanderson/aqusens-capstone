@@ -544,8 +544,8 @@ void checkEstop() {
   }
 }
 
-void magSensorRead() {
-  // Reads the magnetic sensor input
-  // Returns 1 if high, 0 if low
-  return P1.readDiscrete(HV_GPIO_SLOT, MAG_SENSOR_IO_SLOT);
-}
+// void magSensorRead() {
+//   // Reads the magnetic sensor input
+//   // Returns 1 if high, 0 if low
+//   return P1.readDiscrete(HV_GPIO_SLOT, MAG_SENSOR_IO_SLOT);
+// }

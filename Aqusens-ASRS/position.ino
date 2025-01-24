@@ -121,9 +121,7 @@ void init_timer(SpeedState state) {
 //     return false;
 // }
 
-#define DROP_SPEED_CM_SEC      (3.0f)
-// #define DROP_SPEED_CM_SEC      (1.0f)
-// TODO: 
+#define DROP_SPEED_CM_SEC      (5.0f)
 bool drop_motor(unsigned int distance_cm) {  
   // start the drop
   static bool dropping_flag = false;
@@ -152,8 +150,33 @@ bool drop_motor(unsigned int distance_cm) {
   return false;
 }
 
-void TC4_Handler() {
-    sample_flag = true;
+#define RAISE_SPEED_CM_SEC      (5.0f)
+bool raise_motor(unsigned int distance_cm) {  
+  // start the drop
+  static bool raise_flag = false;
+  static unsigned long start_time;
+  static unsigned int drop_distance_cm;
+  static unsigned int drop_time_ms;
+  
+  if (!raise_flag) {
+      raise_flag = true;
+      tube_position = 0;                    // reset pos
+      start_time = millis();                // FIXME: either this or get count from the timer
+      setMotorSpeed(RAISE_SPEED_CM_SEC);     // TODO: what is the dropping speed
+      drop_distance_cm = distance_cm;       // lock in the distance
+      drop_time_ms = distance_cm / RAISE_SPEED_CM_SEC * 1000;    // cnt to compare against
+  }
+
+  // elasped time would be coming from pwm timer?
+  unsigned long elasped_time = millis() - start_time;
+  tube_position += elasped_time / 1000 * RAISE_SPEED_CM_SEC; 
+  if (elasped_time > drop_time_ms) {
+    setMotorSpeed(0);
+    raise_flag = false;
+    return true;
+  }
+
+  return false;
 }
 
 
