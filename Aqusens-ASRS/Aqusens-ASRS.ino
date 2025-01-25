@@ -155,7 +155,8 @@ void setup() {
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   //findHomePos();          // Bring probe back to home position
 
-  setMotorSpeed(-200);
+  //setMotorFreq(3000);
+
 }
 
 void loop() {

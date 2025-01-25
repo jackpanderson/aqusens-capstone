@@ -1,4 +1,4 @@
-
+#define PRESS_AND_HOLD_INTERVAL_MS 50
 /* State Machine Functions ******************************************************/
 
 // CALIBRATE
@@ -273,16 +273,56 @@ void manualLoop() {
 }
 
 void motorControlLoop() {
+  int fakePos = 50; // Jack: REMOVE EVENTUALLY, USE GLOBAL MOTOR POSITION VARIABLE
+  motorControlLCD();
+  updateMotorCurrPositionDisplay(fakePos);
   char key;
   uint8_t keyPressed;
+  uint8_t lastKeyPressed;
+
   lcd.clear();
   cursorY = 1;
   while (state == MOTOR_CONTROL) {
     motorControlLCD();
-    keyPressed = cursorSelect(1, 1); // TODO: change to use different controls
+    updateMotorCurrPositionDisplay(fakePos); // Eventually should not need an argument
+    
+    keyPressed = getKeyTimeBasedDebounce();
 
-    if (keyPressed == 'S') {
+    if (keyPressed == 'L') {
       state = MANUAL;
     }
+
+    else if (keyPressed == 'S') {
+      resetMotor();
+    }
+
+    else if (keyPressed == 'D') {
+      while (pressAndHold('D') == 'D') {
+        // move motor down 1cm
+        updateMotorCurrPositionDisplay(fakePos++);
+      }
+    }
+
+    else if (keyPressed == 'U') {
+      while (pressAndHold('U') == 'U') {
+        //Move motor up 1cm
+        updateMotorCurrPositionDisplay(fakePos--);
+      }
+    }
   }
+}
+
+char pressAndHold(uint8_t lastKeyPressed) {
+  //uint8_t currKey = getKeyPress();
+  unsigned long startTime = millis();
+  unsigned long currTime = millis();
+
+  while(currTime - startTime < PRESS_AND_HOLD_INTERVAL_MS) {
+    if (getKeyPress() != lastKeyPressed) {
+      return 0; //Target key has been let go
+    }
+    currTime = millis();
+  }
+
+  return lastKeyPressed;
 }

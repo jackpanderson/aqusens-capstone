@@ -409,7 +409,7 @@ void motorControlLCD() {
   lcd.setCursor(0, 3);
   lcd.print("<BACK");
   lcd.setCursor(10, 3);
-  lcd.print("CURR: 5.5m");
+  lcd.print("CURR:");
   
   lcd.setCursor(0, cursorY);
   lcd.print("*");

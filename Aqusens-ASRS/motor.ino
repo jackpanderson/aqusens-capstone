@@ -64,7 +64,8 @@ void setMotorFreq(uint32_t frequency) {
 
     //Disables timer clock, disabling output
     if (frequency == 0) {
-      GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); 
+      //GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); //deprecated, messed with I2C i think...? lcd.clear() would hang indef.
+      TC5->COUNT16.CTRLA.bit.ENABLE = 0;
       return;
     }
 

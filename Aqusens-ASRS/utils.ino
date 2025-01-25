@@ -1,3 +1,5 @@
+#define TIME_BASED_DEBOUNCE_WAIT_TIME_MS 35
+
 /* Init Functions **************************************************************/
 
 /*---------------------------------------------------------
@@ -205,6 +207,32 @@ char getKeyDebounce() {
 
 
   return key;
+}
+
+
+
+//Time based debounce function for press-and-hold
+char getKeyTimeBasedDebounce() {
+  char key = getKeyPress();
+
+  unsigned long startTime = millis();
+  unsigned long currTime = millis();
+
+  if (key == 'U' || key == 'D') {
+    while (currTime - startTime < TIME_BASED_DEBOUNCE_WAIT_TIME_MS) {
+      currTime = millis();
+    }
+
+    if (getKeyPress() == key) {
+      return key;
+    }
+
+    else {
+      return NULL;
+    }
+  }
+
+  return getKeyDebounce();
 }
 
 String getCurrentDateTime() {
@@ -544,8 +572,28 @@ void checkEstop() {
   }
 }
 
-void magSensorRead() {
+bool magSensorRead() {
   // Reads the magnetic sensor input
   // Returns 1 if high, 0 if low
   return P1.readDiscrete(HV_GPIO_SLOT, MAG_SENSOR_IO_SLOT);
+}
+
+void updateMotorCurrPositionDisplay(int currPos) {
+  //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
+  lcd.setCursor(15, 3);
+
+  int meters = currPos/100; //Converts cm to nearest meter, assuming less than 10!
+  int remainingCm = currPos - meters*100; //Leftover centimeters
+
+  char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
+
+  if (remainingCm >= 10) {
+    snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
+  }
+
+  else {
+    snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
+  }
+
+  lcd.print(formattedDistance);
 }
