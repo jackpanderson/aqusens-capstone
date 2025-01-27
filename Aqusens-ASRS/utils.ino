@@ -73,11 +73,14 @@ void rtcInit() {
   nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
 
-  soakTime.Hour = 0;
   soakTime.Minute = 5;
+  soakTime.Second = 0;
 
-  dryTime.Hour = 0;
   dryTime.Minute = 20;
+  dryTime.Second = 0;
+
+  flushTime.Minute = 5;
+  flushTime.Second = 0;
   
   updateAlarm();
 }
@@ -517,25 +520,7 @@ void adjustSetIntervalDigit(char key, tmElements_t* newInterval, uint8_t* cursor
 
 void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos) {
   switch (*cursorPos) {
-    case 0: //Hours Tens Place, using military/24 hour time
-      if (key == 'U' && (newTime -> Hour) <= 14) { //Max 24 
-        (newTime -> Hour) += 10;
-      }
-      else if (key == 'D' && (newTime -> Hour) >= 10) { //Min 0
-        (newTime -> Hour) -= 10;
-      }
-      break;
-    
-    case 1: //Hours Ones Place
-      if (key == 'U' && (newTime -> Hour) < 24) { 
-        (newTime -> Hour) += 1;
-      }
-      else if (key == 'D' && (newTime -> Hour) > 0) {
-        (newTime -> Hour) -= 1;
-      }
-      break;
-    
-    case 2: //Minutes Tens Place
+    case 0: //Minutes Tens Place
       if (key == 'U' && (newTime -> Minute) < 49) { //Max 59
         (newTime -> Minute) += 10;
       }
@@ -544,7 +529,7 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
       }
       break;
     
-    case 3:  //Minutes Ones Place
+    case 1:  //Minutes Ones Place
       if (key == 'U' && (newTime -> Minute) < 59) { 
         (newTime -> Minute) += 1;
       }
@@ -552,17 +537,39 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
         (newTime -> Minute) -= 1;
       }
       break;
+
+      case 2:  //Sec tens Place
+        if (key == 'U' && (newTime -> Second) < 49) { 
+          (newTime -> Second) += 10;
+        }
+        else if (key == 'D' && (newTime -> Second) > 0) {
+          (newTime -> Second) -= 10;
+        }
+      break;
+
+      case 3:  //Sec Ones Place
+        if (key == 'U' && (newTime -> Second) < 59) { 
+          (newTime -> Second) += 1;
+        }
+        else if (key == 'D' && (newTime -> Second) > 0) {
+          (newTime -> Second) -= 1;
+        }
+      break;
     
     default:
       break;
   }
 
-  if ((newTime -> Hour) > 23) {
-    (newTime -> Hour) = 23;
-  }
+  // if ((newTime -> Hour) > 23) {
+  //   (newTime -> Hour) = 23;
+  // }
 
   if ((newTime -> Minute) > 59) {
     (newTime -> Minute) = 59;
+  }
+
+  if ((newTime -> Second) > 59) {
+    (newTime -> Second) = 59;
   }
 }
 
