@@ -36,7 +36,7 @@ void gpioInit() {
 void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
-  attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(A1), onLowTrigger, FALLING);
 }
 
 void controlSolenoid(int value, int solenoidNumber) {
@@ -45,11 +45,12 @@ void controlSolenoid(int value, int solenoidNumber) {
   }
 }
 
-void onHighTrigger() {
+void onLowTrigger() {
   //setMotorSpeed(0);
-  // state = ESTOP_ALARM;
-  estopPressed = !estopPressed;
+  state = ESTOP_ALARM;
+  estopPressed = 1;
 }
+
 
 /*---------------------------------------------------------
 * Function: rtcInit()

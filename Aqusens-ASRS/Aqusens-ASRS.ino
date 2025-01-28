@@ -163,6 +163,10 @@ void setup() {
   // while(!drop_motor(20));
   // delay(1000);
   // while(!raise_motor(20));
+  setMotorFreq(1000);
+  while (1) {
+    ;
+  }
 
 
 }

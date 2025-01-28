@@ -122,14 +122,16 @@ void TC5_Handler() {
     if (TC5->COUNT16.INTFLAG.bit.MC0) {  // Match/Compare 0 interrupt
         TC5->COUNT16.INTFLAG.reg = TC_INTFLAG_MC(1);  // Clear interrupt flag
 
-        // Toggle the output pin
-        toggle = !toggle;
-        
-        if (toggle == 1) {
-          motorPulses++;
-        }
+        if (!estopPressed) {
+                  // Toggle the output pin
+            toggle = !toggle;
+            
+            if (toggle == 1) {
+              motorPulses++;
+            }
 
-        digitalWrite(STEP_POS_PIN, toggle);
+            digitalWrite(STEP_POS_PIN, toggle);
+            }
     }
 }
 
