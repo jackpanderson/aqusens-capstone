@@ -29,6 +29,7 @@
 // Slots
 #define HV_GPIO_SLOT 1                  // High voltage GPIO (P1-15CDD1)
 #define RELAY_SLOT 2                    // Relay module (P1-04TRS)
+#define CDD1_CHANNEL  (1)
 
 // Inputs
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
@@ -60,15 +61,6 @@
 #define SOLENOID_DISABLE 0
 
 // Outputs
-// #define STEPPER_PUL 1    // Stepper pulse output
-// #define STEPPER_DIR 2   // Stepper direction output
-// #define LCD_POWER {HV_GPIO_SLOT, 10}
-// #define LCD_RS 0
-// #define LCD_E  1
-// #define LCD_D4 2
-// #define LCD_D5 3
-// #define LCD_D6 4
-// #define LCD_D7 6
 
 
 /* Hardcoded Macros **************************************************************/
@@ -113,7 +105,6 @@ enum stateEnum {
 };
 
 volatile stateEnum state = STANDBY;   // Start up will show standby state
-// volatile bool isDelayingStartTime = false; 
 
 volatile uint32_t motorPulses = 0;
 
@@ -139,7 +130,12 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
+unsigned int drop_distance_cm = 10;
+// unsigned int drop_distance_cm = 20;
 unsigned int tube_position;
+
+// Discrete module
+
 
 /* Setup and Loop **************************************************************/
 
@@ -156,16 +152,18 @@ void setup() {
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
-  //findHomePos();          // Bring probe back to home position
-
-  while(!drop_motor(20));
-  delay(1000);
-  while(!raise_motor(20));
+  
+  // home_tube();
 
 }
 
-
 void loop() {
+  Serial.print("State: ");
+  Serial.println(state);
+
+  while(!drop_motor(10));
+  while(1);
+
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();

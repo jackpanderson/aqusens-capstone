@@ -25,7 +25,7 @@ typedef enum {
 
 inline float vel_reel(unsigned int motor_freq);
 void init_pos_tracking();
-void home_tube();
+// void home_tube();
 void init_timer(SpeedState state);
 bool drop_motor(unsigned int& cur_position);
 void TC4_Handler();
@@ -50,24 +50,19 @@ void home_tube() {
      *  while (!mag_switch)
      *      reel up slowly
      */
+  
+  while (!drop_tube(10));
+  
+  // if (magSensorRead()) {
+    // tube_position = 0;
+  // }
+
+  setMotorSpeed(2);     // TODO: what is the dropping speed
+  while (!magSensorRead());
+  turnMotorOff(true);
+  tube_position = 0;
 }
 
-// TODO:
-void init_timer(SpeedState state) {
-    // clear timer
-
-    // set time
-    switch (state) {
-        case RAMPING_UP:
-          return;
-        case CONSTANT:
-          return;
-        case SLOWING_DOWN:
-          return;
-    }
-
-    // start the counter
-}
 
 // ? maybe pass in pos_var so user knows exactly how much fallen?
 // ? what happens if estop is pressed in the middle
@@ -122,7 +117,7 @@ void init_timer(SpeedState state) {
 // }
 
 #define DROP_SPEED_CM_SEC      (5.0f)
-bool drop_motor(unsigned int distance_cm) {  
+bool drop_tube(unsigned int distance_cm) {  
   // start the drop
   static bool dropping_flag = false;
   static unsigned long start_time;
@@ -140,9 +135,12 @@ bool drop_motor(unsigned int distance_cm) {
 
   // elasped time would be coming from pwm timer?
   unsigned long elasped_time = millis() - start_time;
-  tube_position += elasped_time / 1000 * DROP_SPEED_CM_SEC; 
+  tube_position = elasped_time * DROP_SPEED_CM_SEC / 1000.0f;
+  // Serial.print("drop ");
+  // Serial.println(tube_position); 
   if (elasped_time > drop_time_ms) {
-    setMotorSpeed(0);
+    // Serial.println
+    turnMotorOff();
     dropping_flag = false;
     return true;
   }
@@ -152,8 +150,7 @@ bool drop_motor(unsigned int distance_cm) {
 
 // TODO: implement mag switch for homing;
 #define RAISE_SPEED_CM_SEC      (5.0f)
-bool raise_motor(unsigned int distance_cm) {  
-  // start the drop
+bool raise_tube(unsigned int distance_cm) {  
   static bool raise_flag = false;
   static unsigned long start_time;
   static unsigned int drop_distance_cm;
@@ -173,7 +170,8 @@ bool raise_motor(unsigned int distance_cm) {
   unsigned long elasped_time = millis() - start_time;
   tube_position += elasped_time / 1000 * RAISE_SPEED_CM_SEC; 
   if (elasped_time > drop_time_ms) {
-    setMotorSpeed(0);
+  // if (tube_postition <) {
+    turnMotorOff();
     raise_flag = false;
     return true;
   }

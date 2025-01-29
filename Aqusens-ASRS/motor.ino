@@ -63,7 +63,14 @@ void resetMotor(void) {
   P1.writeDiscrete(0, RELAY_SLOT, MOTOR_POWER);
 }
 
+void turnMotorOff(bool double_check = 0) {
+  if (double_check) setMotorSpeed(3);
+  setMotorSpeed(0);
+}
+
 void setMotorFreq(uint32_t frequency) {
+  // Serial.print("Freak off: ");
+  // Serial.println(frequency);
 
     //Disables timer clock, disabling output
     if (frequency == 0) {

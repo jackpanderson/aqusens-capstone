@@ -75,28 +75,24 @@ void ensureSampleStartLoop() {
 // Checks for E-stop press
 void releaseLoop() {
 
-  // setMotorDir('D');
-  // setMotorSpeed(50000);
-
   resetLCD();
-  int position = 0;
-  char pos[6];
+  static char pos[6];
 
   while (state == RELEASE) 
   {
     checkEstop();
-    int meter = position / 100;
-    int deci = position % 100;
+    if (drop_tube(drop_distance_cm)) {
+      while(1);
+      state = SOAK;
+    }
+    Serial.print("distance: ");
+    Serial.println(tube_position);
+    int meter = tube_position / 100;
+    int deci = tube_position % 100;
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
     releaseLCD(pos);
 
-    delay(33);
-    position++;
-
-    if (position == 900) {
-      state = SOAK;
-      // setMotorSpeed(0);
-    }
+    // delay(33);
   }
 }
 
