@@ -74,7 +74,8 @@ void setMotorFreq(uint32_t frequency) {
 
     //Disables timer clock, disabling output
     if (frequency == 0) {
-      GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); 
+      //GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); //deprecated, messed with I2C i think...? lcd.clear() would hang indef.
+      TC5->COUNT16.CTRLA.bit.ENABLE = 0;
       return;
     }
 
@@ -128,14 +129,16 @@ void TC5_Handler() {
     if (TC5->COUNT16.INTFLAG.bit.MC0) {  // Match/Compare 0 interrupt
         TC5->COUNT16.INTFLAG.reg = TC_INTFLAG_MC(1);  // Clear interrupt flag
 
-        // Toggle the output pin
-        toggle = !toggle;
-        
-        if (toggle == 1) {
-          motorPulses++;
-        }
+        if (!estopPressed) {
+                  // Toggle the output pin
+            toggle = !toggle;
+            
+            if (toggle == 1) {
+              motorPulses++;
+            }
 
-        digitalWrite(STEP_POS_PIN, toggle);
+            digitalWrite(STEP_POS_PIN, toggle);
+            }
     }
 }
 

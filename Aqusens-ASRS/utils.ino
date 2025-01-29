@@ -1,3 +1,5 @@
+#define TIME_BASED_DEBOUNCE_WAIT_TIME_MS 35
+
 /* Init Functions **************************************************************/
 
 /*---------------------------------------------------------
@@ -34,7 +36,7 @@ void gpioInit() {
 void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
-  attachInterrupt(digitalPinToInterrupt(A1), onHighTrigger, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(A1), onLowTrigger, FALLING);
 }
 
 void controlSolenoid(int value, int solenoidNumber) {
@@ -43,11 +45,12 @@ void controlSolenoid(int value, int solenoidNumber) {
   }
 }
 
-void onHighTrigger() {
+void onLowTrigger() {
   //setMotorSpeed(0);
-  // state = ESTOP_ALARM;
-  estopPressed = !estopPressed;
+  state = ESTOP_ALARM;
+  estopPressed = 1;
 }
+
 
 /*---------------------------------------------------------
 * Function: rtcInit()
@@ -71,11 +74,14 @@ void rtcInit() {
   nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
 
-  soakTime.Hour = 0;
   soakTime.Minute = 5;
+  soakTime.Second = 0;
 
-  dryTime.Hour = 0;
   dryTime.Minute = 20;
+  dryTime.Second = 0;
+
+  flushTime.Minute = 5;
+  flushTime.Second = 0;
   
   updateAlarm();
 }
@@ -205,6 +211,32 @@ char getKeyDebounce() {
 
 
   return key;
+}
+
+
+
+//Time based debounce function for press-and-hold
+char getKeyTimeBasedDebounce() {
+  char key = getKeyPress();
+
+  unsigned long startTime = millis();
+  unsigned long currTime = millis();
+
+  if (key == 'U' || key == 'D') {
+    while (currTime - startTime < TIME_BASED_DEBOUNCE_WAIT_TIME_MS) {
+      currTime = millis();
+    }
+
+    if (getKeyPress() == key) {
+      return key;
+    }
+
+    else {
+      return NULL;
+    }
+  }
+
+  return getKeyDebounce();
 }
 
 String getCurrentDateTime() {
@@ -489,25 +521,7 @@ void adjustSetIntervalDigit(char key, tmElements_t* newInterval, uint8_t* cursor
 
 void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos) {
   switch (*cursorPos) {
-    case 0: //Hours Tens Place, using military/24 hour time
-      if (key == 'U' && (newTime -> Hour) <= 14) { //Max 24 
-        (newTime -> Hour) += 10;
-      }
-      else if (key == 'D' && (newTime -> Hour) >= 10) { //Min 0
-        (newTime -> Hour) -= 10;
-      }
-      break;
-    
-    case 1: //Hours Ones Place
-      if (key == 'U' && (newTime -> Hour) < 24) { 
-        (newTime -> Hour) += 1;
-      }
-      else if (key == 'D' && (newTime -> Hour) > 0) {
-        (newTime -> Hour) -= 1;
-      }
-      break;
-    
-    case 2: //Minutes Tens Place
+    case 0: //Minutes Tens Place
       if (key == 'U' && (newTime -> Minute) < 49) { //Max 59
         (newTime -> Minute) += 10;
       }
@@ -516,7 +530,7 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
       }
       break;
     
-    case 3:  //Minutes Ones Place
+    case 1:  //Minutes Ones Place
       if (key == 'U' && (newTime -> Minute) < 59) { 
         (newTime -> Minute) += 1;
       }
@@ -524,17 +538,39 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
         (newTime -> Minute) -= 1;
       }
       break;
+
+      case 2:  //Sec tens Place
+        if (key == 'U' && (newTime -> Second) < 49) { 
+          (newTime -> Second) += 10;
+        }
+        else if (key == 'D' && (newTime -> Second) > 0) {
+          (newTime -> Second) -= 10;
+        }
+      break;
+
+      case 3:  //Sec Ones Place
+        if (key == 'U' && (newTime -> Second) < 59) { 
+          (newTime -> Second) += 1;
+        }
+        else if (key == 'D' && (newTime -> Second) > 0) {
+          (newTime -> Second) -= 1;
+        }
+      break;
     
     default:
       break;
   }
 
-  if ((newTime -> Hour) > 23) {
-    (newTime -> Hour) = 23;
-  }
+  // if ((newTime -> Hour) > 23) {
+  //   (newTime -> Hour) = 23;
+  // }
 
   if ((newTime -> Minute) > 59) {
     (newTime -> Minute) = 59;
+  }
+
+  if ((newTime -> Second) > 59) {
+    (newTime -> Second) = 59;
   }
 }
 
@@ -546,6 +582,26 @@ void checkEstop() {
 
 bool magSensorRead() {
   // Reads the magnetic sensor input
-  // Returns 1 if high, 0 if lowwhile(!drop_motor(20));
-  return P1.readDiscrete(HV_GPIO_SLOT, CDD1_CHANNEL);
+  // Returns 1 if high, 0 if low
+  return P1.readDiscrete(HV_GPIO_SLOT, MAG_SENSOR_IO_SLOT);
+}
+
+void updateMotorCurrPositionDisplay(int currPos) {
+  //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
+  lcd.setCursor(15, 3);
+
+  int meters = currPos/100; //Converts cm to nearest meter, assuming less than 10!
+  int remainingCm = currPos - meters*100; //Leftover centimeters
+
+  char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
+
+  if (remainingCm >= 10) {
+    snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
+  }
+
+  else {
+    snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
+  }
+
+  lcd.print(formattedDistance);
 }

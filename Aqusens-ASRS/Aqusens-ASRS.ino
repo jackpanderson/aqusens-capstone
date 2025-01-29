@@ -109,7 +109,7 @@ volatile stateEnum state = STANDBY;   // Start up will show standby state
 volatile uint32_t motorPulses = 0;
 
 // Timing
-tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime;
+tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime, flushTime;
 Timer<5, millis> dropTimer;
 bool dropFlag = true; // Set by timers in activeLoop
 volatile bool estopPressed = false; // Flag to keep track of E-stop pressed/released
@@ -221,6 +221,9 @@ void loop() {
       break;
     case SET_DRY_TIME: // Settings option to set dry time
       setDryTimeLoop();
+      break;
+    case SET_FLUSH_TIME: // Settings option to set dry time
+      setFlushTimeLoop();
       break;
     case SET_BRIGHTNESS: // Settings option to set brightness of lcd
       setBrightnessLoop();

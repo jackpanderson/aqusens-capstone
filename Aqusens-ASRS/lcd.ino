@@ -176,7 +176,7 @@ void initSetIntervalLCD() {
 }
 
 // Settings page option to set soak or dry time
-void initSetSoakOrDryLCD() {
+void initSetSoakOrDryOrFlushLCD() {
   if (state == SET_SOAK_TIME) {
     lcd.setCursor(3, 0);
     lcd.print("SET SOAK TIME");
@@ -185,8 +185,12 @@ void initSetSoakOrDryLCD() {
     lcd.setCursor(4, 0);
     lcd.print("SET DRY TIME");
   }
+  else if (state == SET_FLUSH_TIME) {
+    lcd.setCursor(3, 0);
+    lcd.print("SET FLUSH TIME");
+  }
   lcd.setCursor(7, 2);
-  lcd.print("HR MN");
+  lcd.print("MN SC");
   lcd.setCursor(3, 3);
   lcd.print("SEL TO CONFIRM");
 }
@@ -311,29 +315,29 @@ void updateSetIntervalLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.blink();
 }
 
-void updateSetSoakOrDryLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+void updateSetSoakOrDryOrFlushLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.noBlink();
   lcd.setCursor(7, 1);
   char buff[6];
 
-  sprintf(buff, "%02d %02d", adjustedTime.Hour, adjustedTime.Minute);
+  sprintf(buff, "%02d %02d", adjustedTime.Minute, adjustedTime.Second);
   lcd.print(buff);
 
   switch (cursorPos) {
     case 0:
-      lcd.setCursor(7, 1); //Hour Tens Place
+      lcd.setCursor(7, 1); //Min Tens Place
       break;
     
     case 1:
-      lcd.setCursor(8, 1); //Hour Ones Place
+      lcd.setCursor(8, 1); //Min Ones Place
       break;
     
     case 2:
-      lcd.setCursor(10, 1); //Min Tens Place
+      lcd.setCursor(10, 1); //Sec Tens Place
       break;
 
     case 3:
-      lcd.setCursor(11, 1); //Min Ones Place
+      lcd.setCursor(11, 1); //Sec Ones Place
       break;
   }
   
@@ -409,7 +413,7 @@ void motorControlLCD() {
   lcd.setCursor(0, 3);
   lcd.print("<BACK");
   lcd.setCursor(10, 3);
-  lcd.print("CURR: 5.5m");
+  lcd.print("CURR:");
   
   lcd.setCursor(0, cursorY);
   lcd.print("*");
