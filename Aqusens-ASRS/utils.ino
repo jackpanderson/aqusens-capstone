@@ -74,7 +74,7 @@ void rtcInit() {
   nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
 
-  soakTime.Minute = 5;
+  soakTime.Minute = 1;
   soakTime.Second = 0;
 
   dryTime.Minute = 20;

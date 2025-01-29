@@ -51,16 +51,16 @@ void home_tube() {
      *      reel up slowly
      */
   
-  while (!drop_tube(10));
+
   
-  // if (magSensorRead()) {
-    // tube_position = 0;
-  // }
+  tube_position = 0;
+  if (magSensorRead()) return;
+
+  while (!drop_tube(5));
 
   setMotorSpeed(2);     // TODO: what is the dropping speed
   while (!magSensorRead());
   turnMotorOff(true);
-  tube_position = 0;
 }
 
 
@@ -135,11 +135,8 @@ bool drop_tube(unsigned int distance_cm) {
 
   // elasped time would be coming from pwm timer?
   unsigned long elasped_time = millis() - start_time;
-  tube_position = elasped_time * DROP_SPEED_CM_SEC / 1000.0f;
-  // Serial.print("drop ");
-  // Serial.println(tube_position); 
+  tube_position = elasped_time * DROP_SPEED_CM_SEC / 1000.0f + 1;
   if (elasped_time > drop_time_ms) {
-    // Serial.println
     turnMotorOff();
     dropping_flag = false;
     return true;
@@ -149,7 +146,7 @@ bool drop_tube(unsigned int distance_cm) {
 }
 
 // TODO: implement mag switch for homing;
-#define RAISE_SPEED_CM_SEC      (5.0f)
+#define RAISE_SPEED_CM_SEC      (3.0f)
 bool raise_tube(unsigned int distance_cm) {  
   static bool raise_flag = false;
   static unsigned long start_time;
@@ -163,14 +160,14 @@ bool raise_tube(unsigned int distance_cm) {
       start_time = millis();                // FIXME: either this or get count from the timer
       setMotorSpeed(RAISE_SPEED_CM_SEC);     // TODO: what is the dropping speed
       drop_distance_cm = distance_cm;       // lock in the distance
-      drop_time_ms = distance_cm / RAISE_SPEED_CM_SEC * 1000;    // cnt to compare against
+      drop_time_ms = distance_cm * 1000 / RAISE_SPEED_CM_SEC;    // cnt to compare against
   }
 
   // elasped time would be coming from pwm timer?
   unsigned long elasped_time = millis() - start_time;
-  tube_position += elasped_time / 1000 * RAISE_SPEED_CM_SEC; 
-  if (elasped_time > drop_time_ms) {
-  // if (tube_postition <) {
+  tube_position = drop_distance_cm - (elasped_time * RAISE_SPEED_CM_SEC / 1000.0f + 1);
+  // TODO: check distance to make sure no overshooting along with reading the mag switch
+  if (magSensorRead() || elasped_time > drop_time_ms) {
     turnMotorOff();
     raise_flag = false;
     return true;

@@ -130,8 +130,7 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-unsigned int drop_distance_cm = 10;
-// unsigned int drop_distance_cm = 20;
+unsigned int drop_distance_cm = 50;
 unsigned int tube_position;
 
 // Discrete module
@@ -153,16 +152,13 @@ void setup() {
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
-  // home_tube();
+  home_tube();
 
 }
 
 void loop() {
   Serial.print("State: ");
   Serial.println(state);
-
-  while(!drop_motor(10));
-  while(1);
 
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
