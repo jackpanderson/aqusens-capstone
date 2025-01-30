@@ -112,12 +112,34 @@ void releaseLCD(String position) {
 
 // Displays the time remaining in soak procedure
 //    time: String of time remaining in soak time in minutes
-void soakLCD(String time) {
-  lcd.setCursor(0,1);
-  lcd.print("SOAKING...");
-  lcd.setCursor(0,2);
-  lcd.print(time);
-  lcd.setCursor(6,2);
+void soakLCD(String minTime, String secTime, int numDots) {
+  lcd.setCursor(5,0);
+  lcd.print("SOAKING");
+  lcd.setCursor(12, 0);
+
+
+  switch (numDots) {
+    case 0: 
+      lcd.print("...");
+      break;
+    case 1:
+      lcd.print(".. ");
+      break;
+    case 2:
+      lcd.print(".  ");
+      break;
+    case 3:
+      // lcd.print("...");
+      break;
+  }
+
+
+  lcd.setCursor(3,2);
+  lcd.print(minTime);
+  lcd.print(" MIN ");
+  lcd.print(secTime);
+  lcd.print(" SEC");
+  lcd.setCursor(5,3);
   lcd.print("REMAINING");
 }
 
@@ -142,6 +164,9 @@ void sampleLCD() {
 void flushLCD() {
   lcd.setCursor(0,1);
   lcd.print("FLUSHING...");
+  lcd.print("TEMP:");
+  lcd.print(readRTD());
+  lcd.print("F");
 }
 
 // Displays the time remaining in dry procedure

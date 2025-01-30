@@ -16,6 +16,7 @@ void gpioInit() {
   pinMode(KEY_R, INPUT_PULLDOWN);
   pinMode(KEY_S, INPUT_PULLDOWN);
   pinMode(DIR_POS_PIN, OUTPUT);
+  pinMode(A1, INPUT_PULLDOWN);
   //pinMode(DIR_NEG_PIN, OUTPUT);
   // pinMode(STEP_NEG_PIN, OUTPUT);
   // digitalWrite(STEP_NEG_PIN, 0);
@@ -60,12 +61,12 @@ void onLowTrigger() {
 ---------------------------------------------------------*/
 void rtcInit() {
   rtc.begin();
-  rtc.setEpoch(1729623075);
+  rtc.setEpoch(1738123553);
   sampleInterval.Year = 0;
   sampleInterval.Month = 0;
   sampleInterval.Day = 0;
   sampleInterval.Hour = 0;
-  sampleInterval.Minute = 3;  
+  sampleInterval.Minute = 15;  
   sampleInterval.Second = 0;
 
   nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
@@ -74,8 +75,8 @@ void rtcInit() {
   nextSampleTime.Hour = rtc.getHours() + sampleInterval.Hour;
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
 
-  soakTime.Minute = 1;
-  soakTime.Second = 0;
+  soakTime.Minute = 0;
+  soakTime.Second = 15;
 
   dryTime.Minute = 20;
   dryTime.Second = 0;
@@ -574,9 +575,16 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
   }
 }
 
-void checkEstop() {
-  if (estopPressed) {
+bool checkEstop() {
+  if (digitalRead(A1) == 0) {
+    estopPressed = 1;
     state = ESTOP_ALARM;
+    return false; //estop is pressed
+  }
+
+  else {
+    estopPressed = 0; //Estop is not pressed
+    return true;
   }
 }
 
@@ -584,6 +592,15 @@ bool magSensorRead() {
   // Reads the magnetic sensor input
   // Returns 1 if high, 0 if low
   return P1.readDiscrete(HV_GPIO_SLOT, MAG_SENSOR_IO_SLOT);
+}
+
+void RTDInit() {
+  const char P1_04RTD_CONFIG[] = { 0x40, 0x00, 0x60, 0x05, 0x20, 0x02, 0x80, 0x01 };
+  Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
+}
+
+float readRTD() {
+  return P1.readTemperature(RTD_SLOT, TEMP_SENSOR_ONE);
 }
 
 void updateMotorCurrPositionDisplay(int currPos) {
