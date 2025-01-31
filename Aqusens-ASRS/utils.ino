@@ -40,9 +40,12 @@ void estopInit() {
   attachInterrupt(digitalPinToInterrupt(A1), onLowTrigger, FALLING);
 }
 
-void controlSolenoid(int value, int solenoidNumber) {
+void updateSolenoid(solenoidState state, int solenoidNumber) {
   if (solenoidNumber == SOLENOID_ONE || solenoidNumber == SOLENOID_TWO) {
-      P1.writeDiscrete(value, RELAY_SLOT, solenoidNumber);
+      if (state == OPEN)
+        P1.writeDiscrete(false, RELAY_SLOT, solenoidNumber);
+      else
+        P1.writeDiscrete(true, RELAY_SLOT, solenoidNumber);
   }
 }
 

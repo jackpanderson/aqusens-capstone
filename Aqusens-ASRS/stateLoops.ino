@@ -350,9 +350,12 @@ void manualLoop() {
     if (keyPressed == 'S') {
       if (cursorY == 1) {
         state = MOTOR_CONTROL;
-      } //else if (cursorY == 2) {
+      } 
 
-      //} 
+      else if (cursorY == 2) {
+        state = SOLENOID_CONTROL;
+      }
+
       else if (cursorY == 3) {
         state = ESTOP_ALARM; // TODO: change to previous state
       }
@@ -400,6 +403,48 @@ void motorControlLoop() {
     }
   }
 }
+
+void solenoidControlLoop() {
+  lcd.clear();
+  char keyPressed;
+  cursorY = 1;
+
+  while (state == SOLENOID_CONTROL) {
+    solenoidControlLCD();
+    keyPressed = cursorSelect(1, 2);
+
+    if (keyPressed == 'S') {
+      if (cursorY == 1) {
+
+        if (solenoidOneState == OPEN) {
+          solenoidOneState = CLOSED;
+        }
+
+        else {
+          solenoidOneState = OPEN;
+        }
+
+        updateSolenoid(solenoidOneState, SOLENOID_ONE);
+      } 
+
+      else if (cursorY == 2) {
+        if (solenoidTwoState == OPEN) {
+          solenoidTwoState = CLOSED;
+        }
+
+        else {
+          solenoidTwoState = OPEN;
+        }
+
+        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+      } 
+    }
+    else if (keyPressed == 'L') {
+      state = MANUAL;
+    }
+  }
+}
+
 
 char pressAndHold(uint8_t lastKeyPressed) {
   //uint8_t currKey = getKeyPress();

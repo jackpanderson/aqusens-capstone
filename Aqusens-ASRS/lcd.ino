@@ -230,6 +230,33 @@ void dryLCD(String minTime, String secTime, int numDots) {
   lcd.print("REMAINING");
 }
 
+void solenoidControlLCD() {
+  lcd.setCursor(2, 0);
+  lcd.print("SOLENOID CONTROL");
+  lcd.setCursor(1, 1);
+  lcd.print("SOLENOID 1: ");
+  
+  if (solenoidOneState == OPEN)
+    lcd.print("OPEN");
+  else 
+    lcd.print("CLOSED");
+
+  lcd.setCursor(1, 2);
+  lcd.print("SOLENOID 2: ");
+  if (solenoidTwoState == OPEN)
+    lcd.print("OPEN");
+  else 
+    lcd.print("CLOSED");
+
+  lcd.setCursor(0, cursorY);
+  lcd.print("*");
+
+  lcd.setCursor(0, 3);
+  lcd.print("<EXIT");
+
+  
+}
+
 // Settings page option to set clock
 void initSetClockLCD() {
   lcd.setCursor(6, 0);
