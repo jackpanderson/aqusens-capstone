@@ -7,7 +7,7 @@ void calibrateLoop() {
   resetLCD();
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
-  delay(5000);
+  home_tube();
   state = STANDBY;
 }
 
@@ -190,32 +190,112 @@ void sampleLoop() {
 // No selection options
 void flushLoop() {
   resetLCD();
+  bool tempFlag = true;
+  char secTime[3]; // "00"
+  char minTime[3]; // "00"
 
-  while (state == FLUSH) 
-  {
-    flushLCD();
+  uint32_t currTime = millis();
+  uint32_t endTime = currTime + (60 * flushTime.Minute * 1000) + (flushTime.Second * 1000);
+  Serial.println(endTime - currTime);
 
-    delay(5000);
+  int secondsRemaining, minutesRemaining;
+  uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
 
-    state = DRY;
+  while (state == FLUSH && millis() < endTime) {
+    checkEstop();
 
+    // Calculate remaining time, accounting for millis() overflow
+    uint32_t millisRemaining;
+    if (endTime > millis()) {
+      millisRemaining = endTime - millis();
+    } else {
+      // Handle overflow case
+      millisRemaining = (UINT32_MAX - millis()) + endTime;
+    }
+
+    secondsRemaining = millisRemaining / 1000;
+    minutesRemaining = secondsRemaining / 60;
+
+    // Format seconds with leading zero if necessary
+    if (secondsRemaining % 60 > 9) {
+      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    } else {
+      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+    }
+
+    // Format minutes with leading zero if necessary
+    if (minutesRemaining > 9) {
+      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    } else {
+      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+    }
+
+    // Toggle tempFlag every second
+    if (millis() - lastToggleTime >= 1000) {
+      tempFlag = true; // Toggle tempFlag
+      lastToggleTime = millis(); // Update the last toggle time
+    }
+
+    // Update LCD with remaining time
+    flushLCD(minTime, secTime, secondsRemaining % 4, tempFlag);
+    
+    if (tempFlag)
+      tempFlag = false;
   }
+
+  state = DRY;
 }
 
 // DRY
 // No selection options
 void dryLoop() {
+  // setMotorSpeed(0);
+  
+  char secTime[3]; // "00"
+  char minTime[3]; // "00"
+
   resetLCD();
 
-  while (state == DRY) 
-  {
-    dryLCD("00 min");
+  uint32_t currTime = millis();
+  uint32_t endTime = currTime + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
+  Serial.println(endTime - currTime);
 
-    delay(5000);
+  int secondsRemaining, minutesRemaining;
 
-    state = STANDBY;
+  while (state == DRY && millis() < endTime) {
+    checkEstop();
 
+    // Calculate remaining time, accounting for millis() overflow
+    uint32_t millisRemaining;
+    if (endTime > millis()) {
+      millisRemaining = endTime - millis();
+    } else {
+      // Handle overflow case
+      millisRemaining = (UINT32_MAX - millis()) + endTime;
+    }
+
+    secondsRemaining = millisRemaining / 1000;
+    minutesRemaining = secondsRemaining / 60;
+
+    // Format seconds with leading zero if necessary
+    if (secondsRemaining % 60 > 9) {
+      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    } else {
+      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+    }
+
+    // Format minutes with leading zero if necessary
+    if (minutesRemaining > 9) {
+      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    } else {
+      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+    }
+
+    // Update LCD with remaining time
+    dryLCD(minTime, secTime, secondsRemaining % 4);
   }
+
+  state = STANDBY;
 }
 
 // ALARM

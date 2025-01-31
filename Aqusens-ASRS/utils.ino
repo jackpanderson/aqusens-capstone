@@ -78,11 +78,12 @@ void rtcInit() {
   soakTime.Minute = 0;
   soakTime.Second = 15;
 
-  dryTime.Minute = 20;
-  dryTime.Second = 0;
+  // dryTime.Minute = 20;
+  dryTime.Minute = 0;
+  dryTime.Second = 30;
 
-  flushTime.Minute = 5;
-  flushTime.Second = 0;
+  flushTime.Minute = 0;
+  flushTime.Second = 30;
   
   updateAlarm();
 }
@@ -595,13 +596,14 @@ bool magSensorRead() {
 }
 
 void RTDInit() {
-  const char P1_04RTD_CONFIG[] = { 0x40, 0x00, 0x60, 0x05, 0x20, 0x02, 0x80, 0x01 };
+  const char P1_04RTD_CONFIG[] = { 0x40, 0x03, 0x60, 0x01, 0x20, 0x02, 0x80, 0x00 };
   Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
 }
 
 float readRTD() {
-  return P1.readTemperature(RTD_SLOT, TEMP_SENSOR_ONE);
+  return roundf(P1.readTemperature(RTD_SLOT, TEMP_SENSOR_ONE) * 10) / 10.0;
 }
+
 
 void updateMotorCurrPositionDisplay(int currPos) {
   //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position

@@ -157,9 +157,11 @@ void setup() {
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
   
-  //home_tube();
+  home_tube();
 
-  // state = ESTOP_ALARM;
+  // delay(1000);
+
+  state = STANDBY;
 
 }
 

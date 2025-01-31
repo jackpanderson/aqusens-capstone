@@ -129,7 +129,7 @@ void soakLCD(String minTime, String secTime, int numDots) {
       lcd.print(".  ");
       break;
     case 3:
-      // lcd.print("...");
+      lcd.print("   ");
       break;
   }
 
@@ -161,22 +161,72 @@ void sampleLCD() {
 }
 
 // Displays the Flsuhing screen
-void flushLCD() {
-  lcd.setCursor(0,1);
-  lcd.print("FLUSHING...");
-  lcd.print("TEMP:");
-  lcd.print(readRTD());
-  lcd.print("F");
+void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
+  lcd.setCursor(5,0);
+  lcd.print("FLUSHING");
+  lcd.setCursor(13, 0);
+
+  switch (numDots) {
+    case 0: 
+      lcd.print("...");
+      break;
+    case 1:
+      lcd.print(".. ");
+      break;
+    case 2:
+      lcd.print(".  ");
+      break;
+    case 3:
+      lcd.print("   ");
+      break;
+  }
+  lcd.setCursor(4, 1);
+  lcd.print("TEMP: ");
+  
+  if (tempFlag) {
+    lcd.print(readRTD(), 1);
+    lcd.print("C");
+  }
+
+  lcd.setCursor(4,2);
+  lcd.print(minTime);
+  lcd.print(" MIN ");
+  lcd.print(secTime);
+  lcd.print(" SEC");
+  lcd.setCursor(6,3);
+  lcd.print("REMAINING");
 }
 
 // Displays the time remaining in dry procedure
 //    time: String of time remaining in dry time in minutes
-void dryLCD(String time) {
-  lcd.setCursor(0,1);
-  lcd.print("DRYING...");
-  lcd.setCursor(0,2);
-  lcd.print(time);
-  lcd.setCursor(7,2);
+void dryLCD(String minTime, String secTime, int numDots) {
+  lcd.setCursor(6,0);
+  lcd.print("DRYING");
+  lcd.setCursor(12, 0);
+
+
+  switch (numDots) {
+    case 0: 
+      lcd.print("...");
+      break;
+    case 1:
+      lcd.print(".. ");
+      break;
+    case 2:
+      lcd.print(".  ");
+      break;
+    case 3:
+      lcd.print("   ");
+      break;
+  }
+
+
+  lcd.setCursor(3,2);
+  lcd.print(minTime);
+  lcd.print(" MIN ");
+  lcd.print(secTime);
+  lcd.print(" SEC");
+  lcd.setCursor(5,3);
   lcd.print("REMAINING");
 }
 
