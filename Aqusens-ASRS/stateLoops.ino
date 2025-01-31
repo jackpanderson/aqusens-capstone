@@ -101,6 +101,10 @@ void soakLoop() {
   resetLCD();
   tmElements_t endSoak;
 
+  delay(5 * 1000);
+  state = RECOVER;
+  return;
+
   endSoak.Year = rtc.getYear() + 30;
   endSoak.Month = rtc.getMonth();
   endSoak.Day = rtc.getDay();
