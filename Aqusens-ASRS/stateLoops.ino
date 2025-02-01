@@ -82,14 +82,14 @@ void releaseLoop() {
   while (state == RELEASE) 
   {
     checkEstop();
-    if (drop_tube(drop_distance_cm)) {
-      state = SOAK;
-    }
-    int meter = tube_position / 100;
-    int deci = tube_position % 100;
-    snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
+
+    snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
     releaseLCD(pos);
 
+    if (drop_tube(drop_distance_cm)) {
+      while (1);
+      state = SOAK;
+    }
   }
 }
 

@@ -117,29 +117,97 @@ void home_tube() {
 // }
 
 #define DROP_SPEED_CM_SEC      (5.0f)
-bool drop_tube(unsigned int distance_cm) {  
-  // start the drop
+// bool drop_tube(unsigned int distance_cm) {  
+//   // start the drop
+//   static bool dropping_flag = false;
+//   static unsigned long start_time;
+//   static unsigned int drop_distance_cm;
+//   static unsigned int drop_time_ms;
+  
+//   if (!dropping_flag) {
+//       dropping_flag = true;
+//       tube_position = 0;                    // reset pos
+//       start_time = millis();                // FIXME: either this or get count from the timer
+//       setMotorSpeed(-DROP_SPEED_CM_SEC);     // TODO: what is the dropping speed
+//       drop_distance_cm = distance_cm;       // lock in the distance
+//       drop_time_ms = distance_cm / DROP_SPEED_CM_SEC * 1000;    // cnt to compare against
+//   }
+
+//   // elasped time would be coming from pwm timer?
+//   unsigned long elasped_time = millis() - start_time;
+//   tube_position = elasped_time * DROP_SPEED_CM_SEC / 1000.0f + 1;
+//   if (elasped_time > drop_time_ms) {
+//     turnMotorOff();
+//     dropping_flag = false;
+//     return true;
+//   }
+
+//   return false;
+// }
+
+
+#define NUM_PHASES          (4UL)
+#define DISTANCE_PADDING_CM (5UL)
+// #define NARROW_TUBE_CM      (243UL + DISTANCE_PADDING_CM)
+// #define TUBE_CM             (183UL + DISTANCE_PADDING_CM)
+// #define WATER_LEVEL_CM      (121UL + DISTANCE_PADDING_CM)
+#define NARROW_TUBE_CM      (20UL)
+#define TUBE_CM             (60UL)
+#define WATER_LEVEL_CM      (10UL)
+#define CONST_DIST_CM       (NARROW_TUBE_CM + TUBE_CM + WATER_LEVEL_CM)
+#define NARROW_TUBE_SPD     (3.0f)
+#define TUBE_SPD            (8.0f)
+#define FREE_FALL_SPD       (15.0f)
+#define WATER_LEVEL_SPD     (8.0f)
+#define FREE_FALL_IND       (2)
+
+
+bool drop_tube(unsigned int distance_cm) {
   static bool dropping_flag = false;
-  static unsigned long start_time;
+  static unsigned long prev_time;
   static unsigned int drop_distance_cm;
   static unsigned int drop_time_ms;
+  static size_t phase_ind;
   
+  static float speeds_cm_p_s[NUM_PHASES] = {NARROW_TUBE_SPD, TUBE_SPD, FREE_FALL_SPD, WATER_LEVEL_SPD};
+  static float dists_cm[NUM_PHASES] = {NARROW_TUBE_CM, TUBE_CM + NARROW_TUBE_CM, 0.0f, 0.0f};
+
+
   if (!dropping_flag) {
-      dropping_flag = true;
-      tube_position = 0;                    // reset pos
-      start_time = millis();                // FIXME: either this or get count from the timer
-      setMotorSpeed(-DROP_SPEED_CM_SEC);     // TODO: what is the dropping speed
-      drop_distance_cm = distance_cm;       // lock in the distance
-      drop_time_ms = distance_cm / DROP_SPEED_CM_SEC * 1000;    // cnt to compare against
+    dropping_flag = true;
+    tube_position_f = 0.0f;
+    phase_ind = 0;
+    drop_distance_cm = distance_cm;
+
+    dists_cm[FREE_FALL_IND] = distance_cm - CONST_DIST_CM + dists_cm[FREE_FALL_IND - 1]; 
+    dists_cm[FREE_FALL_IND + 1] = WATER_LEVEL_CM + dists_cm[FREE_FALL_IND]; // ? can this just be drop distance
+
+    prev_time = millis();
+    setMotorSpeed(-speeds_cm_p_s[phase_ind]);
   }
 
-  // elasped time would be coming from pwm timer?
-  unsigned long elasped_time = millis() - start_time;
-  tube_position = elasped_time * DROP_SPEED_CM_SEC / 1000.0f + 1;
-  if (elasped_time > drop_time_ms) {
+  // running integral
+  unsigned long cur_time = millis();
+  unsigned long delta_time = cur_time - prev_time;
+  prev_time = cur_time;
+
+  tube_position_f += (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+  
+  if (tube_position_f >= drop_distance_cm) {
     turnMotorOff();
-    dropping_flag = false;
+    
+    Serial.println("Done");
+    Serial.print("Final Tube position: ");
+    Serial.println(tube_position_f);
+
     return true;
+  }
+
+  if (tube_position_f >= dists_cm[phase_ind]) {
+    phase_ind++;
+    setMotorSpeed(-speeds_cm_p_s[phase_ind]);
+    Serial.print("In phase ");
+    Serial.println(phase_ind);
   }
 
   return false;
