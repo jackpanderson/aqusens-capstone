@@ -112,12 +112,34 @@ void releaseLCD(String position) {
 
 // Displays the time remaining in soak procedure
 //    time: String of time remaining in soak time in minutes
-void soakLCD(String time) {
-  lcd.setCursor(0,1);
-  lcd.print("SOAKING...");
-  lcd.setCursor(0,2);
-  lcd.print(time);
-  lcd.setCursor(6,2);
+void soakLCD(String minTime, String secTime, int numDots) {
+  lcd.setCursor(5,0);
+  lcd.print("SOAKING");
+  lcd.setCursor(12, 0);
+
+
+  switch (numDots) {
+    case 0: 
+      lcd.print("...");
+      break;
+    case 1:
+      lcd.print(".. ");
+      break;
+    case 2:
+      lcd.print(".  ");
+      break;
+    case 3:
+      lcd.print("   ");
+      break;
+  }
+
+
+  lcd.setCursor(3,2);
+  lcd.print(minTime);
+  lcd.print(" MIN ");
+  lcd.print(secTime);
+  lcd.print(" SEC");
+  lcd.setCursor(5,3);
   lcd.print("REMAINING");
 }
 
@@ -139,20 +161,100 @@ void sampleLCD() {
 }
 
 // Displays the Flsuhing screen
-void flushLCD() {
-  lcd.setCursor(0,1);
-  lcd.print("FLUSHING...");
+void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
+  lcd.setCursor(5,0);
+  lcd.print("FLUSHING");
+  lcd.setCursor(13, 0);
+
+  switch (numDots) {
+    case 0: 
+      lcd.print("...");
+      break;
+    case 1:
+      lcd.print(".. ");
+      break;
+    case 2:
+      lcd.print(".  ");
+      break;
+    case 3:
+      lcd.print("   ");
+      break;
+  }
+  lcd.setCursor(4, 1);
+  lcd.print("TEMP: ");
+  
+  if (tempFlag) {
+    lcd.print(readRTD(), 1);
+    lcd.print("C");
+  }
+
+  lcd.setCursor(4,2);
+  lcd.print(minTime);
+  lcd.print(" MIN ");
+  lcd.print(secTime);
+  lcd.print(" SEC");
+  lcd.setCursor(6,3);
+  lcd.print("REMAINING");
 }
 
 // Displays the time remaining in dry procedure
 //    time: String of time remaining in dry time in minutes
-void dryLCD(String time) {
-  lcd.setCursor(0,1);
-  lcd.print("DRYING...");
-  lcd.setCursor(0,2);
-  lcd.print(time);
-  lcd.setCursor(7,2);
+void dryLCD(String minTime, String secTime, int numDots) {
+  lcd.setCursor(6,0);
+  lcd.print("DRYING");
+  lcd.setCursor(12, 0);
+
+
+  switch (numDots) {
+    case 0: 
+      lcd.print("...");
+      break;
+    case 1:
+      lcd.print(".. ");
+      break;
+    case 2:
+      lcd.print(".  ");
+      break;
+    case 3:
+      lcd.print("   ");
+      break;
+  }
+
+
+  lcd.setCursor(3,2);
+  lcd.print(minTime);
+  lcd.print(" MIN ");
+  lcd.print(secTime);
+  lcd.print(" SEC");
+  lcd.setCursor(5,3);
   lcd.print("REMAINING");
+}
+
+void solenoidControlLCD() {
+  lcd.setCursor(2, 0);
+  lcd.print("SOLENOID CONTROL");
+  lcd.setCursor(1, 1);
+  lcd.print("SOLENOID 1: ");
+  
+  if (solenoidOneState == OPEN)
+    lcd.print("OPEN");
+  else 
+    lcd.print("CLOSED");
+
+  lcd.setCursor(1, 2);
+  lcd.print("SOLENOID 2: ");
+  if (solenoidTwoState == OPEN)
+    lcd.print("OPEN");
+  else 
+    lcd.print("CLOSED");
+
+  lcd.setCursor(0, cursorY);
+  lcd.print("*");
+
+  lcd.setCursor(0, 3);
+  lcd.print("<EXIT");
+
+  
 }
 
 // Settings page option to set clock

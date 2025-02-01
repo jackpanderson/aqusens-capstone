@@ -28,7 +28,8 @@
 
 // Slots
 #define HV_GPIO_SLOT 1                  // High voltage GPIO (P1-15CDD1)
-#define RELAY_SLOT 2                    // Relay module (P1-04TRS)
+#define RELAY_SLOT   2                  // Relay module (P1-04TRS)
+#define RTD_SLOT     3                  // RTD Temp Sensor Module (P1-04RTD)
 #define CDD1_CHANNEL  (1)
 
 // Inputs
@@ -55,10 +56,13 @@
 //Relays
 #define RELAY_SLOT 2
 #define MOTOR_POWER 1
-#define SOLENOID_ONE 2
-#define SOLENOID_TWO 3
+#define SOLENOID_ONE 3
+#define SOLENOID_TWO 4
 #define SOLENOID_ENABLE 1
 #define SOLENOID_DISABLE 0
+
+//RTD Inputs
+#define TEMP_SENSOR_ONE 1
 
 // Outputs
 
@@ -89,6 +93,7 @@ enum stateEnum {
   ESTOP_ALARM,
   MANUAL,
   MOTOR_CONTROL,
+  SOLENOID_CONTROL,
   SETTINGS,
   SET_INTERVAL,
   ENSURE_SAMPLE_START,
@@ -103,6 +108,14 @@ enum stateEnum {
   SET_BRIGHTNESS,
   SET_CONTRAST      
 };
+
+typedef enum solenoidState {
+  OPEN,
+  CLOSED
+} solenoidState;
+
+solenoidState solenoidOneState = OPEN;
+solenoidState solenoidTwoState = OPEN;
 
 volatile stateEnum state = STANDBY;   // Start up will show standby state
 
@@ -144,6 +157,7 @@ void setup() {
   while (!P1.init()) {;} // Initialize controller
 
   rtcInit();
+  RTDInit();
   gpioInit();
   estopInit();
   motorInit();
@@ -154,11 +168,13 @@ void setup() {
   
   home_tube();
 
+  // delay(1000);
+
+  state = SOLENOID_CONTROL;
+
 }
 
 void loop() {
-  Serial.print("State: ");
-  Serial.println(state);
 
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
@@ -200,6 +216,8 @@ void loop() {
     case MOTOR_CONTROL:
       motorControlLoop();
       break;
+    case SOLENOID_CONTROL:
+      solenoidControlLoop();
     case SETTINGS: // Pages of parameters that can be modified or checked
       settingsLoop();
       break;

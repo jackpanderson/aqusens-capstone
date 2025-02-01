@@ -7,7 +7,7 @@ void calibrateLoop() {
   resetLCD();
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
-  delay(5000);
+  home_tube();
   state = STANDBY;
 }
 
@@ -98,38 +98,51 @@ void releaseLoop() {
 // Checks for E-stop press
 void soakLoop() {
   // setMotorSpeed(0);
+  char secTime[3]; // "00"
+  char minTime[3]; // "00"
+
   resetLCD();
-  tmElements_t endSoak;
 
-  delay(5 * 1000);
-  state = RECOVER;
-  return;
+  uint32_t currTime = millis();
+  uint32_t endTime = currTime + (60 * soakTime.Minute * 1000) + (soakTime.Second * 1000);
+  Serial.println(endTime - currTime);
 
-  endSoak.Year = rtc.getYear() + 30;
-  endSoak.Month = rtc.getMonth();
-  endSoak.Day = rtc.getDay();
-  endSoak.Hour = rtc.getHours() + soakTime.Hour;
-  endSoak.Minute = rtc.getMinutes() + soakTime.Minute;
+  int secondsRemaining, minutesRemaining;
 
-  time_t end = rtc.getEpoch() + 60 * soakTime.Minute;
-  char time[6];
-  int min;
-  while (state == SOAK) 
-  {
+  while (state == SOAK && millis() < endTime) {
     checkEstop();
-    // Serial.println(end - rtc.getEpoch());
-    min = (end - rtc.getEpoch()) / 60 + 1;
-    if (min > soakTime.Minute) {
-      min = soakTime.Minute;
+
+    // Calculate remaining time, accounting for millis() overflow
+    uint32_t millisRemaining;
+    if (endTime > millis()) {
+      millisRemaining = endTime - millis();
+    } else {
+      // Handle overflow case
+      millisRemaining = (UINT32_MAX - millis()) + endTime;
     }
 
-    snprintf(time, sizeof(time), "%01d MIN", min);
-    soakLCD(time);
-    if (end - rtc.getEpoch() <= 0) {
-      state = RECOVER;
+    secondsRemaining = millisRemaining / 1000;
+    minutesRemaining = secondsRemaining / 60;
+
+    // Format seconds with leading zero if necessary
+    if (secondsRemaining % 60 > 9) {
+      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    } else {
+      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
     }
 
+    // Format minutes with leading zero if necessary
+    if (minutesRemaining > 9) {
+      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    } else {
+      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+    }
+
+    // Update LCD with remaining time
+    soakLCD(minTime, secTime, secondsRemaining % 4);
   }
+
+  state = RECOVER;
 }
 
 
@@ -177,32 +190,112 @@ void sampleLoop() {
 // No selection options
 void flushLoop() {
   resetLCD();
+  bool tempFlag = true;
+  char secTime[3]; // "00"
+  char minTime[3]; // "00"
 
-  while (state == FLUSH) 
-  {
-    flushLCD();
+  uint32_t currTime = millis();
+  uint32_t endTime = currTime + (60 * flushTime.Minute * 1000) + (flushTime.Second * 1000);
+  Serial.println(endTime - currTime);
 
-    delay(5000);
+  int secondsRemaining, minutesRemaining;
+  uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
 
-    state = DRY;
+  while (state == FLUSH && millis() < endTime) {
+    checkEstop();
 
+    // Calculate remaining time, accounting for millis() overflow
+    uint32_t millisRemaining;
+    if (endTime > millis()) {
+      millisRemaining = endTime - millis();
+    } else {
+      // Handle overflow case
+      millisRemaining = (UINT32_MAX - millis()) + endTime;
+    }
+
+    secondsRemaining = millisRemaining / 1000;
+    minutesRemaining = secondsRemaining / 60;
+
+    // Format seconds with leading zero if necessary
+    if (secondsRemaining % 60 > 9) {
+      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    } else {
+      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+    }
+
+    // Format minutes with leading zero if necessary
+    if (minutesRemaining > 9) {
+      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    } else {
+      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+    }
+
+    // Toggle tempFlag every second
+    if (millis() - lastToggleTime >= 1000) {
+      tempFlag = true; // Toggle tempFlag
+      lastToggleTime = millis(); // Update the last toggle time
+    }
+
+    // Update LCD with remaining time
+    flushLCD(minTime, secTime, secondsRemaining % 4, tempFlag);
+    
+    if (tempFlag)
+      tempFlag = false;
   }
+
+  state = DRY;
 }
 
 // DRY
 // No selection options
 void dryLoop() {
+  // setMotorSpeed(0);
+  
+  char secTime[3]; // "00"
+  char minTime[3]; // "00"
+
   resetLCD();
 
-  while (state == DRY) 
-  {
-    dryLCD("00 min");
+  uint32_t currTime = millis();
+  uint32_t endTime = currTime + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
+  Serial.println(endTime - currTime);
 
-    delay(5000);
+  int secondsRemaining, minutesRemaining;
 
-    state = STANDBY;
+  while (state == DRY && millis() < endTime) {
+    checkEstop();
 
+    // Calculate remaining time, accounting for millis() overflow
+    uint32_t millisRemaining;
+    if (endTime > millis()) {
+      millisRemaining = endTime - millis();
+    } else {
+      // Handle overflow case
+      millisRemaining = (UINT32_MAX - millis()) + endTime;
+    }
+
+    secondsRemaining = millisRemaining / 1000;
+    minutesRemaining = secondsRemaining / 60;
+
+    // Format seconds with leading zero if necessary
+    if (secondsRemaining % 60 > 9) {
+      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    } else {
+      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+    }
+
+    // Format minutes with leading zero if necessary
+    if (minutesRemaining > 9) {
+      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    } else {
+      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+    }
+
+    // Update LCD with remaining time
+    dryLCD(minTime, secTime, secondsRemaining % 4);
   }
+
+  state = STANDBY;
 }
 
 // ALARM
@@ -216,6 +309,7 @@ void alarmLoop() {
   uint8_t keyPressed;
   lcd.clear();
   cursorY = 2;
+  //Serial.println(analogRead(A1));
   while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
   {
     alarmLCD();
@@ -223,11 +317,13 @@ void alarmLoop() {
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 3 && !estopPressed) {
+      if (cursorY == 3 && checkEstop()) {
+        // Serial.println(digitalRead(A1));
         state = CALIBRATE;
       }
-
-      else if (cursorY == 3 && estopPressed) {
+      
+      else if (cursorY == 3 && ~checkEstop()) {
+        // Serial.println(digitalRead(A1));
         lcd.clear();
         releaseEstopLCD();
         delay(1500);
@@ -254,9 +350,12 @@ void manualLoop() {
     if (keyPressed == 'S') {
       if (cursorY == 1) {
         state = MOTOR_CONTROL;
-      } //else if (cursorY == 2) {
+      } 
 
-      //} 
+      else if (cursorY == 2) {
+        state = SOLENOID_CONTROL;
+      }
+
       else if (cursorY == 3) {
         state = ESTOP_ALARM; // TODO: change to previous state
       }
@@ -304,6 +403,48 @@ void motorControlLoop() {
     }
   }
 }
+
+void solenoidControlLoop() {
+  lcd.clear();
+  char keyPressed;
+  cursorY = 1;
+
+  while (state == SOLENOID_CONTROL) {
+    solenoidControlLCD();
+    keyPressed = cursorSelect(1, 2);
+
+    if (keyPressed == 'S') {
+      if (cursorY == 1) {
+
+        if (solenoidOneState == OPEN) {
+          solenoidOneState = CLOSED;
+        }
+
+        else {
+          solenoidOneState = OPEN;
+        }
+
+        updateSolenoid(solenoidOneState, SOLENOID_ONE);
+      } 
+
+      else if (cursorY == 2) {
+        if (solenoidTwoState == OPEN) {
+          solenoidTwoState = CLOSED;
+        }
+
+        else {
+          solenoidTwoState = OPEN;
+        }
+
+        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+      } 
+    }
+    else if (keyPressed == 'L') {
+      state = MANUAL;
+    }
+  }
+}
+
 
 char pressAndHold(uint8_t lastKeyPressed) {
   //uint8_t currKey = getKeyPress();
