@@ -16,10 +16,11 @@ void calibrateLoop() {
 //    - Settings: proceeds to first page of settings page
 //    - Run Sample: proceeds to "Are you sure?" screen for manually running sample
 // Checks for E-stop press
+// NOTE: I dont really like blocking blocks but this isnt really a critical section
 void standbyLoop()
 { 
-  char key;
-  uint8_t keyPressed;
+  static char key;
+  static uint8_t keyPressed;
   lcd.clear();
   cursorY = 2;
 
@@ -89,7 +90,6 @@ void releaseLoop() {
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
     releaseLCD(pos);
 
-    // delay(33);
   }
 }
 
@@ -97,7 +97,6 @@ void releaseLoop() {
 // No selection options
 // Checks for E-stop press
 void soakLoop() {
-  // setMotorSpeed(0);
   char secTime[3]; // "00"
   char minTime[3]; // "00"
 
@@ -105,7 +104,7 @@ void soakLoop() {
 
   uint32_t currTime = millis();
   uint32_t endTime = currTime + (60 * soakTime.Minute * 1000) + (soakTime.Second * 1000);
-  Serial.println(endTime - currTime);
+  // Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
 
@@ -150,9 +149,9 @@ void soakLoop() {
 // No selection options
 // Checks for E-stop press
 void recoverLoop() {
-  resetLCD();
-  int position = 900;
   static char pos[6];
+
+  resetLCD();
 
   while (state == RECOVER) 
   {
@@ -164,14 +163,12 @@ void recoverLoop() {
     int deci = tube_position % 100;
     snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
     recoverLCD(pos);
-
-    // delay(33);
   }
-
 }
 
 // SAMPLE
 // No selection options
+// This would be where the aquasens thing takes place
 void sampleLoop() {
   resetLCD();
 
@@ -179,7 +176,7 @@ void sampleLoop() {
   {
     sampleLCD();
 
-    delay(5000);
+    delay(5 * 1000);
 
     state = FLUSH;
 
