@@ -162,7 +162,7 @@ void setStartTimeLoop() {
 
 void setClockLoop() {
 
-  Serial.println(rtc.getYear());
+  //Serial.println(rtc.getYear());
 
   tmElements_t adjustedTime;
   adjustedTime.Month = rtc.getMonth();

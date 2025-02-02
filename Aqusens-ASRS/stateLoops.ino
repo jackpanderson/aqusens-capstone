@@ -87,7 +87,6 @@ void releaseLoop() {
     releaseLCD(pos);
 
     if (drop_tube(drop_distance_cm)) {
-      while (1);
       state = SOAK;
     }
   }
@@ -156,13 +155,13 @@ void recoverLoop() {
   while (state == RECOVER) 
   {
     checkEstop();
-    if (raise_tube(tube_position)) {
+
+    snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
+    recoverLCD(pos);
+
+    if (retrieve_tube(tube_position_f)) {
       state = SAMPLE;
     }
-    int meter = tube_position / 100;
-    int deci = tube_position % 100;
-    snprintf(pos, sizeof(pos), "%01d.%02dm", meter, deci);
-    recoverLCD(pos);
   }
 }
 
@@ -193,7 +192,7 @@ void flushLoop() {
 
   uint32_t currTime = millis();
   uint32_t endTime = currTime + (60 * flushTime.Minute * 1000) + (flushTime.Second * 1000);
-  Serial.println(endTime - currTime);
+  //Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
   uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
@@ -255,7 +254,7 @@ void dryLoop() {
 
   uint32_t currTime = millis();
   uint32_t endTime = currTime + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
-  Serial.println(endTime - currTime);
+  //Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
 

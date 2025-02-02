@@ -29,17 +29,10 @@ void home_tube() {
 //      */
 
 #define NUM_PHASES          (4UL)
-// #define NARROW_TUBE_CM      (243UL)
-// #define TUBE_CM             (183UL)
-// #define WATER_LEVEL_CM      (121UL)
 #define NARROW_TUBE_CM      (9.0f) // TODO: replace with actual val
 #define TUBE_CM             (16.0f) // TODO: replace with actual val
 #define WATER_LEVEL_CM      (5.0f) // TODO: replace with actual val
 #define CONST_DIST_CM       (NARROW_TUBE_CM + TUBE_CM + WATER_LEVEL_CM)
-// #define NARROW_TUBE_SPD     (5.0f)
-// #define TUBE_SPD            (15.0f)
-// #define FREE_FALL_SPD       (20.0f)
-// #define WATER_LEVEL_SPD     (10.0f)
 #define NARROW_TUBE_SPD     (3.0f)
 #define TUBE_SPD            (8.0f)
 #define FREE_FALL_SPD       (15.0f)
@@ -80,10 +73,9 @@ bool drop_tube(unsigned int distance_cm) {
   static bool dropping_flag = false;
   static unsigned long prev_time;
   static unsigned int drop_distance_cm;
-  static unsigned int drop_time_ms;
   static size_t phase_ind;
   
-  static float speeds_cm_p_s[NUM_PHASES] = {NARROW_TUBE_SPD, TUBE_SPD, FREE_FALL_SPD, WATER_LEVEL_SPD};
+  static float speeds_cm_p_s[NUM_PHASES] = {3.0f, 8.0f, 20.0f, 10.0f};
   static float dists_cm[NUM_PHASES] = {NARROW_TUBE_CM, TUBE_CM + NARROW_TUBE_CM, 0.0f, 0.0f};
 
 
@@ -146,6 +138,50 @@ bool raise_tube(unsigned int distance_cm) {
     turnMotorOff();
     raise_flag = false;
     return true;
+  }
+
+  return false;
+}
+
+bool retrieve_tube(unsigned int distance_cm) {
+  static bool raise_flag = false;
+  static unsigned long prev_time;
+  static unsigned int raise_distance_cm;
+  static unsigned int drop_time_ms;
+  static size_t phase_ind;
+  
+  static float speeds_cm_p_s[NUM_PHASES] = {10.0f, 20.0f, 5.0f, 2.0f};
+  static float dists_cm[NUM_PHASES] = {0.0f, TUBE_CM + NARROW_TUBE_CM, NARROW_TUBE_CM, 0.0f};
+
+
+  if (!raise_flag) {
+    raise_flag = true;
+    tube_position_f = distance_cm;
+    phase_ind = 0;
+    
+    raise_distance_cm = distance_cm;
+
+    dists_cm[0] = distance_cm - WATER_LEVEL_CM;
+
+    prev_time = millis();
+    setMotorSpeed(speeds_cm_p_s[phase_ind]);
+  }
+
+  // running integral
+  unsigned long cur_time = millis();
+  unsigned long delta_time = cur_time - prev_time;
+  prev_time = cur_time;
+
+  tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+
+  if (magSensorRead() || tube_position_f <= 0) {
+    turnMotorOff();
+    return true;
+  }
+
+  if (tube_position_f <= dists_cm[phase_ind]) {
+    phase_ind++;
+    setMotorSpeed(speeds_cm_p_s[phase_ind]);
   }
 
   return false;
