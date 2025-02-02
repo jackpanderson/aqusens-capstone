@@ -22,9 +22,6 @@ void setMotorDir(MotorDir dir);
 
 // TODO: Init Function
 void motorInit() {
-  //stepper = new SAMD_PWM(STEP_POS_PIN, DEFAULT_MOTOR_FREQ_Hz, 
-  //                    DEFAULT_MOTOR_DC); // uses old lib
-  // TODO: motor constructor
   pinMode(STEP_POS_PIN, OUTPUT);
 }
 
@@ -38,11 +35,9 @@ void setMotorDir(MotorDir dir) {
   }
 }
 
-// TODO: does this work for negative
-// FIXME: breaks with anything 26+
 inline uint32_t speed_to_freq(float cm_per_sec) {
-  uint64_t tmp = cm_per_sec * PULSE_PER_REV * GEAR_RATIO;
-  return tmp / (2 * PI * REEL_RAD_CM);
+  constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (2.0f * PI * REEL_RAD_CM);
+  return cm_per_sec * MOTORSPEED_FACTOR;
 }
 
 // FIXME: turn off motor first incase does 180 and snaps
@@ -54,7 +49,7 @@ void setMotorSpeed(float cm_per_sec) {
     setMotorDir(CW);
   }
 
-  setMotorFreq(speed_to_freq(abs(cm_per_sec)));
+  setMotorFreq(speed_to_freq(abs(cm_per_sec))); // FIXME: i think theres a max freq thats why max speed is 25 cm/s
 }
 
 void resetMotor(void) {

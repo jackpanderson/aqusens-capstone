@@ -143,7 +143,7 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-unsigned int drop_distance_cm = 130;
+unsigned int drop_distance_cm = 60;
 unsigned int tube_position;
 float tube_position_f;
 
@@ -166,11 +166,6 @@ void setup() {
   lcd.init(); // Initialize the LCD
   lcd.backlight(); // Turn on the backlight
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
-
-
-  // home_tube();
-
-  // state = SOLENOID_CONTROL;
 
 }
 
