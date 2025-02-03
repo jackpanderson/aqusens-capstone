@@ -5,7 +5,7 @@ typedef enum MotorDir {
   OFF,
 } MotorDir;
 
-#define SYSTEM_CLOCK_FREQ      48000000
+#define SYSTEM_CLOCK_FREQ  48000000
 #define PRESCALER_VAL       16
 
 

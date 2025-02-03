@@ -68,7 +68,7 @@ bool drop_tube(unsigned int distance_cm) {
   static unsigned int drop_distance_cm;
   static size_t phase_ind;
   
-  static float speeds_cm_p_s[NUM_PHASES] = {5.0f, 12.0f, 25.0f, 10.0f};
+  static float speeds_cm_p_s[NUM_PHASES] = {5.0f, 10.0f, 25.0f, 30.0f};
   static float dists_cm[NUM_PHASES] = {NARROW_TUBE_CM, TUBE_CM + NARROW_TUBE_CM, 0.0f, 0.0f};
 
 
