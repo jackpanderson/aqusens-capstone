@@ -58,9 +58,9 @@ void settingsLCD(uint8_t page) {
       lcd.setCursor(1, 0);
       lcd.print("SOAK TIME");
       lcd.setCursor(1, 1);
-      lcd.print("FLUSH TIME");
+      lcd.print("TUBE FLUSH TIME");
       lcd.setCursor(1, 2);
-      lcd.print("DRY TIME");
+      lcd.print("AQUSENS FLUSH TIME");
 
       lcd.setCursor(0, 3);
       lcd.print("<BACK");
@@ -70,11 +70,11 @@ void settingsLCD(uint8_t page) {
     
     case 3:
       lcd.setCursor(1, 0);
-      lcd.print("ADD EVENT");
+      lcd.print("DRY TIME");
       lcd.setCursor(1, 1);
-      lcd.print("VIEW EVENTS");
+      lcd.print("ADD EVENTS");
       lcd.setCursor(1, 2);
-      lcd.print("FILTER STATUS");
+      lcd.print("VIEW EVENTS");
 
       lcd.setCursor(0, 3);
       lcd.print("<BACK");
@@ -84,7 +84,7 @@ void settingsLCD(uint8_t page) {
 
     case 4:
       lcd.setCursor(1, 0);
-      lcd.print("SET BRIGHTNESS");
+      lcd.print("FILTER STATUS");
       lcd.setCursor(1, 1);
       lcd.print("SET CONTRAST");
 
@@ -162,9 +162,18 @@ void sampleLCD() {
 
 // Displays the Flsuhing screen
 void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
-  lcd.setCursor(5,0);
-  lcd.print("FLUSHING");
-  lcd.setCursor(13, 0);
+  lcd.setCursor(0,0);
+
+  if (state == FLUSH_TUBE) {
+    lcd.print("FLUSHING SAMPLER");
+    lcd.setCursor(17, 0);
+  }
+
+  else if (state == FLUSH_AQUSENS) {
+    lcd.print("FLUSHING AQUSENS");
+    lcd.setCursor(17, 0);
+  }
+
 
   switch (numDots) {
     case 0: 
@@ -287,10 +296,16 @@ void initSetSoakOrDryOrFlushLCD() {
     lcd.setCursor(4, 0);
     lcd.print("SET DRY TIME");
   }
-  else if (state == SET_FLUSH_TIME) {
-    lcd.setCursor(3, 0);
-    lcd.print("SET FLUSH TIME");
+  else if (state == SET_TUBE_FLUSH_TIME) {
+    lcd.setCursor(0, 0);
+    lcd.print("SET TUBE FLUSH TIME");
   }
+
+  else if (state == SET_AQUSENS_FLUSH_TIME) {
+    lcd.setCursor(0, 0);
+    lcd.print("SET AQUSENS FLUSH TIME");
+  }
+
   lcd.setCursor(7, 2);
   lcd.print("MN SC");
   lcd.setCursor(3, 3);

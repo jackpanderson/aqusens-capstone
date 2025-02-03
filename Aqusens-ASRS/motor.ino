@@ -10,10 +10,10 @@ typedef enum MotorDir {
 #define MOTOR_OFF(x)            (x == 0)
 #define MAX_MOTOR_FREQ          (300000)
 #define SYSTEM_CLOCK_FREQ  48000000
-#define PRESCALER_VAL       16
+#define PRESCALER_VAL       8
 #define REEL_RAD_CM         (5.0f)
 #define PULSE_PER_REV       (1600)
-#define GEAR_RATIO          (50)
+#define GEAR_RATIO          (5)
 
 volatile bool toggle = false;
 
@@ -48,6 +48,10 @@ void setMotorSpeed(float cm_per_sec) {
   else if (cm_per_sec > 0) {
     setMotorDir(CW);
   }
+
+  // Serial.print(cm_per_sec);
+  // Serial.print("  SPEED TO FREQ  ");
+  // Serial.println(speed_to_freq(abs(cm_per_sec)));
 
   setMotorFreq(speed_to_freq(abs(cm_per_sec))); // FIXME: i think theres a max freq thats why max speed is 25 cm/s
 }
@@ -88,15 +92,15 @@ void setMotorFreq(uint32_t frequency) {
     //setPrescaler(frequency, prescaler, compareValue);
     // Configure TC5 with Waveform Generation Mode (e.g., Match Frequency)
     TC5->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16 |  
-                              TC_CTRLA_PRESCALER_DIV16| TC_CTRLA_ENABLE |
+                              TC_CTRLA_PRESCALER_DIV8| TC_CTRLA_ENABLE |
                             TC_CTRLA_WAVEGEN_MFRQ; // Match Frequency PWM 
     
     while (TC5->COUNT16.STATUS.bit.SYNCBUSY); 
 
     // Set compare value
-    uint16_t compareVal = countValFromFreq(frequency);
+    uint32_t compareVal = countValFromFreq(frequency);
 
-    TC5->COUNT16.CC[0].reg = compareVal;
+    TC5->COUNT16.CC[0].reg = (uint16_t) compareVal;
     while (TC5->COUNT16.STATUS.bit.SYNCBUSY);
 
     // Enable interrupt on match
@@ -109,7 +113,7 @@ void setMotorFreq(uint32_t frequency) {
     return;
 }
 
-uint16_t countValFromFreq(uint16_t frequency) 
+uint32_t countValFromFreq(uint32_t frequency) 
 {
   return round(((SYSTEM_CLOCK_FREQ/(PRESCALER_VAL*2)) / frequency) - 1);
 }
