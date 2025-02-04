@@ -90,7 +90,7 @@ enum stateEnum {
   SOAK,
   RECOVER,
   SAMPLE,
-  FLUSH,
+  FLUSH_TUBE,
   DRY,
   MOTOR_ALARM,
   ESTOP_ALARM,
@@ -101,7 +101,8 @@ enum stateEnum {
   SET_INTERVAL,
   ENSURE_SAMPLE_START,
   SET_START_TIME,
-  SET_FLUSH_TIME,
+  SET_TUBE_FLUSH_TIME,
+  SET_AQUSENS_FLUSH_TIME,
   ADD_EVENT,
   VIEW_EVENTS,
   SET_CLOCK,
@@ -125,7 +126,7 @@ volatile stateEnum state = STANDBY;   // Start up will show standby state
 volatile uint32_t motorPulses = 0;
 
 // Timing
-tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime, flushTime;
+tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime, tubeFlushTime, aqusensFlushTime;
 Timer<5, millis> dropTimer;
 bool dropFlag = true; // Set by timers in activeLoop
 volatile bool estopPressed = false; // Flag to keep track of E-stop pressed/released
@@ -195,9 +196,12 @@ void loop() {
     case SAMPLE: // Sample is sent through the Aqusens device
       sampleLoop();
       break;
-    case FLUSH: // Aqusens and Sample device are flushed with filtered freshwater/air
-      flushLoop();
+    case FLUSH_TUBE: // Aqusens and Sample device are flushed with filtered freshwater/air
+      tubeFlushLoop();
       break;
+    // case FLUSH_AQUSENS: // Aqusens and Sample device are flushed with filtered freshwater/air
+    //   aqusensFlushLoop();
+    //   break;
     case DRY: // Sample device is dried for predetermined amount of time
       dryLoop();
       break;
@@ -233,8 +237,11 @@ void loop() {
     case SET_DRY_TIME: // Settings option to set dry time
       setDryTimeLoop();
       break;
-    case SET_FLUSH_TIME: // Settings option to set dry time
-      setFlushTimeLoop();
+    case SET_TUBE_FLUSH_TIME: // Settings option to set dry time
+      setTubeFlushTimeLoop();
+      break;
+    case SET_AQUSENS_FLUSH_TIME: // Settings option to set dry time
+      setAqusensFlushTimeLoop();
       break;
     case SET_BRIGHTNESS: // Settings option to set brightness of lcd
       setBrightnessLoop();
