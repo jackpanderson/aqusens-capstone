@@ -4,6 +4,7 @@
 // CALIBRATE
 // No selection options
 void calibrateLoop() {
+  resetMotor();
   resetLCD();
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
@@ -162,7 +163,7 @@ void recoverLoop() {
     snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
     recoverLCD(pos);
 
-    if (retrieve_tube(tube_position_f)) {
+    if (retrieve_tube(tube_position_f + .1)) {
       state = SAMPLE;
     }
   }
