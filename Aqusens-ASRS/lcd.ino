@@ -162,17 +162,19 @@ void sampleLCD() {
 
 // Displays the Flsuhing screen
 void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
-  lcd.setCursor(0,0);
+  lcd.setCursor(1,0);
 
   if (state == FLUSH_TUBE) {
-    lcd.print("FLUSHING SAMPLER");
-    lcd.setCursor(17, 0);
+    lcd.setCursor(1,0);
+    lcd.print("FLUSHING SYSTEM");
+    lcd.setCursor(16, 0);
   }
 
-  else if (state == FLUSH_AQUSENS) {
-    lcd.print("FLUSHING AQUSENS");
-    lcd.setCursor(17, 0);
-  }
+  // else if (state == FLUSH_AQUSENS) {
+  //   lcd.setCursor(0,0);
+  //   lcd.print("FLUSHING AQUSENS");
+  //   lcd.setCursor(16, 0);
+  // }
 
 
   switch (numDots) {
@@ -298,12 +300,12 @@ void initSetSoakOrDryOrFlushLCD() {
   }
   else if (state == SET_TUBE_FLUSH_TIME) {
     lcd.setCursor(0, 0);
-    lcd.print("SET TUBE FLUSH TIME");
+    lcd.print("TUBE FLUSH TIME");
   }
 
   else if (state == SET_AQUSENS_FLUSH_TIME) {
-    lcd.setCursor(0, 0);
-    lcd.print("SET AQUSENS FLUSH TIME");
+    lcd.setCursor(1, 0);
+    lcd.print("AQUSENS FLUSH TIME");
   }
 
   lcd.setCursor(7, 2);

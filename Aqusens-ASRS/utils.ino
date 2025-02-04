@@ -86,10 +86,10 @@ void rtcInit() {
   dryTime.Second = 30;
 
   tubeFlushTime.Minute = 0;
-  tubeFlushTime.Second = 45;
+  tubeFlushTime.Second = 15;
 
   aqusensFlushTime.Minute = 0;
-  aqusensFlushTime.Second = 30;
+  aqusensFlushTime.Second = 15;
   
   updateAlarm();
 }

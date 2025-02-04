@@ -427,9 +427,13 @@ void setAqusensFlushTimeLoop() {
         adjustSetSoakOrDryDigit(key, &newAqusensFlushTime, &cursorPos);
       }
 
-      if (state == SET_TUBE_FLUSH_TIME) {
+      if (state == SET_AQUSENS_FLUSH_TIME) {
       updateSetSoakOrDryOrFlushLCD(cursorPos, newAqusensFlushTime);
       }
+
+      Serial.print(key);
+      Serial.println(cursorPos);
+    
     } 
   }
 }
