@@ -181,27 +181,27 @@ void sampleLoop() {
 
     delay(5 * 1000);
 
-    state = FLUSH;
+    state = FLUSH_TUBE;
 
   }
 }
 
-// FLUSH
+// FLUSH TOOB
 // No selection options
-void flushLoop() {
+void tubeFlushLoop() {
   resetLCD();
   bool tempFlag = true;
   char secTime[3]; // "00"
   char minTime[3]; // "00"
 
   uint32_t currTime = millis();
-  uint32_t endTime = currTime + (60 * flushTime.Minute * 1000) + (flushTime.Second * 1000);
+  uint32_t endTime = currTime + (60 * tubeFlushTime.Minute * 1000) + (tubeFlushTime.Second * 1000);
   //Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
   uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
 
-  while (state == FLUSH && millis() < endTime) {
+  while (state == FLUSH_TUBE && millis() < endTime) {
     checkEstop();
 
     // Calculate remaining time, accounting for millis() overflow
@@ -245,6 +245,64 @@ void flushLoop() {
 
   state = DRY;
 }
+
+// void aqusensFlushLoop() {
+//   resetLCD();
+//   bool tempFlag = true;
+//   char secTime[3]; // "00"
+//   char minTime[3]; // "00"
+
+//   uint32_t currTime = millis();
+//   uint32_t endTime = currTime + (60 * aqusensFlushTime.Minute * 1000) + (aqusensFlushTime.Second * 1000);
+//   //Serial.println(endTime - currTime);
+
+//   int secondsRemaining, minutesRemaining;
+//   uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
+
+//   while (state == FLUSH_AQUSENS && millis() < endTime) {
+//     checkEstop();
+
+//     // Calculate remaining time, accounting for millis() overflow
+//     uint32_t millisRemaining;
+//     if (endTime > millis()) {
+//       millisRemaining = endTime - millis();
+//     } else {
+//       // Handle overflow case
+//       millisRemaining = (UINT32_MAX - millis()) + endTime;
+//     }
+
+//     secondsRemaining = millisRemaining / 1000;
+//     minutesRemaining = secondsRemaining / 60;
+
+//     // Format seconds with leading zero if necessary
+//     if (secondsRemaining % 60 > 9) {
+//       snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+//     } else {
+//       snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+//     }
+
+//     // Format minutes with leading zero if necessary
+//     if (minutesRemaining > 9) {
+//       snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+//     } else {
+//       snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+//     }
+
+//     // Toggle tempFlag every second
+//     if (millis() - lastToggleTime >= 1000) {
+//       tempFlag = true; // Toggle tempFlag
+//       lastToggleTime = millis(); // Update the last toggle time
+//     }
+
+//     // Update LCD with remaining time
+//     flushLCD(minTime, secTime, secondsRemaining % 4, tempFlag);
+    
+//     if (tempFlag)
+//       tempFlag = false;
+//   }
+
+//   state = DRY;
+// }
 
 // DRY
 // No selection options
