@@ -79,6 +79,9 @@ void releaseLoop() {
   resetLCD();
   static char pos[6];
 
+  // TODO: get the tide postion
+  // drop the tube that much
+
   while (state == RELEASE) 
   {
     checkEstop();

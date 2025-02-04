@@ -5,10 +5,6 @@ typedef enum MotorDir {
   OFF,
 } MotorDir;
 
-#define DEFAULT_MOTOR_FREQ_Hz   (500)
-#define DEFAULT_MOTOR_DC        (0)
-#define MOTOR_OFF(x)            (x == 0)
-#define MAX_MOTOR_FREQ          (300000)
 #define SYSTEM_CLOCK_FREQ  48000000
 #define PRESCALER_VAL       8
 #define REEL_RAD_CM         (5.0f)
