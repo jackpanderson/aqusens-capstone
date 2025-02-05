@@ -98,7 +98,7 @@ bool retrieve_tube(unsigned int distance_cm) {
   static size_t phase_ind;
   
   // static float speeds_cm_p_s[NUM_PHASES] = {20.0f, 30.0f, 6.0f, 2.0f};
-  static float speeds_cm_p_s[NUM_PHASES] = {10.0f, 20.0f, 8.0f, 1.5f};
+  static float speeds_cm_p_s[NUM_PHASES] = {10.0f, 20.0f, 8.0f, 2.0f};
   static float dists_cm[NUM_PHASES] = {0.0f, TUBE_CM + NARROW_TUBE_CM, NARROW_TUBE_CM, 0.0f};
 
 
@@ -124,13 +124,17 @@ bool retrieve_tube(unsigned int distance_cm) {
   tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
 
   if (magSensorRead()) {
-    Serial.println("Hit mag sens");
     turnMotorOff();
     tube_position_f = 0;
+    raise_flag = false;
+    
+    Serial.println("Hit mag sens");
     return true;
   } else if (tube_position_f <= 0) {
-    Serial.println("Went too far ALARM");
+    raise_flag = false;
     turnMotorOff();
+    
+    Serial.println("Went too far ALARM");
     return true;
   }
 
@@ -140,20 +144,6 @@ bool retrieve_tube(unsigned int distance_cm) {
   }
 
   return false;
-}
-
-void flush_tube() {
-  int cnt = 0;
-  setMotorSpeed(.5);
-  
-  while(1) {
-    if (!magSensorRead()) cnt++;
-    if (cnt == 8) break;
-  }
-
-  // while(magSensorRead());
-
-  turnMotorOff();
 }
 
 

@@ -204,8 +204,13 @@ void tubeFlushLoop() {
   int secondsRemaining, minutesRemaining;
   uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
 
-  while (state == FLUSH_TUBE && millis() < endTime) {
+  // while (state == FLUSH_TUBE && millis() < endTime) {
+  while (state == FLUSH_TUBE) {
     checkEstop();
+
+    if (flush_tube()) {
+      state = DRY;
+    }
 
     // Calculate remaining time, accounting for millis() overflow
     uint32_t millisRemaining;
@@ -357,6 +362,9 @@ void dryLoop() {
   }
 
   state = STANDBY;
+  tube_position_f = 0;
+  Serial.print("Done with full seq. Final tube_pos = ");
+  Serial.println(tube_position_f);
 }
 
 // ALARM
