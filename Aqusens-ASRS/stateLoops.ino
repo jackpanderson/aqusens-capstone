@@ -189,7 +189,7 @@ void sampleLoop() {
   }
 }
 
-// FLUSH TOOB
+// FLUSH TOOB => hehe -danny
 // No selection options
 void tubeFlushLoop() {
   resetLCD();

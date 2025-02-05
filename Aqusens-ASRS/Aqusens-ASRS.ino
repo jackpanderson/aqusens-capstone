@@ -202,9 +202,6 @@ void loop() {
     case FLUSH_TUBE: // Aqusens and Sample device are flushed with filtered freshwater/air
       tubeFlushLoop();
       break;
-    // case FLUSH_AQUSENS: // Aqusens and Sample device are flushed with filtered freshwater/air
-    //   aqusensFlushLoop();
-    //   break;
     case DRY: // Sample device is dried for predetermined amount of time
       dryLoop();
       break;

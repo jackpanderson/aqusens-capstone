@@ -142,6 +142,20 @@ bool retrieve_tube(unsigned int distance_cm) {
   return false;
 }
 
+void flush_tube() {
+  int cnt = 0;
+  setMotorSpeed(.5);
+  
+  while(1) {
+    if (!magSensorRead()) cnt++;
+    if (cnt == 8) break;
+  }
+
+  // while(magSensorRead());
+
+  turnMotorOff();
+}
+
 
 
 
