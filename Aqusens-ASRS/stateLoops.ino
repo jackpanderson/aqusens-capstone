@@ -6,8 +6,11 @@
 void calibrateLoop() {
   resetMotor();
   resetLCD();
+
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
+
+
   home_tube();
   state = STANDBY;
 }

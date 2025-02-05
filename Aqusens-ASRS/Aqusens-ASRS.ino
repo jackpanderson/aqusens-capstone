@@ -77,7 +77,8 @@
 #define NUM_BRIGHTNESS_STEPS 20
 #define REEL_RAD_CM         (5.0f)
 #define PULSE_PER_REV       (1600)
-#define GEAR_RATIO          (5)
+#define GEAR_RATIO          (5.0f)
+#define RANDOM_GEAR_FACTOR  (1.0f)
 
 
 /* Variable Declarations *********************************************************/
@@ -147,7 +148,7 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-unsigned int drop_distance_cm = 130;
+float drop_distance_cm = 94;
 float tube_position_f;
 
 // Discrete module

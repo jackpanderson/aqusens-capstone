@@ -7,9 +7,6 @@ typedef enum MotorDir {
 
 #define SYSTEM_CLOCK_FREQ  48000000
 #define PRESCALER_VAL       8
-#define REEL_RAD_CM         (5.0f)
-#define PULSE_PER_REV       (1600)
-#define GEAR_RATIO          (5)
 
 volatile bool toggle = false;
 
@@ -32,7 +29,7 @@ void setMotorDir(MotorDir dir) {
 }
 
 inline uint32_t speed_to_freq(float cm_per_sec) {
-  constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (2.0f * PI * REEL_RAD_CM);
+  constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (RANDOM_GEAR_FACTOR * 2.0f * PI * REEL_RAD_CM);
   return cm_per_sec * MOTORSPEED_FACTOR;
 }
 
