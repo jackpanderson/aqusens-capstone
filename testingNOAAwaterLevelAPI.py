@@ -2,6 +2,7 @@ import requests
 
 def queryForWaterLevel():
     url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=latest&station=9412110&product=water_level&datum=STND&time_zone=lst&units=metric&format=json"
+    # Queries for the current water level from Port San Luis pier, updates every pretty frequently.
 
     response = requests.get(url)
 
