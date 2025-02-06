@@ -1,7 +1,7 @@
 #define NUM_PHASES              (4UL)
 #define NARROW_TUBE_CM          (15.0f) // TODO: replace with actual val
-#define TUBE_CM                 (55.0f) // TODO: replace with actual val
-#define WATER_LEVEL_CM          (10.0f) // TODO: replace with actual val
+#define TUBE_CM                 (85.0f) // TODO: replace with actual val
+#define WATER_LEVEL_CM          (15.0f) // TODO: replace with actual val
 #define CONST_DIST_CM           (NARROW_TUBE_CM + TUBE_CM + WATER_LEVEL_CM)
 #define FREE_FALL_IND           (2)
 #define MIN_RAMP_DROP_DIST_CM   (CONST_DIST_CM)
@@ -42,7 +42,7 @@ bool drop_tube(unsigned int distance_cm) {
   static unsigned int drop_distance_cm;
   static size_t phase_ind;
   
-  static float speeds_cm_p_s[NUM_PHASES] = {15.0f, 25.0f, 50.0f, 30.0f};
+  static float speeds_cm_p_s[NUM_PHASES] = {15.0f, 30.0f, 75.0f, 30.0f};
   static float dists_cm[NUM_PHASES] = {NARROW_TUBE_CM, TUBE_CM + NARROW_TUBE_CM, 0.0f, 0.0f};
 
 
