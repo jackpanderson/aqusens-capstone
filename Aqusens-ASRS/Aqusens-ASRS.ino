@@ -148,7 +148,9 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-float drop_distance_cm = 94;
+float drop_distance_ft = 11;
+float drop_distance_cm = 410;
+// float drop_distance_cm = drop_distance_ft * 30.48;
 float tube_position_f;
 
 // Discrete module

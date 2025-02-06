@@ -1,5 +1,5 @@
 #define DUMP_WATER_TIME_S       (5UL)
-#define DROP_TUBE_DIST_CM       (30.0f)
+#define DROP_TUBE_DIST_CM       (40.0f)
 
 
 typedef enum FlushState {
