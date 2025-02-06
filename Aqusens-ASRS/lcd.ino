@@ -1,3 +1,5 @@
+/* LCD Functions **************************************************************/
+
 // Displays current time and next sample time
 void standbyLCD() {
   lcd.setCursor(0,0);

@@ -1,8 +1,9 @@
-#define PRESS_AND_HOLD_INTERVAL_MS 50
 /* State Machine Functions ******************************************************/
 
-// CALIBRATE
-// No selection options
+/* 
+* CALIBRATE
+* No selection options
+*/
 void calibrateLoop() {
   resetMotor();
   resetLCD();
@@ -15,12 +16,14 @@ void calibrateLoop() {
   state = STANDBY;
 }
 
-// STANDBY
-// Two selection options:
-//    - Settings: proceeds to first page of settings page
-//    - Run Sample: proceeds to "Are you sure?" screen for manually running sample
-// Checks for E-stop press
-// NOTE: I dont really like blocking blocks but this isnt really a critical section
+/*
+* STANDBY
+* Two selection options:
+*    - Settings: proceeds to first page of settings page
+*    - Run Sample: proceeds to "Are you sure?" screen for manually running sample
+* Checks for E-stop press
+* NOTE: I dont really like blocking blocks but this isnt really a critical section
+*/
 void standbyLoop()
 { 
   static char key;
@@ -49,10 +52,12 @@ void standbyLoop()
   }
 }
 
-// ENSURE_SAMPLE_START
-// Two selection options:
-//    - Exit: returns to standby mode
-//    - Run Sample: proceeds to release mode
+/* 
+* ENSURE_SAMPLE_START
+* Two selection options:
+*    - Exit: returns to standby mode
+*    - Run Sample: proceeds to release mode
+*/
 void ensureSampleStartLoop() {
   char keyPressed;
   resetLCD();
@@ -75,9 +80,11 @@ void ensureSampleStartLoop() {
 }
 
 
-// RELEASE
-// No selection options
-// Checks for E-stop press
+/*
+* RELEASE
+* No selection options
+* Checks for E-stop press
+*/
 void releaseLoop() {
 
   resetLCD();
@@ -99,9 +106,11 @@ void releaseLoop() {
   }
 }
 
-// SOAK
-// No selection options
-// Checks for E-stop press
+/*
+* SOAK
+* No selection options
+* Checks for E-stop press
+*/
 void soakLoop() {
   char secTime[3]; // "00"
   char minTime[3]; // "00"
@@ -110,7 +119,6 @@ void soakLoop() {
 
   uint32_t currTime = millis();
   uint32_t endTime = currTime + (60 * soakTime.Minute * 1000) + (soakTime.Second * 1000);
-  // Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
 
@@ -151,9 +159,11 @@ void soakLoop() {
 }
 
 
-// RECOVER
-// No selection options
-// Checks for E-stop press
+/*
+* RECOVER
+* No selection options
+* Checks for E-stop press
+*/
 void recoverLoop() {
   static char pos[6];
 
@@ -172,9 +182,11 @@ void recoverLoop() {
 
 }
 
-// SAMPLE
-// No selection options
-// This would be where the aquasens thing takes place
+/*
+* SAMPLE
+* No selection options
+* This would be where the aquasens thing takes place
+*/
 void sampleLoop() {
   resetLCD();
 
@@ -189,8 +201,10 @@ void sampleLoop() {
   }
 }
 
-// FLUSH TOOB => hehe -danny
-// No selection options
+/*
+* FLUSH TOOB => hehe -danny
+* No selection options
+*/
 void tubeFlushLoop() {
   resetLCD();
   bool tempFlag = true;
@@ -199,7 +213,6 @@ void tubeFlushLoop() {
 
   uint32_t currTime = millis();
   uint32_t endTime = currTime + (60 * tubeFlushTime.Minute * 1000) + (tubeFlushTime.Second * 1000);
-  //Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
   uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
@@ -312,8 +325,10 @@ void tubeFlushLoop() {
 //   state = DRY;
 // }
 
-// DRY
-// No selection options
+/*
+* DRY
+* No selection options
+*/
 void dryLoop() {
   // setMotorSpeed(0);
   
@@ -324,7 +339,6 @@ void dryLoop() {
 
   uint32_t currTime = millis();
   uint32_t endTime = currTime + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
-  //Serial.println(endTime - currTime);
 
   int secondsRemaining, minutesRemaining;
 
@@ -367,18 +381,19 @@ void dryLoop() {
   Serial.println(tube_position_f);
 }
 
-// ALARM
-// Two selection options:
-//    - Exit: returns to standby mode if alarm is resolved
-//            otherwise, flashes warning
-//    - Manual Mode: proceeds to manual mode
+/*
+* ALARM
+* Two selection options:
+*    - Exit: returns to standby mode if alarm is resolved
+*            otherwise, flashes warning
+*    - Manual Mode: proceeds to manual mode
+*/
 void alarmLoop() {
   setMotorSpeed(0);
   char key;
   uint8_t keyPressed;
   lcd.clear();
   cursorY = 2;
-  //Serial.println(analogRead(A1));
   while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
   {
     alarmLCD();
@@ -387,12 +402,10 @@ void alarmLoop() {
     
     if (keyPressed == 'S') {
       if (cursorY == 3 && checkEstop()) {
-        // Serial.println(digitalRead(A1));
         state = CALIBRATE;
       }
       
       else if (cursorY == 3 && ~checkEstop()) {
-        // Serial.println(digitalRead(A1));
         lcd.clear();
         releaseEstopLCD();
         delay(1500);
@@ -406,7 +419,13 @@ void alarmLoop() {
   }
 }
 
-// MANUAL
+/*
+* MANUAL
+* Three selection options:
+*    - Motor: proceeds to MOTOR_CONTROL state
+*    - Solenoids: proceeds to SOLENOID_CONTROL state
+*    - Exit: returns to previous alarm state
+*/
 void manualLoop() {
   char key;
   uint8_t keyPressed;
@@ -426,14 +445,22 @@ void manualLoop() {
       }
 
       else if (cursorY == 3) {
-        state = ESTOP_ALARM; // TODO: change to previous state
+        state = ESTOP_ALARM; // TODO: change to previous state (ESTOP vs. ALARM)
       }
     }
   }
 }
 
+/*
+* MOTOR_CONTROL
+* Four options:
+*    - Reset: cycles motor power to reset any alarm
+*    - Raise: slowly raises motor in increments
+*    - Lower: slowly lowers motor in increments
+*    - Back: returns to manual mode
+*/
 void motorControlLoop() {
-  int fakePos = 50; // Jack: REMOVE EVENTUALLY, USE GLOBAL MOTOR POSITION VARIABLE
+  int fakePos = 50; // TODO: REMOVE EVENTUALLY, USE GLOBAL MOTOR POSITION VARIABLE
   motorControlLCD();
   updateMotorCurrPositionDisplay(fakePos);
   char key;
@@ -473,6 +500,13 @@ void motorControlLoop() {
   }
 }
 
+/*
+* SOLENOID_CONTROL
+* Three options:
+*    - Solenoid 1: switches Solenoid 1 relay
+*    - Solenoid 2: switches Solenoid 2 relay
+*    - Exit: returns to manual mode
+*/
 void solenoidControlLoop() {
   lcd.clear();
   char keyPressed;
@@ -512,20 +546,4 @@ void solenoidControlLoop() {
       state = MANUAL;
     }
   }
-}
-
-
-char pressAndHold(uint8_t lastKeyPressed) {
-  //uint8_t currKey = getKeyPress();
-  unsigned long startTime = millis();
-  unsigned long currTime = millis();
-
-  while(currTime - startTime < PRESS_AND_HOLD_INTERVAL_MS) {
-    if (getKeyPress() != lastKeyPressed) {
-      return 0; //Target key has been let go
-    }
-    currTime = millis();
-  }
-
-  return lastKeyPressed;
 }

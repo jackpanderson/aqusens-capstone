@@ -1,4 +1,5 @@
 #define TIME_BASED_DEBOUNCE_WAIT_TIME_MS 35
+#define PRESS_AND_HOLD_INTERVAL_MS 50
 
 /* Init Functions **************************************************************/
 
@@ -629,4 +630,19 @@ void updateMotorCurrPositionDisplay(int currPos) {
   }
 
   lcd.print(formattedDistance);
+}
+
+char pressAndHold(uint8_t lastKeyPressed) {
+  //uint8_t currKey = getKeyPress();
+  unsigned long startTime = millis();
+  unsigned long currTime = millis();
+
+  while(currTime - startTime < PRESS_AND_HOLD_INTERVAL_MS) {
+    if (getKeyPress() != lastKeyPressed) {
+      return 0; //Target key has been let go
+    }
+    currTime = millis();
+  }
+
+  return lastKeyPressed;
 }
