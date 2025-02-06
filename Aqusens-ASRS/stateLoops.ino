@@ -163,13 +163,13 @@ void recoverLoop() {
   {
     checkEstop();
 
-    snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
-    recoverLCD(pos);
-
     if (retrieve_tube(tube_position_f + .1)) {
       state = SAMPLE;
     }
+    snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
+    recoverLCD(pos);
   }
+
 }
 
 // SAMPLE
