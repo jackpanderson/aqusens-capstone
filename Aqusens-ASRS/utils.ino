@@ -44,9 +44,9 @@ void estopInit() {
 void updateSolenoid(solenoidState state, int solenoidNumber) {
   if (solenoidNumber == SOLENOID_ONE || solenoidNumber == SOLENOID_TWO) {
       if (state == OPEN)
-        P1.writeDiscrete(false, RELAY_SLOT, solenoidNumber);
-      else
         P1.writeDiscrete(true, RELAY_SLOT, solenoidNumber);
+      else
+        P1.writeDiscrete(false, RELAY_SLOT, solenoidNumber);
   }
 }
 

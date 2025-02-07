@@ -119,8 +119,8 @@ typedef enum solenoidState {
   CLOSED
 } solenoidState;
 
-solenoidState solenoidOneState = OPEN;
-solenoidState solenoidTwoState = OPEN;
+solenoidState solenoidOneState = CLOSED;
+solenoidState solenoidTwoState = CLOSED;
 
 volatile stateEnum state = STANDBY;   // Start up will show standby state
 
