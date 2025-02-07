@@ -608,8 +608,8 @@ void RTDInit() {
   Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
 }
 
-float readRTD(TempSensor temp) {
-  return roundf(P1.readTemperature(RTD_SLOT, temp) * 10) / 10.0;
+float readRTD(TempSensor sensorNum) {
+  return roundf(P1.readTemperature(RTD_SLOT, sensorNum) * 10) / 10.0;
 }
 
 

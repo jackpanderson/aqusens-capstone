@@ -63,8 +63,8 @@
 
 //RTD Inputs
 typedef enum {
-  TEMP_SENSOR_ONE,
-  TEMP_SENSOR_TWO
+  TEMP_SENSOR_ONE = 1, // TODO: Eventually change to more descriptive names, depending on what each sensor actually is measuring
+  TEMP_SENSOR_TWO = 2
 } TempSensor;
 
 // Outputs
