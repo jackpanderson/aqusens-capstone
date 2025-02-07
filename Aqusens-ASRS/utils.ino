@@ -604,11 +604,12 @@ bool magSensorRead() {
 
 void RTDInit() {
   const char P1_04RTD_CONFIG[] = { 0x40, 0x03, 0x60, 0x01, 0x20, 0x02, 0x80, 0x00 };
+  // Config data for RTD module, configures Pt1000 type sensor and Celcius units returned when read
   Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
 }
 
-float readRTD() {
-  return roundf(P1.readTemperature(RTD_SLOT, TEMP_SENSOR_ONE) * 10) / 10.0;
+float readRTD(TempSensor temp) {
+  return roundf(P1.readTemperature(RTD_SLOT, temp) * 10) / 10.0;
 }
 
 

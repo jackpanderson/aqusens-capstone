@@ -62,7 +62,10 @@
 #define SOLENOID_DISABLE 0
 
 //RTD Inputs
-#define TEMP_SENSOR_ONE 1
+typedef enum {
+  TEMP_SENSOR_ONE,
+  TEMP_SENSOR_TWO
+} TempSensor;
 
 // Outputs
 
