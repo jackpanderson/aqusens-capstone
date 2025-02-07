@@ -401,11 +401,11 @@ void alarmLoop() {
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 3 && checkEstop()) {
+      if (cursorY == 3 && ~checkEstop()) {
         state = CALIBRATE;
       }
       
-      else if (cursorY == 3 && ~checkEstop()) {
+      else if (cursorY == 3 && checkEstop()) {
         lcd.clear();
         releaseEstopLCD();
         delay(1500);

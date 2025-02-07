@@ -545,6 +545,26 @@ void resetMotorLCD() {
   lcd.print("RESETTING...");
 }
 
+void updateMotorCurrPositionDisplay(int currPos) {
+  //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
+  lcd.setCursor(15, 3);
+
+  int meters = currPos/100; //Converts cm to nearest meter, assuming less than 10!
+  int remainingCm = currPos - meters*100; //Leftover centimeters
+
+  char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
+
+  if (remainingCm >= 10) {
+    snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
+  }
+
+  else {
+    snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
+  }
+
+  lcd.print(formattedDistance);
+}
+
 void resetLCD()
 {
   lcd.clear();

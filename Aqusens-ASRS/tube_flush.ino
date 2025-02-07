@@ -13,13 +13,11 @@ typedef enum FlushState {
   HOME_2,
 } FlushState;
 
-
 /**
+ * @brief FSM to control flushing process (8 states)
  * 
- * 
- * 
- * 
- * @returns true once done with the flushing cycle
+ * @return true once done with the flushing cycle
+ * @return false if error occurs during flushing cycle
  */
 bool flush_tube() {
   constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000;

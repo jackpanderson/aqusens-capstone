@@ -3,12 +3,10 @@
 
 /* Init Functions **************************************************************/
 
-/*---------------------------------------------------------
-* Function: gpioInit()
-* Purpose: initializes all pins on gpio module
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
+/**
+ * @brief initializes all pins on gpio module
+ * 
+ */
 void gpioInit() {
   /* Initialize Stepper PWM */
   pinMode(KEY_U, INPUT_PULLDOWN);
@@ -18,29 +16,27 @@ void gpioInit() {
   pinMode(KEY_S, INPUT_PULLDOWN);
   pinMode(DIR_POS_PIN, OUTPUT);
   pinMode(A1, INPUT_PULLDOWN);
-  //pinMode(DIR_NEG_PIN, OUTPUT);
-  // pinMode(STEP_NEG_PIN, OUTPUT);
-  // digitalWrite(STEP_NEG_PIN, 0);
-
-  // pinMode(STEP_POS_PIN, OUTPUT);
-  // pinMode(STEP_NEG_PIN, OUTPUT);
-  // pinMode(DIR_POS_PIN, OUTPUT);
-  // pinMode(DIR_NEG_PIN, OUTPUT);
-
-  /* Initialize LCD */
-  //P1.writeDiscrete(LOW, 1, 2);    // Outputs 5V power source for LCD
-  //lcd.begin(20, 4);               // cols, rows
 
   /* SD */
   SD.begin(SD_CS);
 }
 
+/**
+ * @brief initializes E-stop pin as pull-down and interrupt
+ * 
+ */
 void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
   attachInterrupt(digitalPinToInterrupt(A1), onLowTrigger, FALLING);
 }
 
+/**
+ * @brief switches relay for given solenoid
+ * 
+ * @param state state of current solenoid (OPEN/CLOSED)
+ * @param solenoidNumber solenoid to control (SOLENOID_ONE/SOLENOID_TWO)
+ */
 void updateSolenoid(solenoidState state, int solenoidNumber) {
   if (solenoidNumber == SOLENOID_ONE || solenoidNumber == SOLENOID_TWO) {
       if (state == OPEN)
@@ -50,19 +46,20 @@ void updateSolenoid(solenoidState state, int solenoidNumber) {
   }
 }
 
+/**
+ * @brief interrupt function for E-Stop
+ * 
+ */
 void onLowTrigger() {
   //setMotorSpeed(0);
   state = ESTOP_ALARM;
   estopPressed = 1;
 }
 
-
-/*---------------------------------------------------------
-* Function: rtcInit()
-* Purpose: initialize the RTC
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
+/**
+ * @brief initializes the RTC
+ * 
+ */
 void rtcInit() {
   rtc.begin();
   rtc.setEpoch(1738123553);
@@ -95,25 +92,11 @@ void rtcInit() {
   updateAlarm();
 }
 
-
-// void updateStartTime() {
-//   rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
-//   rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
-//   rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
-//   rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
-// }
-
-// void startDelayAlarm(tmElements_t newStartTime) {
-
-//   breakTime(makeTime(newStartTime), newStartTime);
-  
-//   rtc.setAlarmTime(nextSampleTime.Hour, nextSampleTime.Minute, 0); // Set alarm for the specified time
-//   rtc.setAlarmDate(nextSampleTime.Day, nextSampleTime.Month, nextSampleTime.Year);
-//   rtc.enableAlarm(rtc.MATCH_YYMMDDHHMMSS); // Match hours and minutes
-//   rtc.attachInterrupt(delayAlarmTriggered); // Attach the ISR for the alarm interrupt
-// }
-
-
+/**
+ * @brief update timer alarm for given time
+ * 
+ * @param delayTime next sample time
+ */
 void updateAlarm(tmElements_t delayTime) {
 
   breakTime(makeTime(nextSampleTime), nextSampleTime);
@@ -132,6 +115,10 @@ void updateAlarm(tmElements_t delayTime) {
   rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
 }
 
+/**
+ * @brief update timer alarm for next sample interval
+ * 
+ */
 void updateAlarm() {
   nextSampleTime.Year = rtc.getYear() + sampleInterval.Year;
   nextSampleTime.Month = rtc.getMonth() + sampleInterval.Month;
@@ -148,6 +135,10 @@ void updateAlarm() {
   rtc.attachInterrupt(alarmTriggered); // Attach the ISR for the alarm interrupt
 }
 
+/**
+ * @brief interrupt function for alarm interrupt
+ * 
+ */
 void alarmTriggered() {
   // This will be called when the alarm is triggered
   // You can handle additional tasks here if needed
@@ -167,20 +158,13 @@ void alarmTriggered() {
   }
 }
 
-/*---------------------------------------------------------
-* Function: findHomePos()
-* Purpose: Returns the probe to home position
-* Params: None                                            
-* Returns: None
----------------------------------------------------------*/
-void findHomePos() {
-  // Checks if probe is connected to magnetic sensor
-  // If not:
-  //    Slowly brings the probe up until it is connected
-  //    to magnetic sensor
-  // Need a way to make sure it is not above the sensor
-}
-
+/**
+ * @brief controls row moving with cursor
+ * 
+ * @param begin first row available to traverse
+ * @param end last row available to traverse
+ * @return char key that was pressed
+ */
 char cursorSelect(int begin, int end) 
 {
   char key = getKeyDebounce();
@@ -203,12 +187,11 @@ char cursorSelect(int begin, int end)
   }
 }
 
-/*---------------------------------------------------------
-* Function: getKeyDebounce()
-* Purpose: gets key press from user (debounced)
-* Params: None                                            
-* Returns: key pressed by the user
----------------------------------------------------------*/
+/**
+ * @brief gets key press from user (debounced)
+ * 
+ * @return char key pressed by the user
+ */
 char getKeyDebounce() {
 
   char key = getKeyPress();
@@ -222,9 +205,11 @@ char getKeyDebounce() {
   return key;
 }
 
-
-
-//Time based debounce function for press-and-hold
+/**
+ * @brief Time based debounce function for press-and-hold
+ * 
+ * @return char key pressed by the user
+ */
 char getKeyTimeBasedDebounce() {
   char key = getKeyPress();
 
@@ -248,6 +233,11 @@ char getKeyTimeBasedDebounce() {
   return getKeyDebounce();
 }
 
+/**
+ * @brief formats the current date/time
+ * 
+ * @return String formatted string of current date/time
+ */
 String getCurrentDateTime() {
   char dateTimeString[16];
 
@@ -261,6 +251,11 @@ String getCurrentDateTime() {
   return String(dateTimeString);
 }
 
+/**
+ * @brief formats the next sample date/time
+ * 
+ * @return String formatted string of next sample date/time
+ */
 String getNextSampleTime() {
   char dateTimeString[16];
 
@@ -274,6 +269,12 @@ String getNextSampleTime() {
   return String(dateTimeString);
 }
 
+/**
+ * @brief parses time string and formats to tmElements_t
+ * 
+ * @param timeStr formatted time string
+ * @return tmElements_t object containing time value from timeStr
+ */
 tmElements_t parseTime(const char* timeStr) {
   int year, month, day, hour, minute, second;
   sscanf(timeStr, "%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &second);
@@ -289,59 +290,11 @@ tmElements_t parseTime(const char* timeStr) {
   return tm;
 }
 
-void formatTime(char* buffer, time_t time) {
-  tmElements_t tm;
-  breakTime(time, tm);
-  sprintf(buffer, "%0d-%02d-%02d %02d:%02d:%02d", tm.Year, tm.Month, tm.Day, tm.Hour, tm.Minute, tm.Second);
-}
-
-
-void addTimes(String time1Str, String time2Str, char* result) {
-  tmElements_t resultTime;
-  tmElements_t time1 = parseTime(time1Str.c_str());
-  tmElements_t time2 = parseTime(time2Str.c_str());
-
-  resultTime.Year = time1.Year + time2.Year; 
-  resultTime.Month = time1.Month + time2.Month;
-  resultTime.Day = time1.Day + time2.Day;
-  resultTime.Hour = time1.Hour + time2.Hour;
-  resultTime.Minute = time1.Minute + time2.Minute;
-  resultTime.Second = 0;
-
-  formatTime(result, makeTime(resultTime));
-}
-
-/*---------------------------------------------------------
-* Function: fastDrop()
-* Purpose: function called by the timer to start speed up
-*           the drop
-* Params: None                                            
-* Returns: Flag to indicate if function was successful
----------------------------------------------------------*/
-bool fastDrop(void *) {
-  //P1.writePWM(50, MICROSTEP, PWM_SLOT, STEPPER_PUL);
-  //dropTimer(dropDistance*1000, stopMotor);  // Need to create new timer that takes dropDistance as param or make
-                                              // dropDistance a global variable. First way cleaner, second way faster
-  return true;
-}
-
-/*---------------------------------------------------------
-* Function: stopMotor()
-* Purpose: function called by the timer to stop the motor
-* Params: None                                            
-* Returns: Flag to indicate if function was successful
----------------------------------------------------------*/
-bool stopMotor(void *) {
-  //P1.writePWM(50, 0, PWM_SLOT, STEPPER_PUL);
-  return true;
-}
-
-/*---------------------------------------------------------
-* Function: getKeyPress()
-* Purpose: gets any key currently pressed by user
-* Params: None                                            
-* Returns: key pressed by user (NULL if no current key press)
----------------------------------------------------------*/
+/**
+ * @brief gets any key currently pressed by user
+ * 
+ * @return char key pressed by user (NULL if no current key press)
+ */
 char getKeyPress() {
   if (digitalRead(KEY_U)) {
     return 'U';
@@ -358,6 +311,13 @@ char getKeyPress() {
   }
 }
 
+/**
+ * @brief controls incrementing and decrementing digits on time setting pages
+ * 
+ * @param key key pressed by user
+ * @param adjustedTime pointer to tmElements_t object that is being modified
+ * @param cursorPos current position of cursor
+ */
 void adjustSetTimeDigit(char key, tmElements_t* adjustedTime, uint8_t* cursorPos) {
   switch (*cursorPos) {
     case 0: //Month Tens Place
@@ -455,6 +415,13 @@ void adjustSetTimeDigit(char key, tmElements_t* adjustedTime, uint8_t* cursorPos
   }
 }
 
+/**
+ * @brief controls incrementing and decrementing digits on interval setting page
+ * 
+ * @param key key pressed by user
+ * @param newInterval pointer to tmElements_t object that is being modified
+ * @param cursorPos current position of cursor
+ */
 void adjustSetIntervalDigit(char key, tmElements_t* newInterval, uint8_t* cursorPos) {
   switch (*cursorPos) {
     case 0: //Day Tens Place
@@ -528,6 +495,13 @@ void adjustSetIntervalDigit(char key, tmElements_t* newInterval, uint8_t* cursor
   }
 }
 
+/**
+ * @brief controls incrementing and decrementing digits on dry/soak time setting pages
+ * 
+ * @param key key pressed by user
+ * @param newTime pointer to tmElements_t object that is being modified
+ * @param cursorPos current position of cursor
+ */
 void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos) {
   switch (*cursorPos) {
     case 0: //Minutes Tens Place
@@ -583,56 +557,64 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* newTime, uint8_t* cursorPos
   }
 }
 
+/**
+ * @brief checks if E-Stop is pressed
+ * 
+ * @return true if E-Stop is pressed
+ * @return false if E-Stop is not pressed
+ */
 bool checkEstop() {
   if (digitalRead(A1) == 0) {
     estopPressed = 1;
     state = ESTOP_ALARM;
-    return false; //estop is pressed
+    return true; //estop is pressed
   }
 
   else {
     estopPressed = 0; //Estop is not pressed
-    return true;
+    return false;
   }
 }
 
+/**
+ * @brief reads the magnetic sensor value
+ * 
+ * @return true if high
+ * @return false if low
+ */
 bool magSensorRead() {
   // Reads the magnetic sensor input
   // Returns 1 if high, 0 if low
   return P1.readDiscrete(HV_GPIO_SLOT, MAG_SENSOR_IO_SLOT);
 }
 
+/**
+ * @brief initializes RTD module
+ * 
+ */
 void RTDInit() {
   const char P1_04RTD_CONFIG[] = { 0x40, 0x03, 0x60, 0x01, 0x20, 0x02, 0x80, 0x00 };
   // Config data for RTD module, configures Pt1000 type sensor and Celcius units returned when read
   Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
 }
 
+/**
+ * @brief reads RTD value from given temperature sensor
+ * 
+ * @param sensorNum temperature sensor to read from
+ * @return float temperature (in C)
+ */
 float readRTD(TempSensor sensorNum) {
   return roundf(P1.readTemperature(RTD_SLOT, sensorNum) * 10) / 10.0;
 }
 
-
-void updateMotorCurrPositionDisplay(int currPos) {
-  //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
-  lcd.setCursor(15, 3);
-
-  int meters = currPos/100; //Converts cm to nearest meter, assuming less than 10!
-  int remainingCm = currPos - meters*100; //Leftover centimeters
-
-  char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
-
-  if (remainingCm >= 10) {
-    snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
-  }
-
-  else {
-    snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
-  }
-
-  lcd.print(formattedDistance);
-}
-
+/**
+ * @brief provides a delay for press-and-hold functionality, prevents adjusted values from 
+ *        being incremented/decremented too quickly
+ * 
+ * @param lastKeyPressed 
+ * @return char 
+ */
 char pressAndHold(uint8_t lastKeyPressed) {
   //uint8_t currKey = getKeyPress();
   unsigned long startTime = millis();
