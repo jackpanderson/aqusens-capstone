@@ -1,10 +1,9 @@
-
-/*---------------------------------------------------------
-* Function: findClosestDate()
-* Purpose: Finds the closest tide prediction from the SD
-* Params: String with next drop time in correct format
-* Returns: Tide prediction of whatever time is closest
----------------------------------------------------------*/
+/**
+ * @brief Finds the closest tide prediction from the SD
+ * 
+ * @param nextDropTime String with next drop time in correct format
+ * @return double Tide prediction of whatever time is closest
+ */
 double findClosestDate(String nextDropTime) {
   String closestDate = "";
   char currentChar, previousChar;

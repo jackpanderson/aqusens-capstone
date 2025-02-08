@@ -1,9 +1,12 @@
-// SETTINGS
-// 4 page selection options
-//    - INTERVAL/START TIME/CLOCK
-//    - SOAK/FLUSH/DRY TIME
-//    - ADD EVENT/VIEW EVENTS/FILTER STATUS
-//    - BRIGHTNESS/CONTRAST
+/**
+ * @brief SETTINGS
+ * 
+ * Four page options:
+ *    - INTERVAL/START TIME/CLOCK
+ *    - SOAK/FLUSH/DRY TIME
+ *    - ADD EVENT/VIEW EVENTS/FILTER STATUS
+ *    - BRIGHTNESS/CONTRAST
+ */
 void settingsLoop() {
   uint8_t lastKeyPress = rtc.getMinutes();
   char keyPressed;
@@ -115,6 +118,10 @@ void settingsLoop() {
   }
 }
 
+/**
+ * @brief SET_START_TIME
+ * 
+ */
 void setStartTimeLoop() {
   tmElements_t adjustedStartTime;
   adjustedStartTime.Month = rtc.getMonth();
@@ -160,9 +167,11 @@ void setStartTimeLoop() {
 
 }
 
+/**
+ * @brief SET_CLOCK
+ * 
+ */
 void setClockLoop() {
-
-  //Serial.println(rtc.getYear());
 
   tmElements_t adjustedTime;
   adjustedTime.Month = rtc.getMonth();
@@ -213,6 +222,10 @@ void setClockLoop() {
   }
 }
 
+/**
+ * @brief SET_INTERVAL
+ * 
+ */
 void setIntervalLoop() {
   tmElements_t newInterval;
   newInterval.Day = sampleInterval.Day;
@@ -258,6 +271,10 @@ void setIntervalLoop() {
   }
 }
 
+/**
+ * @brief SET_SOAK_TIME
+ * 
+ */
 void setSoakTimeLoop() {
   tmElements_t newSoakTime;
   newSoakTime.Minute = soakTime.Minute;
@@ -301,6 +318,10 @@ void setSoakTimeLoop() {
   }
 }
 
+/**
+ * @brief SET_DRY_TIME
+ * 
+ */
 void setDryTimeLoop() {
   tmElements_t newDryTime;
   newDryTime.Minute = dryTime.Minute;
@@ -346,6 +367,10 @@ void setDryTimeLoop() {
   }
 }
 
+/**
+ * @brief SET_TUBE_FLUSH_TIME
+ * 
+ */
 void setTubeFlushTimeLoop() {
   tmElements_t newTubeFlushTime;
   newTubeFlushTime.Second = tubeFlushTime.Second;
@@ -390,6 +415,10 @@ void setTubeFlushTimeLoop() {
   }
 }
 
+/**
+ * @brief SET_AQUSENS_FLUSH_TIME
+ * 
+ */
 void setAqusensFlushTimeLoop() {
   tmElements_t newAqusensFlushTime;
   newAqusensFlushTime.Second = aqusensFlushTime.Second;
@@ -438,6 +467,10 @@ void setAqusensFlushTimeLoop() {
   }
 }
 
+/**
+ * @brief SET_BRIGHTNESS
+ * 
+ */
 void setBrightnessLoop() {
   char key;
 

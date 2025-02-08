@@ -1,6 +1,10 @@
 /* LCD Functions **************************************************************/
 
-// Displays current time and next sample time
+/**
+ * @brief STANDBY screen
+ * 
+ * Displays current time and next sample time
+ */
 void standbyLCD() {
   lcd.setCursor(0,0);
   lcd.print("CURR: ");
@@ -21,7 +25,11 @@ void standbyLCD() {
   lcd.print("*");
 }
 
-// "Are you sure?" screen
+/**
+ * @brief "Are you sure?" screen
+ * 
+ * @param ensure the state to enter if confirmed
+ */
 void ensureLCD(String ensure) {
   lcd.setCursor(4, 0);
   lcd.print(ensure);
@@ -36,9 +44,13 @@ void ensureLCD(String ensure) {
   lcd.print("*");
 }
 
-// Settings screen pages
-//    page: the current settings page to be displayed
-//    Every page has a maximum of three setting options
+/**
+ * @brief SETTINGS screen
+ * 
+ * Each page has a maximum of three setting options
+ * 
+ * @param page the current settings page to be displayed
+ */
 void settingsLCD(uint8_t page) {
 
   switch (page) {
@@ -101,8 +113,13 @@ void settingsLCD(uint8_t page) {
 
 }
 
-// Displays the current position of motor releasing sample
-//    position: String of current position of sample device in meters
+/**
+ * @brief RELEASE screen
+ * 
+ * Displays the current position of motor releasing sample
+ * 
+ * @param position String of current position of sample device in meters
+ */
 void releaseLCD(String position) {
   lcd.setCursor(0,1);
   lcd.print("RELEASING DEVICE...");
@@ -112,8 +129,15 @@ void releaseLCD(String position) {
   lcd.print(position);
 }
 
-// Displays the time remaining in soak procedure
-//    time: String of time remaining in soak time in minutes
+/**
+ * @brief SOAK screen
+ * 
+ * Displays the time remaining in soak procedure
+ * 
+ * @param minTime String of minutes remaining in soak time
+ * @param secTime String of seconds remaining in soak time
+ * @param numDots Number of dots to display in flashing ...
+ */
 void soakLCD(String minTime, String secTime, int numDots) {
   lcd.setCursor(5,0);
   lcd.print("SOAKING");
@@ -145,8 +169,13 @@ void soakLCD(String minTime, String secTime, int numDots) {
   lcd.print("REMAINING");
 }
 
-// Displays the current position of motor recovering sample
-//    position: String of current position of sample device in meters
+/**
+ * @brief RECOVER screen
+ * 
+ * Displays the current position of motor recovering sample
+ * 
+ * @param position String of current position of sample device in meters
+ */
 void recoverLCD(String position) {
   lcd.setCursor(0,1);
   lcd.print("RECOVERING DEVICE...");
@@ -156,13 +185,24 @@ void recoverLCD(String position) {
   lcd.print(position);
 }
 
-// Displays the Sampling screen
+/**
+ * @brief SAMPLE screen
+ * TODO: flash ...
+ *       display state of sampling stage in Aqusens
+ */
 void sampleLCD() {
   lcd.setCursor(0,1);
   lcd.print("SAMPLING...");
 }
 
-// Displays the Flsuhing screen
+/**
+ * @brief FLUSH_TUBE screen
+ * 
+ * @param minTime String of minutes remaining in flush time
+ * @param secTime String of seconds remaining in flush time
+ * @param numDots Number of dots to display in flashing ...
+ * @param tempFlag Flag that determines whether temperature data is displayed
+ */
 void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
   lcd.setCursor(1,0);
 
@@ -171,13 +211,6 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
     lcd.print("FLUSHING SYSTEM");
     lcd.setCursor(16, 0);
   }
-
-  // else if (state == FLUSH_AQUSENS) {
-  //   lcd.setCursor(0,0);
-  //   lcd.print("FLUSHING AQUSENS");
-  //   lcd.setCursor(16, 0);
-  // }
-
 
   switch (numDots) {
     case 0: 
@@ -210,8 +243,15 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
   lcd.print("REMAINING");
 }
 
-// Displays the time remaining in dry procedure
-//    time: String of time remaining in dry time in minutes
+/**
+ * @brief DRY screen
+ * 
+ * Displays the time remaining in dry procedure
+ * 
+ * @param minTime String of minutes remaining in dry time
+ * @param secTime String of seconds remaining in dry time
+ * @param numDots Number of dots to display in flashing ...
+ */
 void dryLCD(String minTime, String secTime, int numDots) {
   lcd.setCursor(6,0);
   lcd.print("DRYING");
@@ -243,6 +283,11 @@ void dryLCD(String minTime, String secTime, int numDots) {
   lcd.print("REMAINING");
 }
 
+/**
+ * @brief SOLENOID_CONTROL screen
+ * 
+ * Displays state of both solenoids
+ */
 void solenoidControlLCD() {
   lcd.setCursor(2, 0);
   lcd.print("SOLENOID CONTROL");
@@ -270,7 +315,11 @@ void solenoidControlLCD() {
   
 }
 
-// Settings page option to set clock
+/**
+ * @brief Initialize SET_CLOCK screen
+ * 
+ * Initialize settings page option to set clock
+ */
 void initSetClockLCD() {
   lcd.setCursor(6, 0);
   lcd.print("SET TIME");
@@ -280,7 +329,11 @@ void initSetClockLCD() {
   lcd.print("SEL TO CONFIRM");
 }
 
-// Settings page option to set sampling interval
+/**
+ * @brief Initialize SET_INTERVAL screen
+ * 
+ * Initialize settings page option to set sampling interval
+ */
 void initSetIntervalLCD() {
   lcd.setCursor(0, 0);
   lcd.print("SET SAMPLE INTERVAL");
@@ -290,7 +343,11 @@ void initSetIntervalLCD() {
   lcd.print("SEL TO CONFIRM");
 }
 
-// Settings page option to set soak or dry time
+/**
+ * @brief Initialize SET_SOAK_TIME/SET_DRY_TIME/SET_TUBE_FLUSH_TIME/SET_AQUSENS_FLUSH_TIME screen
+ * 
+ * Initialize settings page option to set soak/dry/flush time
+ */
 void initSetSoakOrDryOrFlushLCD() {
   if (state == SET_SOAK_TIME) {
     lcd.setCursor(3, 0);
@@ -316,7 +373,11 @@ void initSetSoakOrDryOrFlushLCD() {
   lcd.print("SEL TO CONFIRM");
 }
 
-// Settings page option to set brightness/contrast
+/**
+ * @brief Initialize SET_BRIGHTNESS/SET_CONTRAST screen
+ * 
+ * Initialize settings page option to set brightness/contrast
+ */
 void initSetBrightnessOrConstrastLCD() {
   resetLCD();
 
@@ -344,6 +405,11 @@ void initSetBrightnessOrConstrastLCD() {
   lcd.print("SEL TO CONFIRM"); 
 }
 
+/**
+ * @brief Update SET_CLOCK screen
+ * 
+ * Update settings page option to set clock
+ */
 void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.noBlink();
   lcd.setCursor(3, 1);
@@ -399,6 +465,11 @@ void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.blink();
 }
 
+/**
+ * @brief Update SET_INTERVAL screen
+ * 
+ * Update settings page option to set sampling interval
+ */
 void updateSetIntervalLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.noBlink();
   lcd.setCursor(6, 1);
@@ -436,6 +507,11 @@ void updateSetIntervalLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.blink();
 }
 
+/**
+ * @brief Update SET_SOAK_TIME/SET_DRY_TIME/SET_TUBE_FLUSH_TIME/SET_AQUSENS_FLUSH_TIME screen
+ * 
+ * Update settings page option to set soak/dry/flush time
+ */
 void updateSetSoakOrDryOrFlushLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
   lcd.noBlink();
   lcd.setCursor(7, 1);
@@ -465,6 +541,11 @@ void updateSetSoakOrDryOrFlushLCD(uint8_t cursorPos, tmElements_t adjustedTime) 
   lcd.blink();
 }
 
+/**
+ * @brief Update SET_BRIGHTNESS/SET_CONTRAST screen
+ * 
+ * Update settings page option to set brightness/contrast
+ */
 void updateBrightnessOrContrastLCD(bool increasingBar) {
   if (increasingBar) {
     screenBrightness++;
@@ -478,7 +559,11 @@ void updateBrightnessOrContrastLCD(bool increasingBar) {
   }
 }
 
-// Displays Alarm mode for E-stop/Motor alarm
+/**
+ * @brief ESTOP_ALARM/MOTOR_ALARM screen
+ * 
+ * Displays Alarm mode for E-stop/Motor alarm
+ */
 void alarmLCD() {
   lcd.setCursor(7, 0);
   lcd.print("ALARM");
@@ -500,7 +585,11 @@ void alarmLCD() {
   lcd.print("*");
 }
 
-// Displays warning for trying to exit alarm mode without releasing E-stop
+/**
+ * @brief Release E-Stop warning screen in ESTOP_ALARM
+ * 
+ * Displays warning for trying to exit alarm mode without releasing E-stop
+ */
 void releaseEstopLCD() {
   lcd.setCursor(1, 1);
   lcd.print("RELEASE E-STOP TO");
@@ -508,6 +597,10 @@ void releaseEstopLCD() {
   lcd.print("EXIT ALARM MODE");
 }
 
+/**
+ * @brief MANUAL screen
+ * 
+ */
 void manualLCD() {
   lcd.setCursor(5, 0);
   lcd.print("MANUAL MODE");
@@ -522,6 +615,10 @@ void manualLCD() {
   lcd.print("*");
 }
 
+/**
+ * @brief MOTOR_CONTROL screen
+ * 
+ */
 void motorControlLCD() {
   lcd.setCursor(3, 0);
   lcd.print("MOTOR CONTROLS");
@@ -540,11 +637,20 @@ void motorControlLCD() {
   lcd.print("*");
 }
 
+/**
+ * @brief Reset Motor screen in MOTOR_CONTROL
+ * 
+ */
 void resetMotorLCD() {
   lcd.setCursor(0,1);
   lcd.print("RESETTING...");
 }
 
+/**
+ * @brief Updates display of the current position of the motor
+ * 
+ * @param currPos current position of the motor
+ */
 void updateMotorCurrPositionDisplay(int currPos) {
   //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
   lcd.setCursor(15, 3);
@@ -565,8 +671,11 @@ void updateMotorCurrPositionDisplay(int currPos) {
   lcd.print(formattedDistance);
 }
 
-void resetLCD()
-{
+/**
+ * @brief clears the LCD and resets cursorY
+ * 
+ */
+void resetLCD() {
   lcd.clear();
   cursorY = 0;
 }

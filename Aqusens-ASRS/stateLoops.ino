@@ -1,9 +1,10 @@
 /* State Machine Functions ******************************************************/
 
-/* 
-* CALIBRATE
-* No selection options
-*/
+/**
+ * @brief CALIBRATE
+ * 
+ * No selection options
+ */
 void calibrateLoop() {
   resetMotor();
   resetLCD();
@@ -16,14 +17,14 @@ void calibrateLoop() {
   state = STANDBY;
 }
 
-/*
-* STANDBY
-* Two selection options:
-*    - Settings: proceeds to first page of settings page
-*    - Run Sample: proceeds to "Are you sure?" screen for manually running sample
-* Checks for E-stop press
-* NOTE: I dont really like blocking blocks but this isnt really a critical section
-*/
+/**
+ * @brief STANDBY
+ * 
+ * Two selection options:
+ *    - Settings: proceeds to first page of settings page
+ *    - Run Sample: proceeds to "Are you sure?" screen for manually running sample
+ * Checks for E-Stop press
+ */
 void standbyLoop()
 { 
   static char key;
@@ -52,12 +53,13 @@ void standbyLoop()
   }
 }
 
-/* 
-* ENSURE_SAMPLE_START
-* Two selection options:
-*    - Exit: returns to standby mode
-*    - Run Sample: proceeds to release mode
-*/
+/**
+ * @brief ENSURE_SAMPLE_START
+ * 
+ * Two selection options:
+ *    - Exit: returns to standby mode
+ *    - Run Sample: proceeds to release mode
+ */
 void ensureSampleStartLoop() {
   char keyPressed;
   resetLCD();
@@ -79,12 +81,12 @@ void ensureSampleStartLoop() {
   }
 }
 
-
-/*
-* RELEASE
-* No selection options
-* Checks for E-stop press
-*/
+/**
+ * @brief RELEASE
+ * 
+ * No selection options
+ * Checks for E-Stop press
+ */
 void releaseLoop() {
 
   resetLCD();
@@ -106,11 +108,12 @@ void releaseLoop() {
   }
 }
 
-/*
-* SOAK
-* No selection options
-* Checks for E-stop press
-*/
+/**
+ * @brief SOAK
+ * 
+ * No selection options
+ * Checks for E-Stop press
+ */
 void soakLoop() {
   char secTime[3]; // "00"
   char minTime[3]; // "00"
@@ -158,12 +161,12 @@ void soakLoop() {
   state = RECOVER;
 }
 
-
-/*
-* RECOVER
-* No selection options
-* Checks for E-stop press
-*/
+/**
+ * @brief RECOVER
+ * 
+ * No selection options
+ * Checks for E-Stop press
+ */
 void recoverLoop() {
   static char pos[6];
 
@@ -182,11 +185,11 @@ void recoverLoop() {
 
 }
 
-/*
-* SAMPLE
-* No selection options
-* This would be where the aquasens thing takes place
-*/
+/**
+ * @brief SAMPLE
+ * 
+ * No selection options
+ */
 void sampleLoop() {
   resetLCD();
 
@@ -201,10 +204,11 @@ void sampleLoop() {
   }
 }
 
-/*
-* FLUSH TOOB => hehe -danny
-* No selection options
-*/
+/**
+ * @brief FLUSH
+ * 
+ * No selection options
+ */
 void tubeFlushLoop() {
   resetLCD();
   bool tempFlag = true;
@@ -267,68 +271,11 @@ void tubeFlushLoop() {
   state = DRY;
 }
 
-// void aqusensFlushLoop() {
-//   resetLCD();
-//   bool tempFlag = true;
-//   char secTime[3]; // "00"
-//   char minTime[3]; // "00"
-
-//   uint32_t currTime = millis();
-//   uint32_t endTime = currTime + (60 * aqusensFlushTime.Minute * 1000) + (aqusensFlushTime.Second * 1000);
-//   //Serial.println(endTime - currTime);
-
-//   int secondsRemaining, minutesRemaining;
-//   uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
-
-//   while (state == FLUSH_AQUSENS && millis() < endTime) {
-//     checkEstop();
-
-//     // Calculate remaining time, accounting for millis() overflow
-//     uint32_t millisRemaining;
-//     if (endTime > millis()) {
-//       millisRemaining = endTime - millis();
-//     } else {
-//       // Handle overflow case
-//       millisRemaining = (UINT32_MAX - millis()) + endTime;
-//     }
-
-//     secondsRemaining = millisRemaining / 1000;
-//     minutesRemaining = secondsRemaining / 60;
-
-//     // Format seconds with leading zero if necessary
-//     if (secondsRemaining % 60 > 9) {
-//       snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
-//     } else {
-//       snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
-//     }
-
-//     // Format minutes with leading zero if necessary
-//     if (minutesRemaining > 9) {
-//       snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
-//     } else {
-//       snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
-//     }
-
-//     // Toggle tempFlag every second
-//     if (millis() - lastToggleTime >= 1000) {
-//       tempFlag = true; // Toggle tempFlag
-//       lastToggleTime = millis(); // Update the last toggle time
-//     }
-
-//     // Update LCD with remaining time
-//     flushLCD(minTime, secTime, secondsRemaining % 4, tempFlag);
-    
-//     if (tempFlag)
-//       tempFlag = false;
-//   }
-
-//   state = DRY;
-// }
-
-/*
-* DRY
-* No selection options
-*/
+/**
+ * @brief DRY
+ * 
+ * No selection options
+ */
 void dryLoop() {
   // setMotorSpeed(0);
   
@@ -381,13 +328,14 @@ void dryLoop() {
   Serial.println(tube_position_f);
 }
 
-/*
-* ALARM
-* Two selection options:
-*    - Exit: returns to standby mode if alarm is resolved
-*            otherwise, flashes warning
-*    - Manual Mode: proceeds to manual mode
-*/
+/**
+ * @brief ALARM
+ * 
+ * Two selection options:
+ *    - Exit: returns to standby mode if alarm is resolved
+ *            otherwise, flashes warning
+ *    - Manual Mode: proceeds to manual mode
+ */
 void alarmLoop() {
   setMotorSpeed(0);
   char key;
@@ -419,13 +367,14 @@ void alarmLoop() {
   }
 }
 
-/*
-* MANUAL
-* Three selection options:
-*    - Motor: proceeds to MOTOR_CONTROL state
-*    - Solenoids: proceeds to SOLENOID_CONTROL state
-*    - Exit: returns to previous alarm state
-*/
+/**
+ * @brief MANUAL
+ * 
+ * Three selection options:
+ *    - Motor: proceeds to MOTOR_CONTROL state
+ *    - Solenoids: proceeds to SOLENOID_CONTROL state
+ *    - Exit: returns to previous alarm state
+ */
 void manualLoop() {
   char key;
   uint8_t keyPressed;
@@ -451,14 +400,15 @@ void manualLoop() {
   }
 }
 
-/*
-* MOTOR_CONTROL
-* Four options:
-*    - Reset: cycles motor power to reset any alarm
-*    - Raise: slowly raises motor in increments
-*    - Lower: slowly lowers motor in increments
-*    - Back: returns to manual mode
-*/
+/**
+ * @brief MOTOR_CONTROL
+ * 
+ * Four selection options:
+ *    - Reset: cycles motor power to reset any alarm
+ *    - Raise: slowly raises motor in increments
+ *    - Lower: slowly lowers motor in increments
+ *    - Back: returns to manual mode
+ */
 void motorControlLoop() {
   int fakePos = 50; // TODO: REMOVE EVENTUALLY, USE GLOBAL MOTOR POSITION VARIABLE
   motorControlLCD();
@@ -500,13 +450,14 @@ void motorControlLoop() {
   }
 }
 
-/*
-* SOLENOID_CONTROL
-* Three options:
-*    - Solenoid 1: switches Solenoid 1 relay
-*    - Solenoid 2: switches Solenoid 2 relay
-*    - Exit: returns to manual mode
-*/
+/**
+ * @brief SOLENOID_CONTROL
+ * 
+ * Three selection options:
+ *    - Solenoid 1: switches Solenoid 1 relay
+ *    - Solenoid 2: switches Solenoid 2 relay
+ *    - Exit: returns to manual mode
+ */
 void solenoidControlLoop() {
   lcd.clear();
   char keyPressed;

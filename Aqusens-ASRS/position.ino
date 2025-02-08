@@ -1,3 +1,9 @@
+/**
+ * @brief 
+ * 
+ * @file position.ino
+ */
+
 #define NUM_PHASES              (4UL)
 #define NARROW_TUBE_CM          (15.0f) // TODO: replace with actual val
 #define TUBE_CM                 (85.0f) // TODO: replace with actual val
@@ -10,6 +16,15 @@
 #define SAFE_RISE_SPEED_CM_SEC  (3.0f)
 #define SAFE_DROP_DIST_CM       (10.0f)
 
+
+/**
+ * @brief returns tube to home position at constant speed
+ * 
+ * Re-homes the tube during initializing and calibrate state
+ * 
+ * TODO: refactor to check E-Stop
+ * TODO: refactor to understand why turnMotorOff doesn't fully work
+ */
 void home_tube() {
   tube_position_f = 0;
   if (magSensorRead()) return;
@@ -21,20 +36,25 @@ void home_tube() {
   turnMotorOff(true);
 }
 
-//     /**
-//      *      cm/s 
-//      *      ^
-//      *      |
-//      *      |         ________________
-//      *      |      __|                |__
-//      *      |   __|                      |__
-//      *      |__|                            |__
-//      *      |                                  |
-//      *      --------------------------------------> s
-//      *      |--|
-//      *       t is set by timer
-//      */
-
+/**
+ * @brief drops tube with ramping function for given distance
+ * 
+ *      cm/s 
+ *      ^
+ *      |
+ *      |         ________________
+ *      |      __|                |__
+ *      |   __|                      |__
+ *      |__|                            |__
+ *      |                                  |
+ *      --------------------------------------> s
+ *      |--|
+ *       t is set by timer
+ * 
+ * @param distance_cm distance to drop in cm
+ * @return true if the tube has finished dropping to given distance
+ * @return false if the tube has not finished dropping
+ */
 bool drop_tube(unsigned int distance_cm) {
   static bool dropping_flag = false;
   static bool small_drop = false;
@@ -90,6 +110,27 @@ bool drop_tube(unsigned int distance_cm) {
   return false;
 }
 
+/**
+ * @brief retrieves tube with ramping function for given distance
+ * 
+ *      cm/s 
+ *      ^
+ *      |
+ *      |         ________________
+ *      |      __|                |__
+ *      |   __|                      |__
+ *      |__|                            |__
+ *      |                                  |
+ *      --------------------------------------> s
+ *      |--|
+ *       t is set by timer
+ * 
+ * @param distance_cm distance to retrieve in cm
+ * @return true if the tube has finished retrieving to given distance
+ * @return false if the tube has not finished retrieving
+ * 
+ * TODO: set up alarm state if magnetic sensor isn't read when distance is reached
+ */
 bool retrieve_tube(unsigned int distance_cm) {
   static bool raise_flag = false;
   static unsigned long prev_time;
@@ -144,7 +185,3 @@ bool retrieve_tube(unsigned int distance_cm) {
 
   return false;
 }
-
-
-
-
