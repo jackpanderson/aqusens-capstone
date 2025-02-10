@@ -345,11 +345,12 @@ void alarmLoop() {
   while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
   {
     alarmLCD();
+    Serial.println(checkEstop());
     
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 3 && ~checkEstop()) {
+      if (cursorY == 3 && !checkEstop()) {
         state = CALIBRATE;
       }
       
@@ -409,10 +410,10 @@ void manualLoop() {
  *    - Lower: slowly lowers motor in increments
  *    - Back: returns to manual mode
  */
+
 void motorControlLoop() {
-  int fakePos = 50; // TODO: REMOVE EVENTUALLY, USE GLOBAL MOTOR POSITION VARIABLE
   motorControlLCD();
-  updateMotorCurrPositionDisplay(fakePos);
+  updateMotorCurrPositionDisplay(MOTOR_OFF);
   char key;
   uint8_t keyPressed;
   uint8_t lastKeyPressed;
@@ -422,7 +423,7 @@ void motorControlLoop() {
   
   while (state == MOTOR_CONTROL) {
     motorControlLCD();
-    updateMotorCurrPositionDisplay(fakePos); // Eventually should not need an argument
+    
     
     keyPressed = getKeyTimeBasedDebounce();
 
@@ -436,16 +437,27 @@ void motorControlLoop() {
 
     else if (keyPressed == 'D') {
       while (pressAndHold('D') == 'D') {
-        // move motor down 1cm
-        updateMotorCurrPositionDisplay(fakePos++);
+        setMotorSpeed(-10);
+        updateMotorCurrPositionDisplay(LOWERING);
+        // Serial.println("D");
       }
+      turnMotorOff();
+      updateMotorCurrPositionDisplay(MOTOR_OFF);
     }
 
     else if (keyPressed == 'U') {
-      while (pressAndHold('U') == 'U') {
+      while (!magSensorRead() && pressAndHold('U') == 'U') {
+        if (magSensorRead()) 
+          turnMotorOff();
+        else
+          setMotorSpeed(10);
         //Move motor up 1cm
-        updateMotorCurrPositionDisplay(fakePos--);
+        updateMotorCurrPositionDisplay(RAISING);
+        // while(!retrieve_tube(1)); // Raises tube 
+        // Serial.println("U");
       }
+      turnMotorOff();
+      updateMotorCurrPositionDisplay(MOTOR_OFF);
     }
   }
 }

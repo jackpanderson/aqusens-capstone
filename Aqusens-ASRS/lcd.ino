@@ -630,8 +630,8 @@ void motorControlLCD() {
   lcd.print("vLOWER");
   lcd.setCursor(0, 3);
   lcd.print("<BACK");
-  lcd.setCursor(10, 3);
-  lcd.print("CURR:");
+  //lcd.setCursor(10, 3);
+  //lcd.print("CURR:");
   
   lcd.setCursor(0, cursorY);
   lcd.print("*");
@@ -651,24 +651,37 @@ void resetMotorLCD() {
  * 
  * @param currPos current position of the motor
  */
-void updateMotorCurrPositionDisplay(int currPos) {
+void updateMotorCurrPositionDisplay(motorStatus status) {
   //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
-  lcd.setCursor(15, 3);
+  if (status != RAISING)
+    lcd.setCursor(12, 3);
+  else 
+    lcd.setCursor(13, 3);
 
-  int meters = currPos/100; //Converts cm to nearest meter, assuming less than 10!
-  int remainingCm = currPos - meters*100; //Leftover centimeters
+  // int meters = tube_position_f/100; //Converts cm to nearest meter, assuming less than 10!
+  // Serial.print(tube_position_f);
+  // Serial.print("->");
+  // Serial.print(meters);
+  // int remainingCm = tube_position_f - meters*100; //Leftover centimeters
+  // Serial.println(remainingCm);
 
-  char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
+  // char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
 
-  if (remainingCm >= 10) {
-    snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
-  }
+  // if (remainingCm >= 10) {
+  //   snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
+  // }
 
-  else {
-    snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
-  }
+  // else {
+  //   snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
+  // }
 
-  lcd.print(formattedDistance);
+  // lcd.print(formattedDistance);
+  if (status == RAISING)
+    lcd.print("RAISING");
+  else if (status == LOWERING)
+    lcd.print("LOWERING");
+  else 
+    lcd.print("         ");
 }
 
 /**

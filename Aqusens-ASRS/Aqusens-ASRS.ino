@@ -122,6 +122,12 @@ typedef enum solenoidState {
   CLOSED
 } solenoidState;
 
+typedef enum {
+  RAISING,
+  LOWERING,
+  MOTOR_OFF
+} motorStatus; // For lowering and raising the motor manually
+
 solenoidState solenoidOneState = CLOSED;
 solenoidState solenoidTwoState = CLOSED;
 
@@ -154,7 +160,7 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 float drop_distance_ft = 11;
 float drop_distance_cm = 410;
 // float drop_distance_cm = drop_distance_ft * 30.48;
-float tube_position_f;
+float tube_position_f; // Stores the current position of the sampler tube relative to 
 
 // Discrete module
 
@@ -170,6 +176,7 @@ void setup() {
   RTDInit();
   gpioInit();
   estopInit();
+  motorAlarmInit();
   motorInit();
 
   lcd.init(); // Initialize the LCD
@@ -181,7 +188,6 @@ void setup() {
 }
 
 void loop() {
-
   switch (state) {
     case CALIBRATE: // Entered after Alarm mode to recalibrate sample device and flush as needed
       calibrateLoop();

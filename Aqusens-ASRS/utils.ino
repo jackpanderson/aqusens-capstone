@@ -1,5 +1,5 @@
 #define TIME_BASED_DEBOUNCE_WAIT_TIME_MS 35
-#define PRESS_AND_HOLD_INTERVAL_MS 50
+#define PRESS_AND_HOLD_INTERVAL_MS 25
 
 /* Init Functions **************************************************************/
 
@@ -16,6 +16,7 @@ void gpioInit() {
   pinMode(KEY_S, INPUT_PULLDOWN);
   pinMode(DIR_POS_PIN, OUTPUT);
   pinMode(A1, INPUT_PULLDOWN);
+  pinMode(A2, INPUT_PULLDOWN);
 
   /* SD */
   SD.begin(SD_CS);
@@ -29,6 +30,16 @@ void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
   attachInterrupt(digitalPinToInterrupt(A1), onLowTrigger, FALLING);
+}
+
+void motorAlarmInit() {
+  pinMode(A2, INPUT_PULLDOWN);
+
+  attachInterrupt(digitalPinToInterrupt(A2), test, RISING);
+}
+
+void test() {
+  Serial.println("FUCK!");
 }
 
 /**

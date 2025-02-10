@@ -68,8 +68,8 @@ bool drop_tube(unsigned int distance_cm) {
 
   if (!dropping_flag) {
     dropping_flag = true;
-    tube_position_f = 0.0f;
-    drop_distance_cm = distance_cm;
+    //tube_position_f = 0.0f;
+    drop_distance_cm = distance_cm + tube_position_f;
 
     if (distance_cm <= MIN_RAMP_DROP_DIST_CM)  {
       small_drop = true;
@@ -146,16 +146,16 @@ bool retrieve_tube(unsigned int distance_cm) {
   if (!raise_flag) {
     raise_flag = true;
     
-    raise_distance_cm = tube_position_f - drop_distance - 2;
+    raise_distance_cm = tube_position_f - distance_cm - 2;
 
     // small raise
-    if (distance_cm <= MIN_RAMP_DIST_CM) {
+    if (distance_cm <= MIN_RAMP_DROP_DIST_CM) {
       small_raise = true;
       setMotorSpeed(1); // TODO: change to small drop speed
     }
     else {
       phase_ind = 0;
-      dists_cm[0] = tube_postion_f - WATER_LEVEL_CM;
+      dists_cm[0] = tube_position_f - WATER_LEVEL_CM;
     }
 
     prev_time = millis();
@@ -186,6 +186,7 @@ bool retrieve_tube(unsigned int distance_cm) {
     raise_flag = false;
     
     Serial.println("Hit mag sens");
+    if (small_raise) small_raise = false;
     return true;
   } else if (tube_position_f <= 0) {
     raise_flag = false;
