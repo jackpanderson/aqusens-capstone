@@ -133,6 +133,7 @@ bool drop_tube(unsigned int distance_cm) {
  */
 bool retrieve_tube(unsigned int distance_cm) {
   static bool raise_flag = false;
+  static bool small_raise = false;
   static unsigned long prev_time;
   static unsigned int raise_distance_cm;
   static unsigned int drop_time_ms;
@@ -144,13 +145,18 @@ bool retrieve_tube(unsigned int distance_cm) {
 
   if (!raise_flag) {
     raise_flag = true;
-    phase_ind = 0;
-    distance_cm += 2; // add some padding
-    tube_position_f = distance_cm;
     
-    raise_distance_cm = distance_cm;
+    raise_distance_cm = tube_position_f - drop_distance - 2;
 
-    dists_cm[0] = distance_cm - WATER_LEVEL_CM;
+    // small raise
+    if (distance_cm <= MIN_RAMP_DIST_CM) {
+      small_raise = true;
+      setMotorSpeed(1); // TODO: change to small drop speed
+    }
+    else {
+      phase_ind = 0;
+      dists_cm[0] = tube_postion_f - WATER_LEVEL_CM;
+    }
 
     prev_time = millis();
     setMotorSpeed(speeds_cm_p_s[phase_ind]);
@@ -162,6 +168,17 @@ bool retrieve_tube(unsigned int distance_cm) {
   prev_time = cur_time;
 
   tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+
+  if (small_raise) {
+    tube_position_f += (delta_time * 1) / 1000.0f; // TODO: change to speed
+  } 
+  else {
+    tube_position_f += (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+    if (tube_position_f <= dists_cm[phase_ind]) {
+      phase_ind++;
+      setMotorSpeed(speeds_cm_p_s[phase_ind]);
+    }
+  }
 
   if (magSensorRead()) {
     turnMotorOff();
@@ -178,10 +195,7 @@ bool retrieve_tube(unsigned int distance_cm) {
     return true;
   }
 
-  if (tube_position_f <= dists_cm[phase_ind]) {
-    phase_ind++;
-    setMotorSpeed(speeds_cm_p_s[phase_ind]);
-  }
+  
 
   return false;
 }
