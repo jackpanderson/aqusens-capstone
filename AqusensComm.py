@@ -3,11 +3,13 @@ import time
 import os
 from datetime import datetime
 from testingNOAAwaterLevelAPI import queryForWaterLevel
+import csv
 
 SERIAL_PORT = "COM3"  # Change to match your Arduino port
 BAUD_RATE = 115200
 READ_FILE = "AQUSENS.txt"  # File for Aqusens
 WRITE_FILE = "ASRS.txt"  # File for ASRS
+TEMP_CSV = "SampleTemps.csv"   # File for storing sample temperature readings
 DIRECTORY_PATH = "./"  # Location of parent folder
 
 
@@ -140,15 +142,42 @@ def communicate(ser):
                     break   # Got a successful ACK
         
         # send done signal to Arduino
-        print(f"File transmission complete. Processed data saved to {WRITE_FILE}")
+        ser.write("D\n".encode())
 
     except serial.SerialException as e:
         print(f"Serial error: {e}")
     except FileNotFoundError:
         print(f"File not found: {READ_FILE}")
-    finally:
-        if ser:
-            ser.close()
+
+def temperature(ser):
+    try:
+        with open(TEMP_CSV, "w", newline="") as file:
+            # Get Current date and time
+            now = datetime.now()
+            curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
+
+            writer = csv.writer(file)
+            writer.writerow(["Timestamp", "Temperature (C)"])   # Create CSV headers
+
+            ser.write("A\n".encode()) # Send Ready to Receive ACK to Arduino
+
+            # Wait for temperature data from Arduino
+            while (1):
+                if ser.in_waiting:
+                    temp_data = ser.readline().decode().strip()  # Read temperature
+                    if temp_data.isdigit():  # Check it's an int
+                        writer.writerow([timestamp, int(temp_data)])  # Write data to CSV
+                        print(f"{curr_time} - Temperature: {temp_data}°C")
+                
+                time.sleep(1)  # Read every second
+        
+        # send done signal to Arduino
+        ser.write("D\n".encode())
+
+    except serial.SerialException as e:
+        print(f"Serial error: {e}")
+    except FileNotFoundError:
+        print(f"File not found: {READ_FILE}")
 
 
 if __name__ == "__main__":
@@ -164,10 +193,10 @@ if __name__ == "__main__":
         if write_to == "T":
             tide_level = queryForWaterLevel()
             print(f"Tide level is {tide_level}")
-            # send tide level to the Arduino
+            ser.write((str(tide_level) + "\n").encode())    # Send tide data over
         elif write_to == "S":
             communicate(ser)
         elif write_to == "F":
             print("FLUSH")
-        elif write_to == "M":
-            print("TEMPERATURE")
+        elif write_to == "C":
+            temperature(ser)
