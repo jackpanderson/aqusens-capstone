@@ -143,7 +143,43 @@ def communicate(ser):
         
         # send done signal to Arduino
         ser.write("D\n".encode())
+        input.close()
+        output.close()
 
+    except serial.SerialException as e:
+        print(f"Serial error: {e}")
+    except FileNotFoundError:
+        print(f"File not found: {READ_FILE}")
+
+def flush(ser):
+    try:
+        with open(READ_FILE, "r") as input, open(WRITE_FILE, "w") as output:
+            # Stop Sample Collection -----------------------------------------
+            while (1):
+                output.close()
+                output = open(WRITE_FILE, "w")
+
+                stop_sample = "StopPump()"
+                output.write(stop_sample)
+                output.flush()
+
+                # Wait for ACK
+                while (1):
+                    input.seek(0)
+
+                    recv = input.read()
+                    if (len(recv) == 9):
+                        break
+                
+                # Process ACK
+                if recv[0] == "1" and recv[1:].lower() == "stoppump":
+                    break   # Got a successful ACK
+        
+        # send done signal to Arduino
+        ser.write("D\n".encode())
+        input.close()
+        output.close()
+        
     except serial.SerialException as e:
         print(f"Serial error: {e}")
     except FileNotFoundError:
@@ -166,7 +202,7 @@ def temperature(ser):
                 if ser.in_waiting:
                     temp_data = ser.readline().decode().strip()  # Read temperature
                     if temp_data.isdigit():  # Check it's an int
-                        writer.writerow([timestamp, int(temp_data)])  # Write data to CSV
+                        writer.writerow([curr_time, int(temp_data)])  # Write data to CSV
                         print(f"{curr_time} - Temperature: {temp_data}°C")
                 
                 time.sleep(1)  # Read every second
@@ -177,7 +213,7 @@ def temperature(ser):
     except serial.SerialException as e:
         print(f"Serial error: {e}")
     except FileNotFoundError:
-        print(f"File not found: {READ_FILE}")
+        print(f"File not found: {TEMP_CSV}")
 
 
 if __name__ == "__main__":
@@ -197,6 +233,6 @@ if __name__ == "__main__":
         elif write_to == "S":
             communicate(ser)
         elif write_to == "F":
-            print("FLUSH")
+            flush(ser)
         elif write_to == "C":
             temperature(ser)
