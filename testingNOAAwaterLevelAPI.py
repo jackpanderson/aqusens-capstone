@@ -17,6 +17,3 @@ def queryForWaterLevel():
             return -1
     except requests.exceptions.RequestException as e:
         return -1
-
-
-print("Water level is ", queryForWaterLevel(), "meters")
