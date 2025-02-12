@@ -1,7 +1,6 @@
 #define DUMP_WATER_TIME_S       (5UL)
 #define DROP_TUBE_DIST_CM       (40.0f)
 
-
 typedef enum FlushState {
   INIT,
   DUMP_1,
@@ -29,8 +28,6 @@ bool flush_tube() {
 
   switch(state) {
     case INIT:
-      // start_time = millis();
-
       state = DUMP_1;
       break;
 

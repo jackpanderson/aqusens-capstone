@@ -10,8 +10,9 @@
 #define WATER_LEVEL_CM          (15.0f) // TODO: replace with actual val
 #define CONST_DIST_CM           (NARROW_TUBE_CM + TUBE_CM + WATER_LEVEL_CM)
 #define FREE_FALL_IND           (2)
-#define MIN_RAMP_DROP_DIST_CM   (CONST_DIST_CM)
+#define MIN_RAMP_DIST_CM        (CONST_DIST_CM)
 #define DROP_SPEED_CM_SEC       (15.0f)
+#define RAISE_SPEED_CM_SEC      (5.0f)
 
 #define SAFE_RISE_SPEED_CM_SEC  (3.0f)
 #define SAFE_DROP_DIST_CM       (10.0f)
@@ -68,13 +69,14 @@ bool drop_tube(unsigned int distance_cm) {
 
   if (!dropping_flag) {
     dropping_flag = true;
-    //tube_position_f = 0.0f;
     drop_distance_cm = distance_cm + tube_position_f;
 
-    if (distance_cm <= MIN_RAMP_DROP_DIST_CM)  {
+    // small drop
+    if (distance_cm <= MIN_RAMP_DIST_CM)  {
       small_drop = true;
       setMotorSpeed(-DROP_SPEED_CM_SEC);
-    } else {
+    } 
+    else {
       phase_ind = 0;
       dists_cm[FREE_FALL_IND] = distance_cm - WATER_LEVEL_CM; 
       dists_cm[FREE_FALL_IND + 1] = distance_cm;
@@ -94,12 +96,15 @@ bool drop_tube(unsigned int distance_cm) {
   } 
   else {
     tube_position_f += (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+    
+    // ramp to next speed 
     if (tube_position_f >= dists_cm[phase_ind]) {
       phase_ind++;
       setMotorSpeed(-speeds_cm_p_s[phase_ind]);
     }
   }
 
+  // reached drop distance
   if (tube_position_f >= drop_distance_cm) {
     turnMotorOff();
     dropping_flag = false;
@@ -149,9 +154,9 @@ bool retrieve_tube(unsigned int distance_cm) {
     raise_distance_cm = tube_position_f - distance_cm - 2;
 
     // small raise
-    if (distance_cm <= MIN_RAMP_DROP_DIST_CM) {
+    if (distance_cm <= MIN_RAMP_DIST_CM) {
       small_raise = true;
-      setMotorSpeed(1); // TODO: change to small drop speed
+      setMotorSpeed(RAISE_SPEED_CM_SEC);
     }
     else {
       phase_ind = 0;
@@ -167,36 +172,38 @@ bool retrieve_tube(unsigned int distance_cm) {
   unsigned long delta_time = cur_time - prev_time;
   prev_time = cur_time;
 
-  tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
-
   if (small_raise) {
-    tube_position_f += (delta_time * 1) / 1000.0f; // TODO: change to speed
+    tube_position_f -= (delta_time * RAISE_SPEED_CM_SEC) / 1000.0f;
   } 
   else {
-    tube_position_f += (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+    tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+    
+    // ramp to next speed
     if (tube_position_f <= dists_cm[phase_ind]) {
       phase_ind++;
       setMotorSpeed(speeds_cm_p_s[phase_ind]);
     }
   }
 
+  // the mag sens GOOD :)
   if (magSensorRead()) {
     turnMotorOff();
     tube_position_f = 0;
     raise_flag = false;
     
-    Serial.println("Hit mag sens");
+    Serial.println("Hit mag sens"); // TODO: remove 
     if (small_raise) small_raise = false;
     return true;
-  } else if (tube_position_f <= 0) {
+  } 
+  // motor is still spinning and tube is not home :(
+  else if (tube_position_f <= 0) {
+  // TODO: fault here 
     raise_flag = false;
     turnMotorOff();
     
-    Serial.println("Went too far ALARM");
+    Serial.println("Went too far ALARM"); // TODP: remove
     return true;
   }
-
-  
 
   return false;
 }
