@@ -57,6 +57,15 @@ void updateSolenoid(solenoidState state, int solenoidNumber) {
   }
 }
 
+void updateSolenoid(bool state, int solenoidNumber) {
+  if (solenoidNumber == SOLENOID_ONE || solenoidNumber == SOLENOID_TWO) {
+      if (state == OPEN)
+        P1.writeDiscrete(true, RELAY_SLOT, solenoidNumber);
+      else
+        P1.writeDiscrete(false, RELAY_SLOT, solenoidNumber);
+  }
+}
+
 /**
  * @brief interrupt function for E-Stop
  * 
@@ -94,8 +103,8 @@ void rtcInit() {
   dryTime.Minute = 0;
   dryTime.Second = 30;
 
-  tubeFlushTime.Minute = 0;
-  tubeFlushTime.Second = 15;
+  tubeFlushTime.Minute = 1;
+  tubeFlushTime.Second = 45;
 
   aqusensFlushTime.Minute = 0;
   aqusensFlushTime.Second = 15;

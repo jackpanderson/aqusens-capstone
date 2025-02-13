@@ -9,6 +9,9 @@ void calibrateLoop() {
   resetMotor();
   resetLCD();
 
+  updateSolenoid(false, SOLENOID_ONE);
+  updateSolenoid(false, SOLENOID_TWO);
+
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
 
@@ -324,8 +327,6 @@ void dryLoop() {
 
   state = STANDBY;
   tube_position_f = 0;
-  Serial.print("Done with full seq. Final tube_pos = ");
-  Serial.println(tube_position_f);
 }
 
 /**
