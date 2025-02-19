@@ -56,9 +56,9 @@ void settingsLCD(uint8_t page) {
   switch (page) {
     case 1:
       lcd.setCursor(1, 0);
-      lcd.print("INTERVAL");
+      lcd.print("SET INTERVAL");
       lcd.setCursor(1, 1);
-      lcd.print("START TIME");
+      lcd.print("SET START TIME");
       lcd.setCursor(1, 2);
       lcd.print("SET CLOCK");
 
