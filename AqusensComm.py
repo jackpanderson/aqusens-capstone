@@ -4,6 +4,8 @@ import os
 from datetime import datetime
 from testingNOAAwaterLevelAPI import queryForWaterLevel
 import csv
+import signal
+import sys
 
 SERIAL_PORT = "COM3"  # Change to match your Arduino port
 BAUD_RATE = 115200
@@ -12,6 +14,14 @@ WRITE_FILE = "ASRS.txt"  # File for ASRS
 TEMP_CSV = "SampleTemps.csv"   # File for storing sample temperature readings
 DIRECTORY_PATH = "./"  # Location of parent folder
 
+
+def sigint_handler(signum, frame):
+    if ser and ser.is_open:
+        ser.close()
+        print("Serial connection closed.")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, sigint_handler)
 
 def setup():
     try:
@@ -148,8 +158,12 @@ def communicate(ser):
 
     except serial.SerialException as e:
         print(f"Serial error: {e}")
+        if ser and ser.is_open:
+            ser.close()
     except FileNotFoundError:
         print(f"File not found: {READ_FILE}")
+        if ser and ser.is_open:
+            ser.close()
 
 def flush(ser):
     try:
@@ -182,8 +196,12 @@ def flush(ser):
         
     except serial.SerialException as e:
         print(f"Serial error: {e}")
+        if ser and ser.is_open:
+            ser.close()
     except FileNotFoundError:
         print(f"File not found: {READ_FILE}")
+        if ser and ser.is_open:
+            ser.close()
 
 def temperature(ser):
     try:
@@ -212,8 +230,12 @@ def temperature(ser):
 
     except serial.SerialException as e:
         print(f"Serial error: {e}")
+        if ser and ser.is_open:
+            ser.close()
     except FileNotFoundError:
         print(f"File not found: {TEMP_CSV}")
+        if ser and ser.is_open:
+            ser.close()
 
 
 if __name__ == "__main__":
@@ -223,6 +245,10 @@ if __name__ == "__main__":
         ser = setup()
 
     while(1):
+        if ser is None or not ser.is_open:
+            print(f"Unable to set up serial connection. Retrying...")
+            ser = setup()
+            continue
         write_to = readCommand(ser)
         if write_to is None:
             continue
