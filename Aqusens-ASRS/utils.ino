@@ -17,9 +17,12 @@ void gpioInit() {
   pinMode(DIR_POS_PIN, OUTPUT);
   pinMode(A1, INPUT_PULLDOWN);
   pinMode(A2, INPUT_PULLDOWN);
+  pinMode(ALARM_MINUS, OUTPUT);
+  pinMode(ALARM_PLUS, INPUT_PULLDOWN);
 
   /* SD */
   SD.begin(SD_CS);
+  digitalWrite(ALARM_MINUS, HIGH);
 }
 
 /**
@@ -30,16 +33,6 @@ void estopInit() {
   pinMode(A1, INPUT_PULLDOWN);
 
   attachInterrupt(digitalPinToInterrupt(A1), onLowTrigger, FALLING);
-}
-
-void motorAlarmInit() {
-  pinMode(A2, INPUT_PULLDOWN);
-
-  attachInterrupt(digitalPinToInterrupt(A2), test, RISING);
-}
-
-void test() {
-  Serial.println("FUCK!");
 }
 
 /**
@@ -71,9 +64,7 @@ void updateSolenoid(bool state, int solenoidNumber) {
  * 
  */
 void onLowTrigger() {
-  //setMotorSpeed(0);
   state = ESTOP_ALARM;
-  estopPressed = 1;
 }
 
 /**

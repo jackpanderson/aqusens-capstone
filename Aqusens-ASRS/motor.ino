@@ -8,6 +8,8 @@ typedef enum MotorDir {
 #define SYSTEM_CLOCK_FREQ  48000000
 #define PRESCALER_VAL       8
 
+#define ALARM_THRESHOLD_VALUE 988 // Analog value on the Alarm Plus pin that seperates alarm state from non-alarm state.
+
 volatile bool toggle = false;
 
 void setMotorDir(MotorDir dir);
@@ -18,6 +20,20 @@ void setMotorDir(MotorDir dir);
  */
 void motorInit() {
   pinMode(STEP_POS_PIN, OUTPUT);
+}
+
+/**
+ * @brief Checks ALARM_PLUS pin's analog voltage value, which changes when the motor alarms.
+ *        The motor's alarm terminals change impedance from low to high when alarm is triggered.
+ */
+
+bool isMotorAlarming() {
+  if (analogRead(ALARM_PLUS) > ALARM_THRESHOLD_VALUE) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
 
 /**

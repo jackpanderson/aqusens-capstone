@@ -43,6 +43,9 @@
 #define KEY_L 3
 #define KEY_R 4
 
+#define ALARM_PLUS A2  // Used as interrupt, should be high normally, low in case of motor alarm
+#define ALARM_MINUS A5 // Keep High
+
 #define SD_CS 28
 // #define ESTOP_IN 4 //Change to real value
 
@@ -176,7 +179,6 @@ void setup() {
   RTDInit();
   gpioInit();
   estopInit();
-  motorAlarmInit();
   motorInit();
 
   lcd.init(); // Initialize the LCD
@@ -186,6 +188,9 @@ void setup() {
   state = CALIBRATE;
 
 }
+
+
+
 
 void loop() {
   switch (state) {
