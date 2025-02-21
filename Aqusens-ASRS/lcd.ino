@@ -4,6 +4,12 @@
  * @brief STANDBY screen
  * 
  * Displays current time and next sample time
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |C U R R : 0 0 - 0 0 - 0 0 _ 0 0 : 0 0 _|
+ * |N E X T : 0 0 - 0 0 - 0 0 _ 0 0 : 0 0 _|
+ * |* S E T T I N G S _ _ _ _ S T A N D B Y|
+ * |_ R U N _ S A M P L E _ _ _ _ _ M O D E|
  */
 void standbyLCD() {
   lcd.setCursor(0,0);
@@ -27,6 +33,12 @@ void standbyLCD() {
 
 /**
  * @brief "Are you sure?" screen
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ R U N _ S A M P L E _ _ _ _ _ _|
+ * |_ _ _ A R E _ Y O U _ S U R E ? _ _ _ _|
+ * |_ R U N _ S A M P L E _ _ _ _ _ _ _ _ _|
+ * |* E X I T _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  * 
  * @param ensure the state to enter if confirmed
  */
@@ -55,6 +67,13 @@ void settingsLCD(uint8_t page) {
 
   switch (page) {
     case 1:
+      /*  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+       * |* I N T E R V A L _ _ _ _ _ _ _ _ _ _ _|
+       * |_ S T A R T _ T I M E _ _ _ _ _ _ _ _ _|
+       * |_ S E T _ C L O C K _ _ _ _ _ _ _ _ _ _|
+       * |< E X I T _ _ _ _ _ _ _ _ _ _ M O R E >|
+       */
+
       lcd.setCursor(1, 0);
       lcd.print("SET INTERVAL");
       lcd.setCursor(1, 1);
@@ -69,6 +88,13 @@ void settingsLCD(uint8_t page) {
       break;
     
     case 2:
+      /*  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+       * |* S O A K _ T I M E _ _ _ _ _ _ _ _ _ _|
+       * |_ T U B E _ F L U S H _ T I M E _ _ _ _|
+       * |_ A Q U S E N S _ F L U S H _ T I M E _|
+       * |< B A C K _ _ _ _ _ _ _ _ _ _ M O R E >|
+       */
+
       lcd.setCursor(1, 0);
       lcd.print("SOAK TIME");
       lcd.setCursor(1, 1);
@@ -83,6 +109,13 @@ void settingsLCD(uint8_t page) {
       break;
     
     case 3:
+      /*  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+       * |* D R Y _ T I M E _ _ _ _ _ _ _ _ _ _ _|
+       * |_ A D D _ E V E N T S _ _ _ _ _ _ _ _ _|
+       * |_ V I E W _ E V E N T S _ _ _ _ _ _ _ _|
+       * |< B A C K _ _ _ _ _ _ _ _ _ _ M O R E >|
+       */
+
       lcd.setCursor(1, 0);
       lcd.print("DRY TIME");
       lcd.setCursor(1, 1);
@@ -97,6 +130,13 @@ void settingsLCD(uint8_t page) {
       break;
 
     case 4:
+      /*  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+       * |* F I L T E R _ S T A T U S _ _ _ _ _ _|
+       * |_ S E T _ C O N T R A S T _ _ _ _ _ _ _|
+       * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+       * |< B A C K _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+       */
+
       lcd.setCursor(1, 0);
       lcd.print("FILTER STATUS");
       lcd.setCursor(1, 1);
@@ -118,6 +158,12 @@ void settingsLCD(uint8_t page) {
  * 
  * Displays the current position of motor releasing sample
  * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |R E L E A S I N G _ D E V I C E . . . _|
+ * |C U R R _ P O S I T I O N : 0 . 0 0 m _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * 
  * @param position String of current position of sample device in meters
  */
 void releaseLCD(String position) {
@@ -133,6 +179,12 @@ void releaseLCD(String position) {
  * @brief SOAK screen
  * 
  * Displays the time remaining in soak procedure
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ _ S O A K I N G . . . _ _ _ _ _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |_ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _ _|
+ * |_ _ _ _ _ R E M A I N I N G _ _ _ _ _ _|
  * 
  * @param minTime String of minutes remaining in soak time
  * @param secTime String of seconds remaining in soak time
@@ -174,6 +226,12 @@ void soakLCD(String minTime, String secTime, int numDots) {
  * 
  * Displays the current position of motor recovering sample
  * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |R E C O V E R I N G _ D E V I C E . . .|
+ * |C U R R _ P O S I T I O N : 0 . 0 0 m _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * 
  * @param position String of current position of sample device in meters
  */
 void recoverLCD(String position) {
@@ -189,6 +247,12 @@ void recoverLCD(String position) {
  * @brief SAMPLE screen
  * TODO: flash ...
  *       display state of sampling stage in Aqusens
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ S A M P L I N G . . . _ _ _ _ _ _ _ _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  */
 void sampleLCD() {
   lcd.setCursor(0,1);
@@ -197,6 +261,12 @@ void sampleLCD() {
 
 /**
  * @brief FLUSH_TUBE screen
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ F L U S H I N G _ S Y S T E M . . . _|
+ * |_ _ _ _ T E M P : _ 0 0 . 0 C _ _ _ _ _|
+ * |_ _ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _|
+ * |_ _ _ _ _ _ R E M A I N I N G _ _ _ _ _|
  * 
  * @param minTime String of minutes remaining in flush time
  * @param secTime String of seconds remaining in flush time
@@ -248,6 +318,12 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
  * 
  * Displays the time remaining in dry procedure
  * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ _ _ D R Y I N G . . . _ _ _ _ _|
+ * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |_ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _ _|
+ * |_ _ _ _ _ R E M A I N I N G _ _ _ _ _ _|
+ * 
  * @param minTime String of minutes remaining in dry time
  * @param secTime String of seconds remaining in dry time
  * @param numDots Number of dots to display in flashing ...
@@ -287,6 +363,12 @@ void dryLCD(String minTime, String secTime, int numDots) {
  * @brief SOLENOID_CONTROL screen
  * 
  * Displays state of both solenoids
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ S O L E N O I D _ C O N T R O L _ _|
+ * |* S O L E N O I D _ 1 : _ O P E N _ _ _|
+ * |_ S O L E N O I D _ 2 : _ C L O S E D _|
+ * |< E X I T _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  */
 void solenoidControlLCD() {
   lcd.setCursor(2, 0);
@@ -311,8 +393,6 @@ void solenoidControlLCD() {
 
   lcd.setCursor(0, 3);
   lcd.print("<EXIT");
-
-  
 }
 
 /**
@@ -630,8 +710,6 @@ void motorControlLCD() {
   lcd.print("vLOWER");
   lcd.setCursor(0, 3);
   lcd.print("<BACK");
-  //lcd.setCursor(10, 3);
-  //lcd.print("CURR:");
   
   lcd.setCursor(0, cursorY);
   lcd.print("*");
@@ -658,24 +736,6 @@ void updateMotorCurrPositionDisplay(motorStatus status) {
   else 
     lcd.setCursor(13, 3);
 
-  // int meters = tube_position_f/100; //Converts cm to nearest meter, assuming less than 10!
-  // Serial.print(tube_position_f);
-  // Serial.print("->");
-  // Serial.print(meters);
-  // int remainingCm = tube_position_f - meters*100; //Leftover centimeters
-  // Serial.println(remainingCm);
-
-  // char formattedDistance[6]; //Ex: 4.54, assuming less than 10 meters 
-
-  // if (remainingCm >= 10) {
-  //   snprintf(formattedDistance, 6, "%i.%im", meters, remainingCm); 
-  // }
-
-  // else {
-  //   snprintf(formattedDistance, 6, "%i.0%im", meters, remainingCm); //Accounts for leading zero if remaining cm is less than 10
-  // }
-
-  // lcd.print(formattedDistance);
   if (status == RAISING)
     lcd.print("RAISING");
   else if (status == LOWERING)

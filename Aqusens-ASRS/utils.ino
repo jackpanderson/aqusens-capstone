@@ -97,13 +97,13 @@ void rtcInit() {
   nextSampleTime.Minute = rtc.getMinutes() + sampleInterval.Minute;
 
   soakTime.Minute = 0;
-  soakTime.Second = 10;
+  soakTime.Second = 5;
 
   // dryTime.Minute = 20;
   dryTime.Minute = 0;
-  dryTime.Second = 30;
+  dryTime.Second = 5;
 
-  tubeFlushTime.Minute = 1;
+  tubeFlushTime.Minute = 2;
   tubeFlushTime.Second = 45;
 
   aqusensFlushTime.Minute = 0;

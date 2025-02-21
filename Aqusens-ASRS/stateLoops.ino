@@ -9,8 +9,8 @@ void calibrateLoop() {
   resetMotor();
   resetLCD();
 
-  updateSolenoid(false, SOLENOID_ONE);
-  updateSolenoid(false, SOLENOID_TWO);
+  updateSolenoid(CLOSED, SOLENOID_ONE);
+  updateSolenoid(CLOSED, SOLENOID_TWO);
 
   lcd.setCursor(0, 0);
   lcd.print("Calibrating...");
@@ -94,33 +94,35 @@ void releaseLoop() {
 
   resetLCD();
   static char pos[6];
-  drop_distance_cm = 0;
-
-  Serial.println("T");
+  drop_distance_cm = 30;
 
   // get the distance to drop from online or sd card
-  while ((state == RELEASE) && (drop_distance_cm == 0))
-  {
-    if (Serial.available()) {
-        String data = Serial.readStringUntil('\n'); // Read full line
-        drop_distance_cm = data.toFloat();  // Convert to float
+  // while ((state == RELEASE) && (drop_distance_cm == 0))
+  // {
+  //   if (Serial.available()) {
+  //       String data = Serial.readStringUntil('\n'); // Read full line
+  //       drop_distance_cm = data.toFloat();  // Convert to float
 
-        // if drop distance is -1 then get SD card info
-        if (drop_distance_cm == -1) {
-          drop_distance_cm = getTideData();
-        }
-        // TODO: calibrate drop distance
+  //       // if drop distance is -1 then get SD card info
+  //       if (drop_distance_cm == -1) {
+  //         drop_distance_cm = getTideData();
+  //       }
+  //       // TODO: calibrate drop distance
 
-        // Serial.print("Received: ");
-        // Serial.println(drop_distance_cm);
+  //       // Serial.print("Received: ");
+  //       // Serial.println(drop_distance_cm);
 
-        // Flush any remaining characters
-        while (Serial.available()) {
-            Serial.read();  // Discard extra data
-        }
-    }
-    checkEstop();
-  }
+  //       // Flush any remaining characters
+  //       while (Serial.available()) {
+  //           Serial.read();  // Discard extra data
+  //       }
+  //   }
+  //   checkEstop();
+  // }
+
+  // drop_distance_cm = getTideData();
+  Serial.print("drop distance is ");
+  Serial.println(drop_distance_cm);
 
   // actually drop the tube
   while (state == RELEASE){
@@ -131,6 +133,8 @@ void releaseLoop() {
       state = SOAK;
     }
   }
+
+  // while(1);
 }
 
 /**
@@ -197,6 +201,7 @@ void recoverLoop() {
 
   resetLCD();
 
+
   while (state == RECOVER) 
   {
     checkEstop();
@@ -225,18 +230,21 @@ void sampleLoop() {
   {
     sampleLCD();
 
-    if (Serial.available()) {
-      String data = Serial.readStringUntil('\n'); // Read full line
+    // if (Serial.available()) {
+    //   String data = Serial.readStringUntil('\n'); // Read full line
         
-      // only transition to flushing after Aqusens sample done
-      if (data == "D") {  
-        state = FLUSH_TUBE;
-      }
+    //   // only transition to flushing after Aqusens sample done
+    //   if (data == "D") {  
+    //     state = FLUSH_TUBE;
+    //   }
 
-      // Flush any remaining characters
-      while (Serial.available()) {
-          Serial.read();  // Discard extra data
-      }
+    //   // Flush any remaining characters
+    //   while (Serial.available()) {
+    //       Serial.read();  // Discard extra data
+    //   }
+    // }
+    if (Serial.available()) {
+      state = FLUSH_TUBE;
     }
   }
 }
@@ -264,6 +272,7 @@ void tubeFlushLoop() {
 
     // if done flushing, exit loop
     if (flush_tube()) {
+      state = DRY;
       break;
     }
 
@@ -307,25 +316,25 @@ void tubeFlushLoop() {
   }
 
   // turn off Aqusens pump before transitioning to dry state
-  Serial.println("F");
+  // Serial.println("F");
 
-  while (state == FLUSH_TUBE) {
-    checkEstop();
+  // while (state == FLUSH_TUBE) {
+  //   checkEstop();
 
-    if (Serial.available()) {
-      String data = Serial.readStringUntil('\n'); // Read full line
+  //   if (Serial.available()) {
+  //     String data = Serial.readStringUntil('\n'); // Read full line
 
-      // only transition to drying after Aqusens pump turned off
-      if (data == "D") {  
-        state = DRY;
-      }
+  //     // only transition to drying after Aqusens pump turned off
+  //     if (data == "D") {  
+  //       state = DRY;
+  //     }
 
-      // Flush any remaining characters
-      while (Serial.available()) {
-          Serial.read();  // Discard extra data
-      }
-    }
-  }
+  //     // Flush any remaining characters
+  //     while (Serial.available()) {
+  //         Serial.read();  // Discard extra data
+  //     }
+  //   }
+  // }
 
 }
 

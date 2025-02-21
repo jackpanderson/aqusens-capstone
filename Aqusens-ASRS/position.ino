@@ -35,6 +35,7 @@ void home_tube() {
   setMotorSpeed(SAFE_RISE_SPEED_CM_SEC);
   while (!magSensorRead());
   turnMotorOff(true);
+  tube_position_f = 0;
 }
 
 /**
@@ -161,10 +162,10 @@ bool retrieve_tube(unsigned int distance_cm) {
     else {
       phase_ind = 0;
       dists_cm[0] = tube_position_f - WATER_LEVEL_CM;
+      setMotorSpeed(speeds_cm_p_s[phase_ind]);
     }
 
     prev_time = millis();
-    setMotorSpeed(speeds_cm_p_s[phase_ind]);
   }
 
   // running integral

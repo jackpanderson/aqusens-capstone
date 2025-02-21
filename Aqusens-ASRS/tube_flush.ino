@@ -1,13 +1,17 @@
 #define DUMP_WATER_TIME_S       (5UL)
 // #define AIR_GAP_TIME_S          (15)
-// #define WATER_RINSE_TIME_S      (3 * 60)
-#define AIR_GAP_TIME_S          (3)
-#define LAST_AIR_GAP_TIME_S     (90)
-#define WATER_RINSE_TIME_S      (10)
+// #define LAST_AIR_GAP_TIME_S     (90)
+// #define WATER_RINSE_TIME_S      (180)
+#define AIR_GAP_TIME_S          (5)
+#define LAST_AIR_GAP_TIME_S     (10)
+#define WATER_RINSE_TIME_S      (15)
 #define DROP_TUBE_DIST_CM       (40.0f)
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
 #define PULSE_TIME_MS           (3000UL)
+
+// #define FUN
+#define TWEAK_TIME_MS           (500)
 
 typedef enum FlushState {
   INIT,
@@ -29,7 +33,7 @@ typedef enum FlushState {
  */
 bool flush_tube() {
   constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000;
-  constexpr unsigned long AQUSENS_TIME_MS = (3 * AIR_GAP_TIME_S * 3 * WATER_RINSE_TIME_S) * 1000;
+  // constexpr unsigned long AQUSENS_TIME_MS = (3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S) * 1000;
 
   static FlushState state;
 
@@ -130,7 +134,6 @@ bool flush_tube() {
       while(1);
   }
 
-
   return false;
 }
 
@@ -152,8 +155,14 @@ typedef enum {
 bool flush_aqusens(unsigned long cur_time) {
   static AquasensState state = RINSE_INIT;
   static unsigned long prev_time;
+  
+  #ifdef FUN
+  static unsigned long prev_time_tweak;
+  static bool sole_state = true;
+  #endif
 
   constexpr unsigned long AIR_GAP_TIME_MS = AIR_GAP_TIME_S * 1000;
+  constexpr unsigned long LAST_AIR_GAP_TIME_MS = LAST_AIR_GAP_TIME_S * 1000;
   constexpr unsigned long WATER_RINSE_TIME_MS = WATER_RINSE_TIME_S * 1000;
 
   switch (state) {
@@ -163,16 +172,33 @@ bool flush_aqusens(unsigned long cur_time) {
       
       prev_time = millis();
 
+      #ifdef FUN
+      prev_time_tweak = prev_time;
+      #endif
+
+      Serial.println("going to air 1");
       state = AIR_1;
       break;
 
     case AIR_1:
+
+      #ifdef FUN
+      if (cur_time - prev_time_tweak >= TWEAK_TIME_MS) {
+        prev_time_tweak = millis();
+
+        sole_state = !sole_state;
+        updateSolenoid(sole_state, SOLENOID_TWO);
+      }
+
+      #endif
+
       if (cur_time - prev_time >= AIR_GAP_TIME_MS) {
         prev_time = millis();
 
         solenoidTwoState = OPEN;
         updateSolenoid(solenoidTwoState, SOLENOID_TWO);
 
+      Serial.println("going to water 1");
         state = WATER_1;
       }
       break;
@@ -185,6 +211,8 @@ bool flush_aqusens(unsigned long cur_time) {
         updateSolenoid(solenoidTwoState, SOLENOID_TWO);
 
         state = AIR_2;
+      Serial.println("going to air 2");
+
       }
       break;
     
@@ -196,6 +224,8 @@ bool flush_aqusens(unsigned long cur_time) {
         updateSolenoid(solenoidTwoState, SOLENOID_TWO);
 
         state = WATER_2;
+      Serial.println("going to water 2");
+
       }
       break;
 
@@ -207,6 +237,8 @@ bool flush_aqusens(unsigned long cur_time) {
         updateSolenoid(solenoidTwoState, SOLENOID_TWO);
 
         state = AIR_3;
+      Serial.println("going to air 3");
+
       }
       break;
     
@@ -218,6 +250,8 @@ bool flush_aqusens(unsigned long cur_time) {
         updateSolenoid(solenoidTwoState, SOLENOID_TWO);
 
         state = WATER_3;
+      Serial.println("going to water 3");
+
       }
       break;
 
@@ -228,14 +262,18 @@ bool flush_aqusens(unsigned long cur_time) {
         solenoidTwoState = CLOSED;
         updateSolenoid(solenoidTwoState, SOLENOID_TWO);
 
+      Serial.println("going to last air ");
+
         state = LAST_AIR;
         break;
       }
 
     case LAST_AIR:
-      if (cur_time - prev_time >= LAST_AIR_GAP_TIME_S * 1000) {
+      if (cur_time - prev_time >= LAST_AIR_GAP_TIME_MS) {
 
-        state = LAST_AIR;
+        state = RINSE_INIT;
+      Serial.println("Finished aqusens ");
+
         return true;
       }
   }
