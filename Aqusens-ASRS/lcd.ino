@@ -27,7 +27,7 @@ void standbyLCD() {
   lcd.setCursor(16, 3);
   lcd.print("MODE");
 
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 }
 
@@ -52,7 +52,7 @@ void ensureLCD(String ensure) {
   lcd.setCursor(1, 3);
   lcd.print("EXIT");
 
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 }
 
@@ -148,7 +148,7 @@ void settingsLCD(uint8_t page) {
     
   }
 
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 
 }
@@ -264,7 +264,7 @@ void sampleLCD() {
  * 
  *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
  * |_ F L U S H I N G _ S Y S T E M . . . _|
- * |_ _ _ _ T E M P : _ 0 0 . 0 C _ _ _ _ _|
+ * |_ _ _ _ _ T E M P : _ 0 0 . 0 C _ _ _ _|
  * |_ _ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _|
  * |_ _ _ _ _ _ R E M A I N I N G _ _ _ _ _|
  * 
@@ -296,7 +296,7 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
       lcd.print("   ");
       break;
   }
-  lcd.setCursor(4, 1);
+  lcd.setCursor(5, 1);
   lcd.print("TEMP: ");
   
   if (tempFlag) {
@@ -388,7 +388,7 @@ void solenoidControlLCD() {
   else 
     lcd.print("CLOSED");
 
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 
   lcd.setCursor(0, 3);
@@ -490,15 +490,15 @@ void initSetBrightnessOrConstrastLCD() {
  * 
  * Update settings page option to set clock
  */
-void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+void updateSetClockLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
   lcd.noBlink();
   lcd.setCursor(3, 1);
   char buff[15];
 
-  sprintf(buff, "%02d-%02d-%02d %02d:%02d", adjustedTime.Month, adjustedTime.Day, adjustedTime.Year, adjustedTime.Hour, adjustedTime.Minute);
+  sprintf(buff, "%02d-%02d-%02d %02d:%02d", adjusted_time.Month, adjusted_time.Day, adjusted_time.Year, adjusted_time.Hour, adjusted_time.Minute);
   lcd.print(buff);
 
-  switch (cursorPos) {
+  switch (cursor_pos) {
     case 0:
       lcd.setCursor(3, 1); //Month Tens Place
       break;
@@ -550,15 +550,15 @@ void updateSetClockLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
  * 
  * Update settings page option to set sampling interval
  */
-void updateSetIntervalLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+void updateSetIntervalLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
   lcd.noBlink();
   lcd.setCursor(6, 1);
   char buff[9];
 
-  sprintf(buff, "%02d %02d %02d", adjustedTime.Day, adjustedTime.Hour, adjustedTime.Minute);
+  sprintf(buff, "%02d %02d %02d", adjusted_time.Day, adjusted_time.Hour, adjusted_time.Minute);
   lcd.print(buff);
 
-  switch (cursorPos) {
+  switch (cursor_pos) {
     case 0:
       lcd.setCursor(6, 1); //Day Tens Place
       break;
@@ -592,15 +592,15 @@ void updateSetIntervalLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
  * 
  * Update settings page option to set soak/dry/flush time
  */
-void updateSetSoakOrDryOrFlushLCD(uint8_t cursorPos, tmElements_t adjustedTime) {
+void updateSetSoakOrDryOrFlushLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
   lcd.noBlink();
   lcd.setCursor(7, 1);
   char buff[6];
 
-  sprintf(buff, "%02d %02d", adjustedTime.Minute, adjustedTime.Second);
+  sprintf(buff, "%02d %02d", adjusted_time.Minute, adjusted_time.Second);
   lcd.print(buff);
 
-  switch (cursorPos) {
+  switch (cursor_pos) {
     case 0:
       lcd.setCursor(7, 1); //Min Tens Place
       break;
@@ -661,7 +661,7 @@ void alarmLCD() {
     lcd.print("MOTOR");
   }
 
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 }
 
@@ -691,7 +691,7 @@ void manualLCD() {
   lcd.setCursor(1, 3);
   lcd.print("EXIT");
   
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 }
 
@@ -711,7 +711,7 @@ void motorControlLCD() {
   lcd.setCursor(0, 3);
   lcd.print("<BACK");
   
-  lcd.setCursor(0, cursorY);
+  lcd.setCursor(0, cursor_y);
   lcd.print("*");
 }
 
@@ -745,10 +745,10 @@ void updateMotorCurrPositionDisplay(motorStatus status) {
 }
 
 /**
- * @brief clears the LCD and resets cursorY
+ * @brief clears the LCD and resets cursor_y
  * 
  */
 void resetLCD() {
   lcd.clear();
-  cursorY = 0;
+  cursor_y = 0;
 }

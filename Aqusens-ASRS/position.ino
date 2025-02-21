@@ -26,11 +26,11 @@
  * TODO: refactor to check E-Stop
  * TODO: refactor to understand why turnMotorOff doesn't fully work
  */
-void home_tube() {
+void homeTube() {
   tube_position_f = 0;
   if (magSensorRead()) return;
 
-  while (!drop_tube(SAFE_DROP_DIST_CM));
+  while (!dropTube(SAFE_DROP_DIST_CM));
 
   setMotorSpeed(SAFE_RISE_SPEED_CM_SEC);
   while (!magSensorRead());
@@ -57,7 +57,7 @@ void home_tube() {
  * @return true if the tube has finished dropping to given distance
  * @return false if the tube has not finished dropping
  */
-bool drop_tube(unsigned int distance_cm) {
+bool dropTube(unsigned int distance_cm) {
   static bool dropping_flag = false;
   static bool small_drop = false;
   static unsigned long prev_time;
@@ -137,7 +137,7 @@ bool drop_tube(unsigned int distance_cm) {
  * 
  * TODO: set up alarm state if magnetic sensor isn't read when distance is reached
  */
-bool retrieve_tube(unsigned int distance_cm) {
+bool retrieveTube(unsigned int distance_cm) {
   static bool raise_flag = false;
   static bool small_raise = false;
   static unsigned long prev_time;

@@ -13,10 +13,9 @@ void calibrateLoop() {
   updateSolenoid(CLOSED, SOLENOID_TWO);
 
   lcd.setCursor(0, 0);
-  lcd.print("Calibrating...");
+  lcd.print("CALIBRATING...");
 
-
-  home_tube();
+  homeTube();
   state = STANDBY;
 }
 
@@ -33,7 +32,7 @@ void standbyLoop()
   static char key;
   static uint8_t keyPressed;
   lcd.clear();
-  cursorY = 2;
+  cursor_y = 2;
 
   while (state == STANDBY) 
   {
@@ -44,12 +43,12 @@ void standbyLoop()
     keyPressed = cursorSelect(2, 3);
 
     if (keyPressed == 'S') {
-      if (cursorY == 2) {
+      if (cursor_y == 2) {
         settingsPage = 1;
         state = SETTINGS;
       }
 
-      else if (cursorY == 3) {
+      else if (cursor_y == 3) {
         state = ENSURE_SAMPLE_START;
       }
     }
@@ -66,7 +65,7 @@ void standbyLoop()
 void ensureSampleStartLoop() {
   char keyPressed;
   resetLCD();
-  cursorY = 3;
+  cursor_y = 3;
   
   while (state == ENSURE_SAMPLE_START) {
     ensureLCD("RUN SAMPLE");
@@ -74,10 +73,10 @@ void ensureSampleStartLoop() {
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 2) {
+      if (cursor_y == 2) {
         state = RELEASE;
       }
-      else if (cursorY == 3) {
+      else if (cursor_y == 3) {
         state = STANDBY;
       }
     }
@@ -129,7 +128,7 @@ void releaseLoop() {
     snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
     releaseLCD(pos);
 
-    if (drop_tube(drop_distance_cm)) {
+    if (dropTube(drop_distance_cm)) {
       state = SOAK;
     }
   }
@@ -149,8 +148,8 @@ void soakLoop() {
 
   resetLCD();
 
-  uint32_t currTime = millis();
-  uint32_t endTime = currTime + (60 * soakTime.Minute * 1000) + (soakTime.Second * 1000);
+  uint32_t curr_time = millis();
+  uint32_t endTime = curr_time + (60 * soak_time.Minute * 1000) + (soak_time.Second * 1000);
 
   int secondsRemaining, minutesRemaining;
 
@@ -206,7 +205,7 @@ void recoverLoop() {
   {
     checkEstop();
 
-    if (retrieve_tube(tube_position_f + .1)) {
+    if (retrieveTube(tube_position_f + .1)) {
       state = SAMPLE;
     }
     snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
@@ -243,9 +242,10 @@ void sampleLoop() {
     //       Serial.read();  // Discard extra data
     //   }
     // }
-    if (Serial.available()) {
-      state = FLUSH_TUBE;
-    }
+    // if (Serial.available()) {
+    //   state = FLUSH_TUBE;
+    // }
+    state = FLUSH_TUBE;
   }
 }
 
@@ -260,11 +260,11 @@ void tubeFlushLoop() {
   char secTime[3]; // "00"
   char minTime[3]; // "00"
 
-  uint32_t currTime = millis();
-  uint32_t endTime = currTime + (60 * tubeFlushTime.Minute * 1000) + (tubeFlushTime.Second * 1000);
+  uint32_t curr_time = millis();
+  uint32_t endTime = curr_time + (60 * tube_flush_time.Minute * 1000) + (tube_flush_time.Second * 1000);
 
   int secondsRemaining, minutesRemaining;
-  uint32_t lastToggleTime = currTime; // Track the last time tempFlag was toggled
+  uint32_t lastToggleTime = curr_time; // Track the last time tempFlag was toggled
 
   // while (state == FLUSH_TUBE && millis() < endTime) {
   while (state == FLUSH_TUBE) {
@@ -351,8 +351,8 @@ void dryLoop() {
 
   resetLCD();
 
-  uint32_t currTime = millis();
-  uint32_t endTime = currTime + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
+  uint32_t curr_time = millis();
+  uint32_t endTime = curr_time + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
 
   int secondsRemaining, minutesRemaining;
 
@@ -406,27 +406,25 @@ void alarmLoop() {
   char key;
   uint8_t keyPressed;
   lcd.clear();
-  cursorY = 2;
+  cursor_y = 2;
   while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
   {
     alarmLCD();
-    Serial.println(checkEstop());
-    
     keyPressed = cursorSelect(2, 3);
     
     if (keyPressed == 'S') {
-      if (cursorY == 3 && !checkEstop()) {
+      if (cursor_y == 3 && !checkEstop()) {
         state = CALIBRATE;
       }
       
-      else if (cursorY == 3 && checkEstop()) {
+      else if (cursor_y == 3 && checkEstop()) {
         lcd.clear();
         releaseEstopLCD();
         delay(1500);
         lcd.clear();
       }
 
-      else if (cursorY == 2) {
+      else if (cursor_y == 2) {
         state = MANUAL;
       }
     }
@@ -445,21 +443,21 @@ void manualLoop() {
   char key;
   uint8_t keyPressed;
   lcd.clear();
-  cursorY = 1;
+  cursor_y = 1;
   while (state == MANUAL) {
     manualLCD();
     keyPressed = cursorSelect(1, 3);
 
     if (keyPressed == 'S') {
-      if (cursorY == 1) {
+      if (cursor_y == 1) {
         state = MOTOR_CONTROL;
       } 
 
-      else if (cursorY == 2) {
+      else if (cursor_y == 2) {
         state = SOLENOID_CONTROL;
       }
 
-      else if (cursorY == 3) {
+      else if (cursor_y == 3) {
         state = ESTOP_ALARM; // TODO: change to previous state (ESTOP vs. ALARM)
       }
     }
@@ -481,10 +479,10 @@ void motorControlLoop() {
   updateMotorCurrPositionDisplay(MOTOR_OFF);
   char key;
   uint8_t keyPressed;
-  uint8_t lastKeyPressed;
+  uint8_t last_key_pressed;
 
   lcd.clear();
-  cursorY = 1;
+  cursor_y = 1;
   
   while (state == MOTOR_CONTROL) {
     motorControlLCD();
@@ -518,7 +516,7 @@ void motorControlLoop() {
           setMotorSpeed(10);
         //Move motor up 1cm
         updateMotorCurrPositionDisplay(RAISING);
-        // while(!retrieve_tube(1)); // Raises tube 
+        // while(!retrieveTube(1)); // Raises tube 
         // Serial.println("U");
       }
       turnMotorOff();
@@ -538,39 +536,27 @@ void motorControlLoop() {
 void solenoidControlLoop() {
   lcd.clear();
   char keyPressed;
-  cursorY = 1;
+  cursor_y = 1;
 
   while (state == SOLENOID_CONTROL) {
     solenoidControlLCD();
     keyPressed = cursorSelect(1, 2);
 
     if (keyPressed == 'S') {
-      if (cursorY == 1) {
-
+      if (cursor_y == 1) {
         if (solenoidOneState == OPEN) {
-          solenoidOneState = CLOSED;
+          updateSolenoid(CLOSED, SOLENOID_ONE);
+        } else {
+          updateSolenoid(OPEN, SOLENOID_ONE);
         }
-
-        else {
-          solenoidOneState = OPEN;
-        }
-
-        updateSolenoid(solenoidOneState, SOLENOID_ONE);
-      } 
-
-      else if (cursorY == 2) {
+      } else if (cursor_y == 2) {
         if (solenoidTwoState == OPEN) {
-          solenoidTwoState = CLOSED;
+          updateSolenoid(CLOSED, SOLENOID_TWO);
+        } else {
+          updateSolenoid(OPEN, SOLENOID_TWO);
         }
-
-        else {
-          solenoidTwoState = OPEN;
-        }
-
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
       } 
-    }
-    else if (keyPressed == 'L') {
+    } else if (keyPressed == 'L') {
       state = MANUAL;
     }
   }

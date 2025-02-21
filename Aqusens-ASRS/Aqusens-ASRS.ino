@@ -139,12 +139,12 @@ volatile stateEnum state = STANDBY;   // Start up will show standby state
 volatile uint32_t motorPulses = 0;
 
 // Timing
-tmElements_t nextSampleTime, sampleInterval, soakTime, dryTime, tubeFlushTime, aqusensFlushTime;
+tmElements_t next_sample_time, sample_interval, soak_time, dryTime, tube_flush_time, aqusens_flush_time;
 Timer<5, millis> dropTimer;
 bool dropFlag = true; // Set by timers in activeLoop
-volatile bool estopPressed = false; // Flag to keep track of E-stop pressed/released
+volatile bool estop_pressed = false; // Flag to keep track of E-stop pressed/released
 
-int8_t cursorY = 2; // keeps track of current cursor position
+int8_t cursor_y = 2; // keeps track of current cursor position
 uint8_t screenBrightness = 10; 
 uint8_t screenContrast = 10; // change to a sensible init val, is half of num of steps
 uint8_t lastSettingPage = 4; // amount of settings pages

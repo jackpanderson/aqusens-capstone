@@ -55,7 +55,7 @@ void setMotorDir(MotorDir dir) {
  * @param cm_per_sec given speed to be converted in cm/sec
  * @return uint32_t converted motor frequency
  */
-inline uint32_t speed_to_freq(float cm_per_sec) {
+inline uint32_t speedToFreq(float cm_per_sec) {
   constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (RANDOM_GEAR_FACTOR * 2.0f * PI * REEL_RAD_CM);
   return cm_per_sec * MOTORSPEED_FACTOR;
 }
@@ -72,7 +72,7 @@ void setMotorSpeed(float cm_per_sec) {
   else if (cm_per_sec > 0) {
     setMotorDir(CW);
   }
-  setMotorFreq(speed_to_freq(abs(cm_per_sec)));
+  setMotorFreq(speedToFreq(abs(cm_per_sec)));
 }
 
 /**
@@ -171,7 +171,7 @@ void TC5_Handler() {
     if (TC5->COUNT16.INTFLAG.bit.MC0) {  // Match/Compare 0 interrupt
         TC5->COUNT16.INTFLAG.reg = TC_INTFLAG_MC(1);  // Clear interrupt flag
 
-        if (!estopPressed || state == MOTOR_CONTROL) {
+        if (!estop_pressed || state == MOTOR_CONTROL) {
                   // Toggle the output pin
             toggle = !toggle;
             

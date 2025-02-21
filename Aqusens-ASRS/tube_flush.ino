@@ -38,7 +38,6 @@ bool flush_tube() {
   static FlushState state;
 
   static unsigned long start_time;
-  static bool solenoid_state = false;
   unsigned long cur_time, prev_time;
 
   switch(state) {
@@ -53,8 +52,8 @@ bool flush_tube() {
       if (!magSensorRead()) {
         turnMotorOff();
         start_time = millis();
-        solenoidOneState = OPEN;
-        updateSolenoid(solenoidOneState, SOLENOID_ONE);
+
+        updateSolenoid(OPEN, SOLENOID_ONE);
         
         state = DUMP_DELAY;
       }
@@ -69,7 +68,7 @@ bool flush_tube() {
       break;
 
     case ROPE_DROP:
-      if (drop_tube(DROP_TUBE_DIST_CM)) {
+      if (dropTube(DROP_TUBE_DIST_CM)) {
         
         state = RINSE_ROPE_HOME; 
       }
@@ -109,11 +108,8 @@ bool flush_tube() {
       cur_time = millis();
 
       if (flush_aqusens(cur_time)) {
-        solenoidOneState = CLOSED;
-        updateSolenoid(solenoidOneState, SOLENOID_ONE);
-        
-        solenoidTwoState = CLOSED;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(CLOSED, SOLENOID_ONE);
+        updateSolenoid(CLOSED, SOLENOID_TWO);
         
         state = HOME_2;
       }
@@ -149,8 +145,8 @@ typedef enum {
 } AquasensState;
 
 // TODO: implement time from the struct    
-//  aqusensFlushTime.Minute = 0;
-//  aqusensFlushTime.Second = 15;
+//  aqusens_flush_time.Minute = 0;
+//  aqusens_flush_time.Second = 15;
 // TODO: danny convert this to the ms and then fill the gaps
 bool flush_aqusens(unsigned long cur_time) {
   static AquasensState state = RINSE_INIT;
@@ -167,8 +163,7 @@ bool flush_aqusens(unsigned long cur_time) {
 
   switch (state) {
     case RINSE_INIT:
-      solenoidTwoState = CLOSED;
-      updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+      updateSolenoid(CLOSED, SOLENOID_TWO);
       
       prev_time = millis();
 
@@ -195,8 +190,7 @@ bool flush_aqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= AIR_GAP_TIME_MS) {
         prev_time = millis();
 
-        solenoidTwoState = OPEN;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(OPEN, SOLENOID_TWO);
 
       Serial.println("going to water 1");
         state = WATER_1;
@@ -207,8 +201,7 @@ bool flush_aqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= WATER_RINSE_TIME_MS) {
         prev_time = millis();
 
-        solenoidTwoState = CLOSED;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_2;
       Serial.println("going to air 2");
@@ -220,8 +213,7 @@ bool flush_aqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= AIR_GAP_TIME_MS) {
         prev_time = millis();
 
-        solenoidTwoState = OPEN;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_2;
       Serial.println("going to water 2");
@@ -233,8 +225,7 @@ bool flush_aqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= WATER_RINSE_TIME_MS) {
         prev_time = millis();
 
-        solenoidTwoState = CLOSED;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_3;
       Serial.println("going to air 3");
@@ -246,8 +237,7 @@ bool flush_aqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= AIR_GAP_TIME_MS) {
         prev_time = millis();
 
-        solenoidTwoState = OPEN;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_3;
       Serial.println("going to water 3");
@@ -259,8 +249,7 @@ bool flush_aqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= WATER_RINSE_TIME_MS) {
         prev_time = millis();
 
-        solenoidTwoState = CLOSED;
-        updateSolenoid(solenoidTwoState, SOLENOID_TWO);
+        updateSolenoid(CLOSED, SOLENOID_TWO);
 
       Serial.println("going to last air ");
 
