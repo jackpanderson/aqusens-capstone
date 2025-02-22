@@ -176,7 +176,7 @@ void TC5_Handler() {
             toggle = !toggle;
             
             if (toggle == 1) {
-              motorPulses++;
+              motor_pulses++;
             }
 
             digitalWrite(STEP_POS_PIN, toggle);

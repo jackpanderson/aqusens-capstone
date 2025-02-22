@@ -186,17 +186,17 @@ void releaseLCD(String position) {
  * |_ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _ _|
  * |_ _ _ _ _ R E M A I N I N G _ _ _ _ _ _|
  * 
- * @param minTime String of minutes remaining in soak time
- * @param secTime String of seconds remaining in soak time
- * @param numDots Number of dots to display in flashing ...
+ * @param min_time String of minutes remaining in soak time
+ * @param sec_time String of seconds remaining in soak time
+ * @param num_dots Number of dots to display in flashing ...
  */
-void soakLCD(String minTime, String secTime, int numDots) {
+void soakLCD(String min_time, String sec_time, int num_dots) {
   lcd.setCursor(5,0);
   lcd.print("SOAKING");
   lcd.setCursor(12, 0);
 
 
-  switch (numDots) {
+  switch (num_dots) {
     case 0: 
       lcd.print("...");
       break;
@@ -213,9 +213,9 @@ void soakLCD(String minTime, String secTime, int numDots) {
 
 
   lcd.setCursor(3,2);
-  lcd.print(minTime);
+  lcd.print(min_time);
   lcd.print(" MIN ");
-  lcd.print(secTime);
+  lcd.print(sec_time);
   lcd.print(" SEC");
   lcd.setCursor(5,3);
   lcd.print("REMAINING");
@@ -268,12 +268,12 @@ void sampleLCD() {
  * |_ _ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _|
  * |_ _ _ _ _ _ R E M A I N I N G _ _ _ _ _|
  * 
- * @param minTime String of minutes remaining in flush time
- * @param secTime String of seconds remaining in flush time
- * @param numDots Number of dots to display in flashing ...
- * @param tempFlag Flag that determines whether temperature data is displayed
+ * @param min_time String of minutes remaining in flush time
+ * @param sec_time String of seconds remaining in flush time
+ * @param num_dots Number of dots to display in flashing ...
+ * @param temp_flag Flag that determines whether temperature data is displayed
  */
-void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
+void flushLCD(String min_time, String sec_time, int num_dots, bool temp_flag) {
   lcd.setCursor(1,0);
 
   if (state == FLUSH_TUBE) {
@@ -282,7 +282,7 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
     lcd.setCursor(16, 0);
   }
 
-  switch (numDots) {
+  switch (num_dots) {
     case 0: 
       lcd.print("...");
       break;
@@ -299,15 +299,15 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
   lcd.setCursor(5, 1);
   lcd.print("TEMP: ");
   
-  if (tempFlag) {
+  if (temp_flag) {
     lcd.print(readRTD(TEMP_SENSOR_ONE), 1);
     lcd.print("C");
   }
 
   lcd.setCursor(4,2);
-  lcd.print(minTime);
+  lcd.print(min_time);
   lcd.print(" MIN ");
-  lcd.print(secTime);
+  lcd.print(sec_time);
   lcd.print(" SEC");
   lcd.setCursor(6,3);
   lcd.print("REMAINING");
@@ -324,17 +324,17 @@ void flushLCD(String minTime, String secTime, int numDots, bool tempFlag) {
  * |_ _ _ 0 0 _ M I N _ 0 0 _ S E C _ _ _ _|
  * |_ _ _ _ _ R E M A I N I N G _ _ _ _ _ _|
  * 
- * @param minTime String of minutes remaining in dry time
- * @param secTime String of seconds remaining in dry time
- * @param numDots Number of dots to display in flashing ...
+ * @param min_time String of minutes remaining in dry time
+ * @param sec_time String of seconds remaining in dry time
+ * @param num_dots Number of dots to display in flashing ...
  */
-void dryLCD(String minTime, String secTime, int numDots) {
+void dryLCD(String min_time, String sec_time, int num_dots) {
   lcd.setCursor(6,0);
   lcd.print("DRYING");
   lcd.setCursor(12, 0);
 
 
-  switch (numDots) {
+  switch (num_dots) {
     case 0: 
       lcd.print("...");
       break;
@@ -351,9 +351,9 @@ void dryLCD(String minTime, String secTime, int numDots) {
 
 
   lcd.setCursor(3,2);
-  lcd.print(minTime);
+  lcd.print(min_time);
   lcd.print(" MIN ");
-  lcd.print(secTime);
+  lcd.print(sec_time);
   lcd.print(" SEC");
   lcd.setCursor(5,3);
   lcd.print("REMAINING");
@@ -376,14 +376,14 @@ void solenoidControlLCD() {
   lcd.setCursor(1, 1);
   lcd.print("SOLENOID 1: ");
   
-  if (solenoidOneState == OPEN)
+  if (solenoid_one_state == OPEN)
     lcd.print("OPEN");
   else 
     lcd.print("CLOSED");
 
   lcd.setCursor(1, 2);
   lcd.print("SOLENOID 2: ");
-  if (solenoidTwoState == OPEN)
+  if (solenoid_two_state == OPEN)
     lcd.print("OPEN");
   else 
     lcd.print("CLOSED");
@@ -465,7 +465,7 @@ void initSetBrightnessOrConstrastLCD() {
     lcd.setCursor(3, 0);
     lcd.print("SET BRIGHTNESS");
 
-    for (int i = 0; i < screenBrightness; i++) {
+    for (int i = 0; i < screen_brightness; i++) {
       lcd.setCursor(i, 1);
       lcd.print(char(255));
     }
@@ -475,7 +475,7 @@ void initSetBrightnessOrConstrastLCD() {
     lcd.setCursor(4, 0);
     lcd.print("SET CONTRAST");
     
-    for (int i = 0; i < screenBrightness; i++) {
+    for (int i = 0; i < screen_brightness; i++) {
       lcd.setCursor(i, 1);
       lcd.print(char(255));
     }
@@ -488,7 +488,10 @@ void initSetBrightnessOrConstrastLCD() {
 /**
  * @brief Update SET_CLOCK screen
  * 
- * Update settings page option to set clock
+ *  Update settings page option to set clock
+ * 
+ * @param cursor_pos //TODO: Jack - add a description of the parameter
+ * @param adjusted_time 
  */
 void updateSetClockLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
   lcd.noBlink();
@@ -549,6 +552,9 @@ void updateSetClockLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
  * @brief Update SET_INTERVAL screen
  * 
  * Update settings page option to set sampling interval
+ * 
+ * @param cursor_pos //TODO: Jack - add a description of the parameter
+ * @param adjusted_time 
  */
 void updateSetIntervalLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
   lcd.noBlink();
@@ -591,6 +597,9 @@ void updateSetIntervalLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
  * @brief Update SET_SOAK_TIME/SET_DRY_TIME/SET_TUBE_FLUSH_TIME/SET_AQUSENS_FLUSH_TIME screen
  * 
  * Update settings page option to set soak/dry/flush time
+ * 
+ * @param cursor_pos //TODO: Jack - add a description of the parameter
+ * @param adjusted_time 
  */
 void updateSetSoakOrDryOrFlushLCD(uint8_t cursor_pos, tmElements_t adjusted_time) {
   lcd.noBlink();
@@ -625,16 +634,18 @@ void updateSetSoakOrDryOrFlushLCD(uint8_t cursor_pos, tmElements_t adjusted_time
  * @brief Update SET_BRIGHTNESS/SET_CONTRAST screen
  * 
  * Update settings page option to set brightness/contrast
+ * 
+ * @param increasing_bar //TODO: Jack - add a description of the parameter
  */
-void updateBrightnessOrContrastLCD(bool increasingBar) {
-  if (increasingBar) {
-    screenBrightness++;
-    lcd.setCursor(screenBrightness - 1, 1);
+void updateBrightnessOrContrastLCD(bool increasing_bar) {
+  if (increasing_bar) {
+    screen_brightness++;
+    lcd.setCursor(screen_brightness - 1, 1);
     lcd.print(char(255)); //prints black rect
   }
   else {
-    lcd.setCursor(screenBrightness - 1, 1);
-    screenBrightness--;
+    lcd.setCursor(screen_brightness - 1, 1);
+    screen_brightness--;
     lcd.print(char(254)); //prints blank rect
   }
 }
@@ -727,9 +738,9 @@ void resetMotorLCD() {
 /**
  * @brief Updates display of the current position of the motor
  * 
- * @param currPos current position of the motor
+ * @param status current status of the motor (RAISING/LOWERING/OFF)
  */
-void updateMotorCurrPositionDisplay(motorStatus status) {
+void updateMotorCurrPositionDisplay(MotorStatus status) {
   //int32_t currPos = 40; //Temporary, assuming will have a global variable that tracks position
   if (status != RAISING)
     lcd.setCursor(12, 3);

@@ -15,9 +15,9 @@
 
 #include <P1AM.h>
 #include <SD.h>
-#include <LiquidCrystal.h>
+#include <LiquidCrystal.h> //TODO: remove?
 #include <LiquidCrystal_I2C.h>
-#include <arduino-timer.h>
+#include <arduino-timer.h> //TODO: remove?
 #include <RTCZero.h>
 #include <SimpleKeypad.h>
 #include <TimeLib.h>
@@ -30,9 +30,9 @@
 #define HV_GPIO_SLOT 1                  // High voltage GPIO (P1-15CDD1)
 #define RELAY_SLOT   2                  // Relay module (P1-04TRS)
 #define RTD_SLOT     3                  // RTD Temp Sensor Module (P1-04RTD)
-#define CDD1_CHANNEL  (1)
+#define CDD1_CHANNEL  (1) //TODO: remove?
 
-// Inputs
+// Inputs - TODO: remove?
 #define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
 #define SWITCH_IN {HV_GPIO_SLOT, 2}     // Switch input (for manual operation)
 #define E_STOP_IN {HV_GPIO_SLOT, 3}     // E Stop input
@@ -47,7 +47,7 @@
 #define ALARM_MINUS A5 // Keep High
 
 #define SD_CS 28
-// #define ESTOP_IN 4 //Change to real value
+// #define ESTOP_IN 4 //Change to real value TODO: remove?
 
 //Motor
 #define STEP_POS_PIN  6
@@ -61,23 +61,25 @@
 #define MOTOR_POWER 1
 #define SOLENOID_ONE 3
 #define SOLENOID_TWO 4
+
+//TODO: remove?
 #define SOLENOID_ENABLE 1
 #define SOLENOID_DISABLE 0
 
 //RTD Inputs
-typedef enum {
+typedef enum TempSensor {
   TEMP_SENSOR_ONE = 1, // TODO: Eventually change to more descriptive names, depending on what each sensor actually is measuring
   TEMP_SENSOR_TWO = 2
 } TempSensor;
 
-// Outputs
-
-
 /* Hardcoded Macros **************************************************************/
 
+//TODO: remove?
 #define BASE_DROP_DIS 20      // Distance of drop until water (without tide data) 
 #define FLUSH_TIME 100        // Time in sec to flush probe
 #define MICROSTEP 3200        // Number of pulses for one revolution of motor
+
+
 #define TIDE_FILE "tides.txt"
 #define NUM_CONTRAST_STEPS 20
 #define NUM_BRIGHTNESS_STEPS 20
@@ -90,7 +92,7 @@ typedef enum {
 /* Variable Declarations *********************************************************/
 
 // Machine States
-enum stateEnum {
+enum StateEnum {
   CALIBRATE,
   STANDBY,
   RELEASE,
@@ -120,62 +122,58 @@ enum stateEnum {
   SET_CONTRAST      
 };
 
-typedef enum solenoidState {
+typedef enum SolenoidState {
   OPEN,
   CLOSED
-} solenoidState;
+} SolenoidState;
 
-typedef enum {
+typedef enum MotorStatus {
   RAISING,
   LOWERING,
   MOTOR_OFF
-} motorStatus; // For lowering and raising the motor manually
+} MotorStatus; // For lowering and raising the motor manually
 
-solenoidState solenoidOneState = CLOSED;
-solenoidState solenoidTwoState = CLOSED;
+SolenoidState solenoid_one_state = CLOSED;
+SolenoidState solenoid_two_state = CLOSED;
 
-volatile stateEnum state = STANDBY;   // Start up will show standby state
+volatile StateEnum state = STANDBY;   // Start up will show standby state
 
-volatile uint32_t motorPulses = 0;
+volatile uint32_t motor_pulses = 0; //TODO: remove?
 
 // Timing
-tmElements_t next_sample_time, sample_interval, soak_time, dryTime, tube_flush_time, aqusens_flush_time;
-Timer<5, millis> dropTimer;
-bool dropFlag = true; // Set by timers in activeLoop
+tmElements_t next_sample_time, sample_interval, soak_time, dry_time, tube_flush_time, aqusens_flush_time;
+Timer<5, millis> drop_timer; //TODO: remove?
+bool drop_flag = true; // Set by timers in activeLoop //TODO: remove?
 volatile bool estop_pressed = false; // Flag to keep track of E-stop pressed/released
 
 int8_t cursor_y = 2; // keeps track of current cursor position
-uint8_t screenBrightness = 10; 
-uint8_t screenContrast = 10; // change to a sensible init val, is half of num of steps
-uint8_t lastSettingPage = 4; // amount of settings pages
-uint8_t settingsPage = 1; // current settings page
+uint8_t screen_brightness = 10; 
+uint8_t screen_contrast = 10; // change to a sensible init val, is half of num of steps //TODO: remove?
+uint8_t last_setting_page = 4; // amount of settings pages
+uint8_t settings_page = 1; // current settings page
 
 // RTC
 RTCZero rtc;
 
 //PWM
-SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000
+SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000 //TODO: outdated comment - not 50:1
 
 //I2C LCD Screen
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-float drop_distance_ft = 11;
+// float drop_distance_ft = 11;
 float drop_distance_cm = 410;
 // float drop_distance_cm = drop_distance_ft * 30.48;
 float tube_position_f; // Stores the current position of the sampler tube relative to 
 
-// Discrete module
-
-
 /* Setup and Loop **************************************************************/
-
 void setup() {
 
   Serial.begin(115200);
   while (!P1.init()) {;} // Initialize controller
 
-  rtcInit();
+  rtcInit(); //TODO: add screen to input actual time/date to init rtc with
   RTDInit();
   gpioInit();
   estopInit();
@@ -186,11 +184,7 @@ void setup() {
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
 
   state = CALIBRATE;
-
 }
-
-
-
 
 void loop() {
   switch (state) {

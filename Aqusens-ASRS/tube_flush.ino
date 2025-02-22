@@ -31,7 +31,7 @@ typedef enum FlushState {
  * @return true once done with the flushing cycle
  * @return false if error occurs during flushing cycle
  */
-bool flush_tube() {
+bool flushTube() {
   constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000;
   // constexpr unsigned long AQUSENS_TIME_MS = (3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S) * 1000;
 
@@ -107,7 +107,7 @@ bool flush_tube() {
     case RINSE_AQUSENS:
       cur_time = millis();
 
-      if (flush_aqusens(cur_time)) {
+      if (flushAqusens(cur_time)) {
         updateSolenoid(CLOSED, SOLENOID_ONE);
         updateSolenoid(CLOSED, SOLENOID_TWO);
         
@@ -133,7 +133,7 @@ bool flush_tube() {
   return false;
 }
 
-typedef enum {
+typedef enum AqusensState {
   RINSE_INIT,
   AIR_1,
   WATER_1,
@@ -142,14 +142,21 @@ typedef enum {
   AIR_3,
   WATER_3,
   LAST_AIR,
-} AquasensState;
+} AqusensState;
 
 // TODO: implement time from the struct    
 //  aqusens_flush_time.Minute = 0;
 //  aqusens_flush_time.Second = 15;
 // TODO: danny convert this to the ms and then fill the gaps
-bool flush_aqusens(unsigned long cur_time) {
-  static AquasensState state = RINSE_INIT;
+/**
+ * @brief TODO: Danny - update this function comment
+ * 
+ * @param cur_time 
+ * @return true 
+ * @return false 
+ */
+bool flushAqusens(unsigned long cur_time) {
+  static AqusensState state = RINSE_INIT;
   static unsigned long prev_time;
   
   #ifdef FUN

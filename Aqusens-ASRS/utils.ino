@@ -41,21 +41,21 @@ void estopInit() {
  * @param state state of current solenoid (OPEN/CLOSED)
  * @param solenoid_number solenoid to control (SOLENOID_ONE/SOLENOID_TWO)
  */
-void updateSolenoid(solenoidState state, int solenoid_number) {
+void updateSolenoid(SolenoidState state, int solenoid_number) {
   if (solenoid_number == SOLENOID_ONE) {
       if (state == OPEN) {
-        solenoidOneState = OPEN;
+        solenoid_one_state = OPEN;
         P1.writeDiscrete(true, RELAY_SLOT, solenoid_number);
       } else {
-        solenoidOneState = CLOSED;
+        solenoid_one_state = CLOSED;
         P1.writeDiscrete(false, RELAY_SLOT, solenoid_number);
       }
   } else if (solenoid_number == SOLENOID_TWO) {
       if (state == OPEN) {
-        solenoidTwoState = OPEN;
+        solenoid_two_state = OPEN;
         P1.writeDiscrete(true, RELAY_SLOT, solenoid_number);
       } else {
-        solenoidTwoState = CLOSED;
+        solenoid_two_state = CLOSED;
         P1.writeDiscrete(false, RELAY_SLOT, solenoid_number);
       }
   }
@@ -92,9 +92,9 @@ void rtcInit() {
   soak_time.Minute = 0;
   soak_time.Second = 5;
 
-  // dryTime.Minute = 20;
-  dryTime.Minute = 0;
-  dryTime.Second = 5;
+  // dry_time.Minute = 20;
+  dry_time.Minute = 0;
+  dry_time.Second = 5;
 
   tube_flush_time.Minute = 2;
   tube_flush_time.Second = 45;
@@ -108,17 +108,17 @@ void rtcInit() {
 /**
  * @brief update timer alarm for given time
  * 
- * @param delayTime next sample time
+ * @param delay_time next sample time
  */
-void updateAlarm(tmElements_t delayTime) {
+void updateAlarm(tmElements_t delay_time) {
 
   breakTime(makeTime(next_sample_time), next_sample_time);
 
-  next_sample_time.Year = delayTime.Year;
-  next_sample_time.Month = delayTime.Month;
-  next_sample_time.Day = delayTime.Day;
-  next_sample_time.Hour = delayTime.Hour;
-  next_sample_time.Minute = delayTime.Minute;
+  next_sample_time.Year = delay_time.Year;
+  next_sample_time.Month = delay_time.Month;
+  next_sample_time.Day = delay_time.Day;
+  next_sample_time.Hour = delay_time.Hour;
+  next_sample_time.Minute = delay_time.Minute;
 
 
   

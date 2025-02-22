@@ -8,41 +8,41 @@
  *    - BRIGHTNESS/CONTRAST
  */
 void settingsLoop() {
-  uint8_t lastKeyPress = rtc.getMinutes();
-  char keyPressed;
+  uint8_t last_key_press = rtc.getMinutes();
+  char key_pressed;
   resetLCD();
   
   while (state == SETTINGS) {
-    settingsLCD(settingsPage); //Launch into first page of settings
+    settingsLCD(settings_page); //Launch into first page of settings
 
-    if (settingsPage != lastSettingPage)
-      keyPressed = cursorSelect(0, 2);
+    if (settings_page != last_setting_page)
+      key_pressed = cursorSelect(0, 2);
     else
-      keyPressed = cursorSelect(0, 1);
+      key_pressed = cursorSelect(0, 1);
 
-    if (keyPressed > 0) {
-      lastKeyPress = rtc.getMinutes();
+    if (key_pressed > 0) {
+      last_key_press = rtc.getMinutes();
     }
 
-    if (keyPressed == 'L') { // left
-      if (settingsPage == 1) { // exits to STANDBY mode on first page left select
+    if (key_pressed == 'L') { // left
+      if (settings_page == 1) { // exits to STANDBY mode on first page left select
         resetLCD();
         state = STANDBY;
         cursor_y = 2;
       }
       else { // else, returns to previous settings page
         resetLCD();
-        settingsPage--;
+        settings_page--;
       }
     }
 
-    else if (keyPressed == 'R' && settingsPage != lastSettingPage) { //right
+    else if (key_pressed == 'R' && settings_page != last_setting_page) { //right
       resetLCD();
-      settingsPage++;
+      settings_page++;
     }
 
-    else if (keyPressed == 'S') {
-      if (settingsPage == 1) {
+    else if (key_pressed == 'S') {
+      if (settings_page == 1) {
         switch(cursor_y) {
           case 0:
             state = SET_INTERVAL;
@@ -61,7 +61,7 @@ void settingsLoop() {
         }
       }
 
-      else if (settingsPage == 2) {
+      else if (settings_page == 2) {
         switch(cursor_y) { //add more states
           case 0:
             state = SET_SOAK_TIME;
@@ -80,7 +80,7 @@ void settingsLoop() {
         }
       }
 
-      else if (settingsPage == 3) {
+      else if (settings_page == 3) {
         switch(cursor_y) {
           case 0:
             state = SET_DRY_TIME;
@@ -99,7 +99,7 @@ void settingsLoop() {
         }
       }
 
-      else if (settingsPage == 4) {
+      else if (settings_page == 4) {
         switch(cursor_y) {
           case 0:
             state = FILTER_STATUS;
@@ -111,7 +111,7 @@ void settingsLoop() {
       }
     }
 
-    if (rtc.getMinutes() == ((lastKeyPress + 5) % 60)) {
+    if (rtc.getMinutes() == ((last_key_press + 5) % 60)) {
       state = STANDBY;
     }
   }
@@ -122,19 +122,19 @@ void settingsLoop() {
  * 
  */
 void setStartTimeLoop() {
-  tmElements_t adjustedStartTime;
-  adjustedStartTime.Month = rtc.getMonth();
-  adjustedStartTime.Day = rtc.getDay();
-  adjustedStartTime.Year = rtc.getYear(); 
-  adjustedStartTime.Hour = rtc.getHours();
-  adjustedStartTime.Minute = rtc.getMinutes();
+  tmElements_t adjusted_start_time;
+  adjusted_start_time.Month = rtc.getMonth();
+  adjusted_start_time.Day = rtc.getDay();
+  adjusted_start_time.Year = rtc.getYear(); 
+  adjusted_start_time.Hour = rtc.getHours();
+  adjusted_start_time.Minute = rtc.getMinutes();
   char key;
   uint8_t cursor_pos = 0; // Holds time-setting position of cursor for "00-00-00 00:00"
                          // Does not include spacing/colons/hyphens, ranges 0 to 9.
 
   resetLCD();
   initSetClockLCD();
-  updateSetClockLCD(cursor_pos, adjustedStartTime);
+  updateSetClockLCD(cursor_pos, adjusted_start_time);
   lcd.blink();
 
   while (state == SET_START_TIME) {
@@ -142,7 +142,7 @@ void setStartTimeLoop() {
     
     if (key != NULL) {
       if (key == 'S') {
-        updateAlarm(adjustedStartTime);
+        updateAlarm(adjusted_start_time);
         lcd.noBlink();
         state = SETTINGS;
       }
@@ -156,10 +156,10 @@ void setStartTimeLoop() {
       }
 
       else if (key == 'U' || key == 'D') {
-        adjustSetTimeDigit(key, &adjustedStartTime, &cursor_pos);
+        adjustSetTimeDigit(key, &adjusted_start_time, &cursor_pos);
       }
       if (state == SET_START_TIME) {
-        updateSetClockLCD(cursor_pos, adjustedStartTime);
+        updateSetClockLCD(cursor_pos, adjusted_start_time);
       }
     } 
   }
@@ -275,16 +275,16 @@ void setIntervalLoop() {
  * 
  */
 void setSoakTimeLoop() {
-  tmElements_t newSoakTime;
-  newSoakTime.Minute = soak_time.Minute;
-  newSoakTime.Second = soak_time.Second;
+  tmElements_t new_soak_time;
+  new_soak_time.Minute = soak_time.Minute;
+  new_soak_time.Second = soak_time.Second;
   char key;
   uint8_t cursor_pos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 3.
 
   resetLCD();
   initSetSoakOrDryOrFlushLCD();
-  updateSetSoakOrDryOrFlushLCD(cursor_pos, newSoakTime);
+  updateSetSoakOrDryOrFlushLCD(cursor_pos, new_soak_time);
   lcd.blink();
 
   while (state == SET_SOAK_TIME) {
@@ -293,8 +293,8 @@ void setSoakTimeLoop() {
     if (key != NULL) {
       if (key == 'S') {
         //breakTime(makeTime(new_interval), new_interval);
-        soak_time.Second = newSoakTime.Second;
-        soak_time.Minute = newSoakTime.Minute;
+        soak_time.Second = new_soak_time.Second;
+        soak_time.Minute = new_soak_time.Minute;
         lcd.noBlink();
         state = SETTINGS;
       }
@@ -308,10 +308,10 @@ void setSoakTimeLoop() {
       }
 
       else if (key == 'U' || key == 'D') {
-        adjustSetSoakOrDryDigit(key, &newSoakTime, &cursor_pos);
+        adjustSetSoakOrDryDigit(key, &new_soak_time, &cursor_pos);
       }
       if (state == SET_SOAK_TIME) {
-        updateSetSoakOrDryOrFlushLCD(cursor_pos, newSoakTime);
+        updateSetSoakOrDryOrFlushLCD(cursor_pos, new_soak_time);
         }
     } 
   }
@@ -322,16 +322,16 @@ void setSoakTimeLoop() {
  * 
  */
 void setDryTimeLoop() {
-  tmElements_t newDryTime;
-  newDryTime.Minute = dryTime.Minute;
-  newDryTime.Second = dryTime.Second;
+  tmElements_t new_dry_time;
+  new_dry_time.Minute = dry_time.Minute;
+  new_dry_time.Second = dry_time.Second;
   char key;
   uint8_t cursor_pos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 3.
 
   resetLCD();
   initSetSoakOrDryOrFlushLCD();
-  updateSetSoakOrDryOrFlushLCD(cursor_pos, newDryTime);
+  updateSetSoakOrDryOrFlushLCD(cursor_pos, new_dry_time);
   lcd.blink();
 
   while (state == SET_DRY_TIME) {
@@ -341,8 +341,8 @@ void setDryTimeLoop() {
 
       if (key == 'S') {
         //breakTime(makeTime(new_interval), new_interval);
-        dryTime.Second = newDryTime.Second;
-        dryTime.Minute = newDryTime.Minute;
+        dry_time.Second = new_dry_time.Second;
+        dry_time.Minute = new_dry_time.Minute;
         lcd.noBlink();
         state = SETTINGS;
       }
@@ -356,11 +356,11 @@ void setDryTimeLoop() {
       }
 
       else if (key == 'U' || key == 'D') {
-        adjustSetSoakOrDryDigit(key, &newDryTime, &cursor_pos);
+        adjustSetSoakOrDryDigit(key, &new_dry_time, &cursor_pos);
       }
 
       if (state == SET_DRY_TIME) {
-      updateSetSoakOrDryOrFlushLCD(cursor_pos, newDryTime);
+      updateSetSoakOrDryOrFlushLCD(cursor_pos, new_dry_time);
       }
     } 
   }
@@ -371,16 +371,16 @@ void setDryTimeLoop() {
  * 
  */
 void setTubeFlushTimeLoop() {
-  tmElements_t newTubeFlushTime;
-  newTubeFlushTime.Second = tube_flush_time.Second;
-  newTubeFlushTime.Minute = tube_flush_time.Minute;
+  tmElements_t new_tube_flush_time;
+  new_tube_flush_time.Second = tube_flush_time.Second;
+  new_tube_flush_time.Minute = tube_flush_time.Minute;
   char key;
   uint8_t cursor_pos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 3.
 
   resetLCD();
   initSetSoakOrDryOrFlushLCD();
-  updateSetSoakOrDryOrFlushLCD(cursor_pos, newTubeFlushTime);
+  updateSetSoakOrDryOrFlushLCD(cursor_pos, new_tube_flush_time);
   lcd.blink();
 
   while (state == SET_TUBE_FLUSH_TIME) {
@@ -389,8 +389,8 @@ void setTubeFlushTimeLoop() {
     if (key != NULL) {
 
       if (key == 'S') {
-        tube_flush_time.Second = newTubeFlushTime.Second;
-        tube_flush_time.Minute = newTubeFlushTime.Minute;
+        tube_flush_time.Second = new_tube_flush_time.Second;
+        tube_flush_time.Minute = new_tube_flush_time.Minute;
         lcd.noBlink();
         state = SETTINGS;
       }
@@ -404,11 +404,11 @@ void setTubeFlushTimeLoop() {
       }
 
       else if (key == 'U' || key == 'D') {
-        adjustSetSoakOrDryDigit(key, &newTubeFlushTime, &cursor_pos);
+        adjustSetSoakOrDryDigit(key, &new_tube_flush_time, &cursor_pos);
       }
 
       if (state == SET_TUBE_FLUSH_TIME) {
-      updateSetSoakOrDryOrFlushLCD(cursor_pos, newTubeFlushTime);
+      updateSetSoakOrDryOrFlushLCD(cursor_pos, new_tube_flush_time);
       }
     } 
   }
@@ -419,16 +419,16 @@ void setTubeFlushTimeLoop() {
  * 
  */
 void setAqusensFlushTimeLoop() {
-  tmElements_t newAqusensFlushTime;
-  newAqusensFlushTime.Second = aqusens_flush_time.Second;
-  newAqusensFlushTime.Minute = aqusens_flush_time.Minute;
+  tmElements_t new_aqusens_flush_time;
+  new_aqusens_flush_time.Second = aqusens_flush_time.Second;
+  new_aqusens_flush_time.Minute = aqusens_flush_time.Minute;
   char key;
   uint8_t cursor_pos = 0; // Holds time-setting position of cursor for "00 00" (Hour Min)
                          // Does not include spacing/colons/hyphens, ranges 0 to 3.
 
   resetLCD();
   initSetSoakOrDryOrFlushLCD();
-  updateSetSoakOrDryOrFlushLCD(cursor_pos, newAqusensFlushTime);
+  updateSetSoakOrDryOrFlushLCD(cursor_pos, new_aqusens_flush_time);
   lcd.blink();
 
   while (state == SET_AQUSENS_FLUSH_TIME) {
@@ -437,8 +437,8 @@ void setAqusensFlushTimeLoop() {
     if (key != NULL) {
 
       if (key == 'S') {
-        aqusens_flush_time.Second = newAqusensFlushTime.Second;
-        aqusens_flush_time.Minute = newAqusensFlushTime.Minute;
+        aqusens_flush_time.Second = new_aqusens_flush_time.Second;
+        aqusens_flush_time.Minute = new_aqusens_flush_time.Minute;
         lcd.noBlink();
         state = SETTINGS;
       }
@@ -452,11 +452,11 @@ void setAqusensFlushTimeLoop() {
       }
 
       else if (key == 'U' || key == 'D') {
-        adjustSetSoakOrDryDigit(key, &newAqusensFlushTime, &cursor_pos);
+        adjustSetSoakOrDryDigit(key, &new_aqusens_flush_time, &cursor_pos);
       }
 
       if (state == SET_AQUSENS_FLUSH_TIME) {
-      updateSetSoakOrDryOrFlushLCD(cursor_pos, newAqusensFlushTime);
+      updateSetSoakOrDryOrFlushLCD(cursor_pos, new_aqusens_flush_time);
       }
 
       Serial.print(key);
@@ -485,11 +485,11 @@ void setBrightnessLoop() {
         state = SETTINGS;
       }
 
-      else if (key == 'L' && screenBrightness > 1) {
+      else if (key == 'L' && screen_brightness > 1) {
         updateBrightnessOrContrastLCD(false);
       }
 
-      else if (key == 'R' && screenBrightness < 20) {
+      else if (key == 'R' && screen_brightness < 20) {
         updateBrightnessOrContrastLCD(true);
       }
     } 

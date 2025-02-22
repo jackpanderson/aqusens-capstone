@@ -30,7 +30,7 @@ void calibrateLoop() {
 void standbyLoop()
 { 
   static char key;
-  static uint8_t keyPressed;
+  static uint8_t key_pressed;
   lcd.clear();
   cursor_y = 2;
 
@@ -40,11 +40,11 @@ void standbyLoop()
 
     standbyLCD();
     
-    keyPressed = cursorSelect(2, 3);
+    key_pressed = cursorSelect(2, 3);
 
-    if (keyPressed == 'S') {
+    if (key_pressed == 'S') {
       if (cursor_y == 2) {
-        settingsPage = 1;
+        settings_page = 1;
         state = SETTINGS;
       }
 
@@ -63,16 +63,16 @@ void standbyLoop()
  *    - Run Sample: proceeds to release mode
  */
 void ensureSampleStartLoop() {
-  char keyPressed;
+  char key_pressed;
   resetLCD();
   cursor_y = 3;
   
   while (state == ENSURE_SAMPLE_START) {
     ensureLCD("RUN SAMPLE");
 
-    keyPressed = cursorSelect(2, 3);
+    key_pressed = cursorSelect(2, 3);
     
-    if (keyPressed == 'S') {
+    if (key_pressed == 'S') {
       if (cursor_y == 2) {
         state = RELEASE;
       }
@@ -132,8 +132,6 @@ void releaseLoop() {
       state = SOAK;
     }
   }
-
-  // while(1);
 }
 
 /**
@@ -143,47 +141,47 @@ void releaseLoop() {
  * Checks for E-Stop press
  */
 void soakLoop() {
-  char secTime[3]; // "00"
-  char minTime[3]; // "00"
+  char sec_time[3]; // "00"
+  char min_time[3]; // "00"
 
   resetLCD();
 
   uint32_t curr_time = millis();
-  uint32_t endTime = curr_time + (60 * soak_time.Minute * 1000) + (soak_time.Second * 1000);
+  uint32_t end_time = curr_time + (60 * soak_time.Minute * 1000) + (soak_time.Second * 1000);
 
-  int secondsRemaining, minutesRemaining;
+  int seconds_remaining, minutes_remaining;
 
-  while (state == SOAK && millis() < endTime) {
+  while (state == SOAK && millis() < end_time) {
     checkEstop();
 
     // Calculate remaining time, accounting for millis() overflow
-    uint32_t millisRemaining;
-    if (endTime > millis()) {
-      millisRemaining = endTime - millis();
+    uint32_t millis_remaining;
+    if (end_time > millis()) {
+      millis_remaining = end_time - millis();
     } else {
       // Handle overflow case
-      millisRemaining = (UINT32_MAX - millis()) + endTime;
+      millis_remaining = (UINT32_MAX - millis()) + end_time;
     }
 
-    secondsRemaining = millisRemaining / 1000;
-    minutesRemaining = secondsRemaining / 60;
+    seconds_remaining = millis_remaining / 1000;
+    minutes_remaining = seconds_remaining / 60;
 
     // Format seconds with leading zero if necessary
-    if (secondsRemaining % 60 > 9) {
-      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    if (seconds_remaining % 60 > 9) {
+      snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
     } else {
-      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+      snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
     }
 
     // Format minutes with leading zero if necessary
-    if (minutesRemaining > 9) {
-      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    if (minutes_remaining > 9) {
+      snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
     } else {
-      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+      snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
     }
 
     // Update LCD with remaining time
-    soakLCD(minTime, secTime, secondsRemaining % 4);
+    soakLCD(min_time, sec_time, seconds_remaining % 4);
   }
 
   state = RECOVER;
@@ -256,63 +254,63 @@ void sampleLoop() {
  */
 void tubeFlushLoop() {
   resetLCD();
-  bool tempFlag = true;
-  char secTime[3]; // "00"
-  char minTime[3]; // "00"
+  bool temp_flag = true;
+  char sec_time[3]; // "00"
+  char min_time[3]; // "00"
 
   uint32_t curr_time = millis();
-  uint32_t endTime = curr_time + (60 * tube_flush_time.Minute * 1000) + (tube_flush_time.Second * 1000);
+  uint32_t end_time = curr_time + (60 * tube_flush_time.Minute * 1000) + (tube_flush_time.Second * 1000);
 
-  int secondsRemaining, minutesRemaining;
-  uint32_t lastToggleTime = curr_time; // Track the last time tempFlag was toggled
+  int seconds_remaining, minutes_remaining;
+  uint32_t last_toggle_time = curr_time; // Track the last time temp_flag was toggled
 
-  // while (state == FLUSH_TUBE && millis() < endTime) {
+  // while (state == FLUSH_TUBE && millis() < end_time) {
   while (state == FLUSH_TUBE) {
     checkEstop();
 
     // if done flushing, exit loop
-    if (flush_tube()) {
+    if (flushTube()) {
       state = DRY;
       break;
     }
 
     // Calculate remaining time, accounting for millis() overflow
-    uint32_t millisRemaining;
-    if (endTime > millis()) {
-      millisRemaining = endTime - millis();
+    uint32_t millis_remaining;
+    if (end_time > millis()) {
+      millis_remaining = end_time - millis();
     } else {
       // Handle overflow case
-      millisRemaining = (UINT32_MAX - millis()) + endTime;
+      millis_remaining = (UINT32_MAX - millis()) + end_time;
     }
 
-    secondsRemaining = millisRemaining / 1000;
-    minutesRemaining = secondsRemaining / 60;
+    seconds_remaining = millis_remaining / 1000;
+    minutes_remaining = seconds_remaining / 60;
 
     // Format seconds with leading zero if necessary
-    if (secondsRemaining % 60 > 9) {
-      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    if (seconds_remaining % 60 > 9) {
+      snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
     } else {
-      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+      snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
     }
 
     // Format minutes with leading zero if necessary
-    if (minutesRemaining > 9) {
-      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    if (minutes_remaining > 9) {
+      snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
     } else {
-      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+      snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
     }
 
-    // Toggle tempFlag every second
-    if (millis() - lastToggleTime >= 1000) {
-      tempFlag = true; // Toggle tempFlag
-      lastToggleTime = millis(); // Update the last toggle time
+    // Toggle temp_flag every second
+    if (millis() - last_toggle_time >= 1000) {
+      temp_flag = true; // Toggle temp_flag
+      last_toggle_time = millis(); // Update the last toggle time
     }
 
     // Update LCD with remaining time
-    flushLCD(minTime, secTime, secondsRemaining % 4, tempFlag);
+    flushLCD(min_time, sec_time, seconds_remaining % 4, temp_flag);
     
-    if (tempFlag)
-      tempFlag = false;
+    if (temp_flag)
+      temp_flag = false;
   }
 
   // turn off Aqusens pump before transitioning to dry state
@@ -346,47 +344,47 @@ void tubeFlushLoop() {
 void dryLoop() {
   // setMotorSpeed(0);
   
-  char secTime[3]; // "00"
-  char minTime[3]; // "00"
+  char sec_time[3]; // "00"
+  char min_time[3]; // "00"
 
   resetLCD();
 
   uint32_t curr_time = millis();
-  uint32_t endTime = curr_time + (60 * dryTime.Minute * 1000) + (dryTime.Second * 1000);
+  uint32_t end_time = curr_time + (60 * dry_time.Minute * 1000) + (dry_time.Second * 1000);
 
-  int secondsRemaining, minutesRemaining;
+  int seconds_remaining, minutes_remaining;
 
-  while (state == DRY && millis() < endTime) {
+  while (state == DRY && millis() < end_time) {
     checkEstop();
 
     // Calculate remaining time, accounting for millis() overflow
-    uint32_t millisRemaining;
-    if (endTime > millis()) {
-      millisRemaining = endTime - millis();
+    uint32_t millis_remaining;
+    if (end_time > millis()) {
+      millis_remaining = end_time - millis();
     } else {
       // Handle overflow case
-      millisRemaining = (UINT32_MAX - millis()) + endTime;
+      millis_remaining = (UINT32_MAX - millis()) + end_time;
     }
 
-    secondsRemaining = millisRemaining / 1000;
-    minutesRemaining = secondsRemaining / 60;
+    seconds_remaining = millis_remaining / 1000;
+    minutes_remaining = seconds_remaining / 60;
 
     // Format seconds with leading zero if necessary
-    if (secondsRemaining % 60 > 9) {
-      snprintf(secTime, sizeof(secTime), "%i", secondsRemaining % 60);
+    if (seconds_remaining % 60 > 9) {
+      snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
     } else {
-      snprintf(secTime, sizeof(secTime), "0%i", secondsRemaining % 60);
+      snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
     }
 
     // Format minutes with leading zero if necessary
-    if (minutesRemaining > 9) {
-      snprintf(minTime, sizeof(minTime), "%i", minutesRemaining);
+    if (minutes_remaining > 9) {
+      snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
     } else {
-      snprintf(minTime, sizeof(minTime), "0%i", minutesRemaining);
+      snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
     }
 
     // Update LCD with remaining time
-    dryLCD(minTime, secTime, secondsRemaining % 4);
+    dryLCD(min_time, sec_time, seconds_remaining % 4);
   }
 
   state = STANDBY;
@@ -404,15 +402,15 @@ void dryLoop() {
 void alarmLoop() {
   setMotorSpeed(0);
   char key;
-  uint8_t keyPressed;
+  uint8_t key_pressed;
   lcd.clear();
   cursor_y = 2;
   while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
   {
     alarmLCD();
-    keyPressed = cursorSelect(2, 3);
+    key_pressed = cursorSelect(2, 3);
     
-    if (keyPressed == 'S') {
+    if (key_pressed == 'S') {
       if (cursor_y == 3 && !checkEstop()) {
         state = CALIBRATE;
       }
@@ -441,14 +439,14 @@ void alarmLoop() {
  */
 void manualLoop() {
   char key;
-  uint8_t keyPressed;
+  uint8_t key_pressed;
   lcd.clear();
   cursor_y = 1;
   while (state == MANUAL) {
     manualLCD();
-    keyPressed = cursorSelect(1, 3);
+    key_pressed = cursorSelect(1, 3);
 
-    if (keyPressed == 'S') {
+    if (key_pressed == 'S') {
       if (cursor_y == 1) {
         state = MOTOR_CONTROL;
       } 
@@ -458,7 +456,7 @@ void manualLoop() {
       }
 
       else if (cursor_y == 3) {
-        state = ESTOP_ALARM; // TODO: change to previous state (ESTOP vs. ALARM)
+        state = ESTOP_ALARM; //TODO: change to previous state (ESTOP vs. ALARM)
       }
     }
   }
@@ -478,7 +476,7 @@ void motorControlLoop() {
   motorControlLCD();
   updateMotorCurrPositionDisplay(MOTOR_OFF);
   char key;
-  uint8_t keyPressed;
+  uint8_t key_pressed;
   uint8_t last_key_pressed;
 
   lcd.clear();
@@ -488,17 +486,17 @@ void motorControlLoop() {
     motorControlLCD();
     
     
-    keyPressed = getKeyTimeBasedDebounce();
+    key_pressed = getKeyTimeBasedDebounce();
 
-    if (keyPressed == 'L') {
+    if (key_pressed == 'L') {
       state = MANUAL;
     }
 
-    else if (keyPressed == 'S') {
+    else if (key_pressed == 'S') {
       resetMotor();
     }
 
-    else if (keyPressed == 'D') {
+    else if (key_pressed == 'D') {
       while (pressAndHold('D') == 'D') {
         setMotorSpeed(-10);
         updateMotorCurrPositionDisplay(LOWERING);
@@ -508,7 +506,7 @@ void motorControlLoop() {
       updateMotorCurrPositionDisplay(MOTOR_OFF);
     }
 
-    else if (keyPressed == 'U') {
+    else if (key_pressed == 'U') {
       while (!magSensorRead() && pressAndHold('U') == 'U') {
         if (magSensorRead()) 
           turnMotorOff();
@@ -535,28 +533,28 @@ void motorControlLoop() {
  */
 void solenoidControlLoop() {
   lcd.clear();
-  char keyPressed;
+  char key_pressed;
   cursor_y = 1;
 
   while (state == SOLENOID_CONTROL) {
     solenoidControlLCD();
-    keyPressed = cursorSelect(1, 2);
+    key_pressed = cursorSelect(1, 2);
 
-    if (keyPressed == 'S') {
+    if (key_pressed == 'S') {
       if (cursor_y == 1) {
-        if (solenoidOneState == OPEN) {
+        if (solenoid_one_state == OPEN) {
           updateSolenoid(CLOSED, SOLENOID_ONE);
         } else {
           updateSolenoid(OPEN, SOLENOID_ONE);
         }
       } else if (cursor_y == 2) {
-        if (solenoidTwoState == OPEN) {
+        if (solenoid_two_state == OPEN) {
           updateSolenoid(CLOSED, SOLENOID_TWO);
         } else {
           updateSolenoid(OPEN, SOLENOID_TWO);
         }
       } 
-    } else if (keyPressed == 'L') {
+    } else if (key_pressed == 'L') {
       state = MANUAL;
     }
   }

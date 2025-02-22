@@ -4,7 +4,7 @@
  * @return float offset distance for tide in cm
  */
 float getTideData(){
-  char firstChar;
+  char first_char;
   String line;
   int curr_year, curr_month, curr_day, curr_hour;
   int itr_year, itr_month, itr_day, itr_hour, pred_index;
@@ -29,8 +29,8 @@ float getTideData(){
   /* Skip over File Header */
   while (file.available()){
     line = file.readStringUntil('\n');
-    firstChar = line[0];
-    if (isDigit(firstChar)){
+    first_char = line[0];
+    if (isDigit(first_char)){
       break;  /* At the first line of data */
     }
   }

@@ -202,7 +202,7 @@ bool retrieveTube(unsigned int distance_cm) {
     raise_flag = false;
     turnMotorOff();
     
-    Serial.println("Went too far ALARM"); // TODP: remove
+    Serial.println("Went too far ALARM"); // TODO: remove
     return true;
   }
 
