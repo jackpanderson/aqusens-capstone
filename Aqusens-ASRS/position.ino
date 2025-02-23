@@ -137,74 +137,72 @@ bool dropTube(unsigned int distance_cm) {
  * 
  * TODO: set up alarm state if magnetic sensor isn't read when distance is reached
  */
-bool retrieveTube(unsigned int distance_cm) {
-  static bool raise_flag = false;
-  static bool small_raise = false;
-  static unsigned long prev_time;
-  static unsigned int raise_distance_cm;
-  static unsigned int drop_time_ms;
-  static size_t phase_ind;
-  
-  static float speeds_cm_p_s[NUM_PHASES] = {25.0f, 50.0f, 10.0f, 1.5f};
-  static float dists_cm[NUM_PHASES] = {0.0f, TUBE_CM + NARROW_TUBE_CM, NARROW_TUBE_CM, 0.0f};
+#define RAISE_DIST_PADDING_CM       (2.0f)
+bool retrieveTube(float distance_cm) {
+    static bool raise_flag = false;
+    static bool small_raise = false;
+    static unsigned long prev_time;
+    static float raise_distance_cm;
+    static unsigned int drop_time_ms;
+    static size_t phase_ind;
+
+    static float speeds_cm_p_s[NUM_PHASES] = {25.0f, 50.0f, 10.0f, 1.5f};
+    static float dists_cm[NUM_PHASES] = {0.0f, TUBE_CM + NARROW_TUBE_CM, NARROW_TUBE_CM, 0.0f};
 
 
-  if (!raise_flag) {
-    raise_flag = true;
-    
-    raise_distance_cm = tube_position_f - distance_cm - 2;
+    if (!raise_flag) {
+        raise_flag = true;
+        raise_distance_cm = tube_position_f - distance_cm - RAISE_DIST_PADDING_CM;
 
-    // small raise
-    if (distance_cm <= MIN_RAMP_DIST_CM) {
-      small_raise = true;
-      setMotorSpeed(RAISE_SPEED_CM_SEC);
+        // small raise
+        if (distance_cm <= MIN_RAMP_DIST_CM) {
+            small_raise = true;
+            setMotorSpeed(RAISE_SPEED_CM_SEC);
+        }
+        else {
+            phase_ind = 0;
+            dists_cm[0] = tube_position_f - WATER_LEVEL_CM;
+            setMotorSpeed(speeds_cm_p_s[phase_ind]);
+        }
+
+        prev_time = millis();
     }
+
+    // running integral
+    unsigned long cur_time = millis();
+    unsigned long delta_time = cur_time - prev_time;
+    prev_time = cur_time;
+
+    if (small_raise) {
+        tube_position_f -= (delta_time * RAISE_SPEED_CM_SEC) / 1000.0f;
+    } 
     else {
-      phase_ind = 0;
-      dists_cm[0] = tube_position_f - WATER_LEVEL_CM;
-      setMotorSpeed(speeds_cm_p_s[phase_ind]);
+        tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+
+        // ramp to next speed
+        if (tube_position_f <= dists_cm[phase_ind]) {
+            phase_ind++;
+            setMotorSpeed(speeds_cm_p_s[phase_ind]);
+        }
     }
 
-    prev_time = millis();
-  }
+    // the mag sens GOOD :)
+    if (magSensorRead()) {
+        turnMotorOff();
+        tube_position_f = 0;
+        raise_flag = false;
 
-  // running integral
-  unsigned long cur_time = millis();
-  unsigned long delta_time = cur_time - prev_time;
-  prev_time = cur_time;
+        if (small_raise) small_raise = false;
+        return true;
+    } 
+    // motor is still spinning and tube is not home :(
+    else if (tube_position_f <= 0) {
+        raise_flag = false;
+        turnMotorOff();
+        setAlarmFault(TUBE);
 
-  if (small_raise) {
-    tube_position_f -= (delta_time * RAISE_SPEED_CM_SEC) / 1000.0f;
-  } 
-  else {
-    tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
-    
-    // ramp to next speed
-    if (tube_position_f <= dists_cm[phase_ind]) {
-      phase_ind++;
-      setMotorSpeed(speeds_cm_p_s[phase_ind]);
+        return false;
     }
-  }
-
-  // the mag sens GOOD :)
-  if (magSensorRead()) {
-    turnMotorOff();
-    tube_position_f = 0;
-    raise_flag = false;
-    
-    Serial.println("Hit mag sens"); // TODO: remove 
-    if (small_raise) small_raise = false;
-    return true;
-  } 
-  // motor is still spinning and tube is not home :(
-  else if (tube_position_f <= 0) {
-  // TODO: fault here 
-    raise_flag = false;
-    turnMotorOff();
-    
-    Serial.println("Went too far ALARM"); // TODO: remove
-    return true;
-  }
 
   return false;
 }
@@ -213,7 +211,6 @@ bool retrieveTube(unsigned int distance_cm) {
  * @brief Lift the tube to the leaking position
  * @note This function is BLOCKING!!!
  * @note Assumes that tube is in the home position. IDK what happens if it isnt
- * 
  */
 static bool is_tube_up = false;
 #define LIFT_SPEED_CM_S     (2.0f)
@@ -221,9 +218,11 @@ static bool is_tube_up = false;
 void liftup_tube() {
     if (is_tube_up) return; 
 
+    int count = 0;
     setMotorSpeed(LIFT_SPEED_CM_S);
     while (1) {
-        if (!magSensorRead()) {
+        count += !magSensorRead(); 
+        if (count > 100) {
             turnMotorOff();
             is_tube_up = true;
             return;
@@ -234,14 +233,14 @@ void liftup_tube() {
 
 /**
  * @brief Returns the tube from leaking position to closed at home
+ * @note This function is BLOCKING!!!
  * @note Assumes that tube is in the lifted up position. IDK what happens if it isnt
- * 
  */
 void dropdown_tube() {
     if (!is_tube_up) return; 
 
-    setMotorSpeed(HOME_SPEED_CM_S);
     int count = 0;
+    setMotorSpeed(HOME_SPEED_CM_S);
     while (1) {
         count += magSensorRead();
         if (count > 150) {

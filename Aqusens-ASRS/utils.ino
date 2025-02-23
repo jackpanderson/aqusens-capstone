@@ -66,7 +66,7 @@ void updateSolenoid(SolenoidState state, int solenoid_number) {
  * 
  */
 void onLowTrigger() {
-  state = ESTOP_ALARM;
+  setAlarmFault(ESTOP);
 }
 
 /**
@@ -579,7 +579,7 @@ void adjustSetSoakOrDryDigit(char key, tmElements_t* new_time, uint8_t* cursor_p
 bool checkEstop() {
   if (digitalRead(A1) == 0) {
     estop_pressed = 1;
-    state = ESTOP_ALARM;
+    // setAlarmFault(ESTOP); // ? i dont think this is needed
     return true; //estop is pressed
   }
 
@@ -641,4 +641,9 @@ char pressAndHold(uint8_t last_key_pressed) {
   }
 
   return last_key_pressed;
+}
+
+void setAlarmFault(AlarmFault f) {
+  state = ALARM;
+  fault = f;
 }

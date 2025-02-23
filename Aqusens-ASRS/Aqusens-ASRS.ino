@@ -101,8 +101,7 @@ enum StateEnum {
   SAMPLE,
   FLUSH_TUBE,
   DRY,
-  MOTOR_ALARM,
-  ESTOP_ALARM,
+  ALARM,
   MANUAL,
   MOTOR_CONTROL,
   SOLENOID_CONTROL,
@@ -122,6 +121,12 @@ enum StateEnum {
   SET_CONTRAST      
 };
 
+typedef enum AlarmFault {
+  MOTOR,
+  TUBE,
+  ESTOP,
+} AlarmFault;
+
 typedef enum SolenoidState {
   OPEN,
   CLOSED
@@ -137,6 +142,7 @@ SolenoidState solenoid_one_state = CLOSED;
 SolenoidState solenoid_two_state = CLOSED;
 
 volatile StateEnum state = STANDBY;   // Start up will show standby state
+volatile AlarmFault fault = ESTOP;   // Start up will show standby state
 
 volatile uint32_t motor_pulses = 0; //TODO: remove?
 
@@ -215,10 +221,7 @@ void loop() {
     case DRY: // Sample device is dried for predetermined amount of time
       dryLoop();
       break;
-    case MOTOR_ALARM: // Alarm mode is tripped due to motor alarm
-      alarmLoop();
-      break;
-    case ESTOP_ALARM: // Alarm mode is tripped due to E-stop press
+    case ALARM: // Alarm mode is tripped due to E-stop press
       alarmLoop();
       break;
     case MANUAL: // Manual control of motor/solenoids, only entered from alarm mode

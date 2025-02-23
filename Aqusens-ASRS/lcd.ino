@@ -666,10 +666,16 @@ void alarmLCD() {
   lcd.print("REASON:");
   lcd.setCursor(8, 1);
 
-  if (state == ESTOP_ALARM) {
-    lcd.print("E-STOP");
-  } else {
-    lcd.print("MOTOR");
+  switch(fault) {
+    case ESTOP:
+      lcd.print("E-STOP");
+      break;
+    case TUBE:
+      lcd.print("TUBE POS");
+      break;
+    case MOTOR:
+      lcd.print("MOTOR");
+      break;
   }
 
   lcd.setCursor(0, cursor_y);

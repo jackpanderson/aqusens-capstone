@@ -16,7 +16,7 @@ void calibrateLoop() {
     lcd.print("CALIBRATING...");
 
     if (checkEstop()) {
-        state = ESTOP_ALARM;
+        setAlarmFault(ESTOP);
         return;
     }  
 
@@ -98,7 +98,9 @@ void releaseLoop() {
 
   resetLCD();
   static char pos[6];
-  drop_distance_cm = 30;
+  Serial.print("drop how far: ");
+  while(!Serial.available());
+  drop_distance_cm = Serial.parseFloat();
 
   // get the distance to drop from online or sd card
   // while ((state == RELEASE) && (drop_distance_cm == 0))
@@ -125,9 +127,6 @@ void releaseLoop() {
   // }
 
   // drop_distance_cm = getTideData();
-  Serial.print("drop distance is ");
-  Serial.println(drop_distance_cm);
-
   // actually drop the tube
   while (state == RELEASE){
     snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
@@ -199,22 +198,19 @@ void soakLoop() {
  * Checks for E-Stop press
  */
 void recoverLoop() {
-  static char pos[6];
+    char pos[6];
 
-  resetLCD();
+    resetLCD();
 
+    while (state == RECOVER) {
+        checkEstop();
 
-  while (state == RECOVER) 
-  {
-    checkEstop();
-
-    if (retrieveTube(tube_position_f + .1)) {
-      state = SAMPLE;
+        if (retrieveTube(tube_position_f)) {
+            state = SAMPLE;
+        }
+        snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
+        recoverLCD(pos);
     }
-    snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
-    recoverLCD(pos);
-  }
-
 }
 
 /**
@@ -416,12 +412,12 @@ void dryLoop() {
  *    - Manual Mode: proceeds to manual mode
  */
 void alarmLoop() {
-    setMotorSpeed(0);
+    turnMotorOff();
     char key;
     uint8_t key_pressed;
     lcd.clear();
     cursor_y = 2;
-    while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
+    while (state == ALARM) 
     {
         alarmLCD();
         key_pressed = cursorSelect(2, 3);
@@ -472,7 +468,7 @@ void manualLoop() {
       }
 
       else if (cursor_y == 3) {
-        state = ESTOP_ALARM; //TODO: change to previous state (ESTOP vs. ALARM)
+        setAlarmFault(ESTOP);
       }
     }
   }
