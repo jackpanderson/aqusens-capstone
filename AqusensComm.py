@@ -128,7 +128,29 @@ def communicate(ser):
             
             # Start 5min Timer for processing sample -------------------------
             print("Starting 5 minute timer")
-            # time.sleep(60 * 5)
+
+            # create CSV file
+            csv_file = open(TEMP_CSV, "w", newline="\n")
+            writer = csv.writer(csv_file)
+            writer.writerow(["Timestamp", "Temperature (C)"])   # Create CSV headers
+
+            # Each 15 seconds request temperature -- 20 total requests
+            for i in range (20):
+                time.sleep(15)
+                ser.write("T\n".encode())
+                # Get Current date and time
+                now = datetime.now()
+                curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
+
+                while (1):
+                    if ser.in_waiting:
+                        temp_data = ser.readline().decode().strip()  # Read temperature
+                        if temp_data.isdigit():  # Check it's an int
+                            writer.writerow([curr_time, int(temp_data)])  # Write data to CSV
+                            print(f"{curr_time} - Temperature: {temp_data}°C")
+                            break
+                    
+                    time.sleep(0.5)  # try every 0.5 seconds
 
             # Stop Sample Collection -----------------------------------------
             while (1):
@@ -203,41 +225,6 @@ def flush(ser):
         if ser and ser.is_open:
             ser.close()
 
-def temperature(ser):
-    try:
-        with open(TEMP_CSV, "w", newline="") as file:
-            # Get Current date and time
-            now = datetime.now()
-            curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
-
-            writer = csv.writer(file)
-            writer.writerow(["Timestamp", "Temperature (C)"])   # Create CSV headers
-
-            ser.write("A\n".encode()) # Send Ready to Receive ACK to Arduino
-
-            # Wait for temperature data from Arduino
-            while (1):
-                if ser.in_waiting:
-                    temp_data = ser.readline().decode().strip()  # Read temperature
-                    if temp_data.isdigit():  # Check it's an int
-                        writer.writerow([curr_time, int(temp_data)])  # Write data to CSV
-                        print(f"{curr_time} - Temperature: {temp_data}°C")
-                
-                time.sleep(1)  # Read every second
-        
-        # send done signal to Arduino
-        ser.write("D\n".encode())
-
-    except serial.SerialException as e:
-        print(f"Serial error: {e}")
-        if ser and ser.is_open:
-            ser.close()
-    except FileNotFoundError:
-        print(f"File not found: {TEMP_CSV}")
-        if ser and ser.is_open:
-            ser.close()
-
-
 if __name__ == "__main__":
     ser = setup()
     while ser is None:
@@ -260,5 +247,3 @@ if __name__ == "__main__":
             communicate(ser)
         elif write_to == "F":
             flush(ser)
-        elif write_to == "C":
-            temperature(ser)

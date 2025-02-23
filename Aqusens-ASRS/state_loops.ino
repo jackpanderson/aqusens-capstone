@@ -231,10 +231,17 @@ void sampleLoop() {
 
     // if (Serial.available()) {
     //   String data = Serial.readStringUntil('\n'); // Read full line
+
+    //   // check if wanting temperature read
+    //   if (data == "T") {
+    //     Serial.println((int)(readRTD(TEMP_SENSOR_ONE)));
+    //   }
         
     //   // only transition to flushing after Aqusens sample done
-    //   if (data == "D") {  
-    //     state = FLUSH_TUBE;
+    //   else {
+    //     if (data == "D") {  
+    //       state = FLUSH_TUBE;
+    //     }
     //   }
 
     //   // Flush any remaining characters
