@@ -1,17 +1,34 @@
-#define DUMP_WATER_TIME_S       (5UL)
-// #define AIR_GAP_TIME_S          (15)
-// #define LAST_AIR_GAP_TIME_S     (90)
-// #define WATER_RINSE_TIME_S      (180)
-#define AIR_GAP_TIME_S          (2)
-#define LAST_AIR_GAP_TIME_S     (8)
-#define WATER_RINSE_TIME_S      (5)
+// For some fun
+// #define FUN
+#ifdef FUN
+#define TWEAK_TIME_MS           (500)
+#endif
+
+// flushing consts
 #define DROP_TUBE_DIST_CM       (40.0f)
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
-#define PULSE_TIME_MS           (3000UL)
 
-// #define FUN
-#define TWEAK_TIME_MS           (500)
+// timings
+#define LIFT_TUBE_TIME_S        (0.5f)
+#define DUMP_WATER_TIME_S       (5UL)
+#define ROPE_DROP_TIME_S        (DROP_TUBE_DIST_CM / 15) // FIXME: slow drop speed instead of 15
+#define RINSE_ROPE_TIME_S       (DROP_TUBE_DIST_CM / HOME_TUBE_SPD_CM_S)
+#define RINSE_TUBE_TIME_S       (5UL)
+
+// aqusens timings
+// #define AIR_GAP_TIME_S          (15)
+// #define LAST_AIR_GAP_TIME_S     (90)
+// #define WATER_RINSE_TIME_S      (180)
+#define AIR_GAP_TIME_S          (5)
+#define WATER_RINSE_TIME_S      (15)
+#define LAST_AIR_GAP_TIME_S     (10)
+
+
+constexpr unsigned long FLUSH_TIME_S = (3 * LIFT_TUBE_TIME_S + DUMP_WATER_TIME_S + 
+  ROPE_DROP_TIME_S + RINSE_ROPE_TIME_S + RINSE_TUBE_TIME_S);
+constexpr unsigned long AQUSENS_TIME_S = 3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S;
+constexpr unsigned long TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S - 1;
 
 typedef enum FlushState {
   INIT,
@@ -33,16 +50,13 @@ typedef enum FlushState {
  */
 bool flushTube() {
   constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000;
-  // constexpr unsigned long AQUSENS_TIME_MS = (3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S) * 1000;
 
   static FlushState state;
-
   static unsigned long start_time;
-  unsigned long cur_time, prev_time;
+  unsigned long cur_time;
 
   switch(state) {
     case INIT:
-      
       state = DUMP_TUBE_1;
       break;
 
@@ -97,7 +111,7 @@ bool flushTube() {
     case RINSE_TUBE:
       cur_time = millis();
 
-      if (cur_time - start_time > DUMP_WATER_TIME_MS) {
+      if (cur_time - start_time > RINSE_TUBE_TIME_S) {
         start_time = millis();
         
         state = RINSE_AQUSENS;

@@ -98,9 +98,10 @@ void releaseLoop() {
 
   resetLCD();
   static char pos[6];
-  Serial.print("drop how far: ");
-  while(!Serial.available());
-  drop_distance_cm = Serial.parseFloat();
+  // Serial.print("drop how far: ");
+  // while(!Serial.available());
+  // drop_distance_cm = Serial.parseFloat();
+  drop_distance_cm = 20;
 
   // get the distance to drop from online or sd card
   // while ((state == RELEASE) && (drop_distance_cm == 0))
@@ -245,10 +246,11 @@ void sampleLoop() {
     //       Serial.read();  // Discard extra data
     //   }
     // }
-    if (Serial.available()) {
-      state = FLUSH_TUBE;
-    }
-    // state = FLUSH_TUBE;
+    // if (Serial.available()) {
+      // state = FLUSH_TUBE;
+    // }
+    delay(500);
+    state = FLUSH_TUBE;
   }
 }
 

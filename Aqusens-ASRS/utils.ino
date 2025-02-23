@@ -96,8 +96,8 @@ void rtcInit() {
   dry_time.Minute = 0;
   dry_time.Second = 5;
 
-  tube_flush_time.Minute = 2;
-  tube_flush_time.Second = 45;
+  tube_flush_time.Minute = TOT_FLUSH_TIME_S / 60;
+  tube_flush_time.Second = TOT_FLUSH_TIME_S % 60;
 
   aqusens_flush_time.Minute = 0;
   aqusens_flush_time.Second = 15;
