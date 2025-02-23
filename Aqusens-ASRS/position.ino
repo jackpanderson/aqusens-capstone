@@ -208,3 +208,48 @@ bool retrieveTube(unsigned int distance_cm) {
 
   return false;
 }
+
+/**
+ * @brief Lift the tube to the leaking position
+ * @note This function is BLOCKING!!!
+ * @note Assumes that tube is in the home position. IDK what happens if it isnt
+ * 
+ */
+static bool is_tube_up = false;
+#define LIFT_SPEED_CM_S     (2.0f)
+#define HOME_SPEED_CM_S     (-2.0f)
+void liftup_tube() {
+    if (is_tube_up) return; 
+
+    setMotorSpeed(LIFT_SPEED_CM_S);
+    while (1) {
+        if (!magSensorRead()) {
+            turnMotorOff();
+            is_tube_up = true;
+            return;
+        }
+    }
+}
+
+
+/**
+ * @brief Returns the tube from leaking position to closed at home
+ * @note Assumes that tube is in the lifted up position. IDK what happens if it isnt
+ * 
+ */
+void dropdown_tube() {
+    if (!is_tube_up) return; 
+
+    setMotorSpeed(HOME_SPEED_CM_S);
+    int count = 0;
+    while (1) {
+        count += magSensorRead();
+        if (count > 150) {
+            turnMotorOff();
+            is_tube_up = false;
+            return;
+        }
+    }
+}
+
+

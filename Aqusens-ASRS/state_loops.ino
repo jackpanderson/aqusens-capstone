@@ -6,17 +6,22 @@
  * No selection options
  */
 void calibrateLoop() {
-  resetMotor();
-  resetLCD();
+    resetMotor();
+    resetLCD();
 
-  updateSolenoid(CLOSED, SOLENOID_ONE);
-  updateSolenoid(CLOSED, SOLENOID_TWO);
+    updateSolenoid(CLOSED, SOLENOID_ONE);
+    updateSolenoid(CLOSED, SOLENOID_TWO);
 
-  lcd.setCursor(0, 0);
-  lcd.print("CALIBRATING...");
+    lcd.setCursor(0, 0);
+    lcd.print("CALIBRATING...");
 
-  homeTube();
-  state = STANDBY;
+    if (checkEstop()) {
+        state = ESTOP_ALARM;
+        return;
+    }  
+
+    homeTube();
+    state = STANDBY;
 }
 
 /**
@@ -220,9 +225,6 @@ void recoverLoop() {
 void sampleLoop() {
   resetLCD();
 
-  // begin Aqusens sampling 
-  Serial.println("S");
-
   while (state == SAMPLE) 
   {
     sampleLCD();
@@ -240,10 +242,10 @@ void sampleLoop() {
     //       Serial.read();  // Discard extra data
     //   }
     // }
-    // if (Serial.available()) {
-    //   state = FLUSH_TUBE;
-    // }
-    state = FLUSH_TUBE;
+    if (Serial.available()) {
+      state = FLUSH_TUBE;
+    }
+    // state = FLUSH_TUBE;
   }
 }
 
@@ -342,53 +344,60 @@ void tubeFlushLoop() {
  * No selection options
  */
 void dryLoop() {
-  // setMotorSpeed(0);
+    // setMotorSpeed(0);
   
-  char sec_time[3]; // "00"
-  char min_time[3]; // "00"
+    char sec_time[3]; // "00"
+    char min_time[3]; // "00"
 
-  resetLCD();
+    resetLCD();
 
-  uint32_t curr_time = millis();
-  uint32_t end_time = curr_time + (60 * dry_time.Minute * 1000) + (dry_time.Second * 1000);
+    uint32_t curr_time = millis();
+    uint32_t end_time = curr_time + (60 * dry_time.Minute * 1000) + (dry_time.Second * 1000);
 
-  int seconds_remaining, minutes_remaining;
+    int seconds_remaining, minutes_remaining;
 
-  while (state == DRY && millis() < end_time) {
-    checkEstop();
+    while (state == DRY && millis() < end_time) {
+        checkEstop();
 
-    // Calculate remaining time, accounting for millis() overflow
-    uint32_t millis_remaining;
-    if (end_time > millis()) {
-      millis_remaining = end_time - millis();
-    } else {
-      // Handle overflow case
-      millis_remaining = (UINT32_MAX - millis()) + end_time;
+        // Calculate remaining time, accounting for millis() overflow
+        uint32_t millis_remaining;
+        if (end_time > millis()) {
+            millis_remaining = end_time - millis();
+        } else {
+            // Handle overflow case
+            millis_remaining = (UINT32_MAX - millis()) + end_time;
+        }
+
+        seconds_remaining = millis_remaining / 1000;
+        minutes_remaining = seconds_remaining / 60;
+
+        // Format seconds with leading zero if necessary
+        if (seconds_remaining % 60 > 9) {
+            snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
+        } else {
+            snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
+        }
+
+        // Format minutes with leading zero if necessary
+        if (minutes_remaining > 9) {
+            snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
+        } else {
+            snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
+        }
+
+        // Update LCD with remaining time
+        dryLCD(min_time, sec_time, seconds_remaining % 4);
+
+        // pull up on the tube 
+        // (she aqua on my tube til i sens) :]
+        liftup_tube();    
     }
 
-    seconds_remaining = millis_remaining / 1000;
-    minutes_remaining = seconds_remaining / 60;
+    // bring tube 
+    dropdown_tube();
 
-    // Format seconds with leading zero if necessary
-    if (seconds_remaining % 60 > 9) {
-      snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
-    } else {
-      snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
-    }
-
-    // Format minutes with leading zero if necessary
-    if (minutes_remaining > 9) {
-      snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
-    } else {
-      snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
-    }
-
-    // Update LCD with remaining time
-    dryLCD(min_time, sec_time, seconds_remaining % 4);
-  }
-
-  state = STANDBY;
-  tube_position_f = 0;
+    state = STANDBY;
+    tube_position_f = 0; // reset for safe keepings :0
 }
 
 /**
@@ -400,33 +409,33 @@ void dryLoop() {
  *    - Manual Mode: proceeds to manual mode
  */
 void alarmLoop() {
-  setMotorSpeed(0);
-  char key;
-  uint8_t key_pressed;
-  lcd.clear();
-  cursor_y = 2;
-  while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
-  {
-    alarmLCD();
-    key_pressed = cursorSelect(2, 3);
-    
-    if (key_pressed == 'S') {
-      if (cursor_y == 3 && !checkEstop()) {
-        state = CALIBRATE;
-      }
-      
-      else if (cursor_y == 3 && checkEstop()) {
-        lcd.clear();
-        releaseEstopLCD();
-        delay(1500);
-        lcd.clear();
-      }
+    setMotorSpeed(0);
+    char key;
+    uint8_t key_pressed;
+    lcd.clear();
+    cursor_y = 2;
+    while (state == ESTOP_ALARM || state == MOTOR_ALARM) 
+    {
+        alarmLCD();
+        key_pressed = cursorSelect(2, 3);
+        
+        if (key_pressed == 'S') {
+            if (cursor_y == 3 && !checkEstop()) {
+                state = CALIBRATE;
+            }
+            
+            else if (cursor_y == 3 && checkEstop()) {
+                lcd.clear();
+                releaseEstopLCD();
+                delay(1500);
+                lcd.clear();
+            }
 
-      else if (cursor_y == 2) {
-        state = MANUAL;
-      }
+            else if (cursor_y == 2) {
+                state = MANUAL;
+            }
+        }
     }
-  }
 }
 
 /**

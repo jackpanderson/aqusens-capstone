@@ -2,9 +2,9 @@
 // #define AIR_GAP_TIME_S          (15)
 // #define LAST_AIR_GAP_TIME_S     (90)
 // #define WATER_RINSE_TIME_S      (180)
-#define AIR_GAP_TIME_S          (5)
-#define LAST_AIR_GAP_TIME_S     (10)
-#define WATER_RINSE_TIME_S      (15)
+#define AIR_GAP_TIME_S          (2)
+#define LAST_AIR_GAP_TIME_S     (8)
+#define WATER_RINSE_TIME_S      (5)
 #define DROP_TUBE_DIST_CM       (40.0f)
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
@@ -199,7 +199,7 @@ bool flushAqusens(unsigned long cur_time) {
 
         updateSolenoid(OPEN, SOLENOID_TWO);
 
-      Serial.println("going to water 1");
+        Serial.println("going to water 1");
         state = WATER_1;
       }
       break;
@@ -211,7 +211,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_2;
-      Serial.println("going to air 2");
+        Serial.println("going to air 2");
 
       }
       break;
@@ -223,7 +223,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_2;
-      Serial.println("going to water 2");
+        Serial.println("going to water 2");
 
       }
       break;
@@ -235,7 +235,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_3;
-      Serial.println("going to air 3");
+        Serial.println("going to air 3");
 
       }
       break;
@@ -247,7 +247,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_3;
-      Serial.println("going to water 3");
+        Serial.println("going to water 3");
 
       }
       break;
@@ -258,7 +258,7 @@ bool flushAqusens(unsigned long cur_time) {
 
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
-      Serial.println("going to last air ");
+        Serial.println("going to last air ");
 
         state = LAST_AIR;
         break;
@@ -268,7 +268,7 @@ bool flushAqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= LAST_AIR_GAP_TIME_MS) {
 
         state = RINSE_INIT;
-      Serial.println("Finished aqusens ");
+        Serial.println("Finished aqusens ");
 
         return true;
       }
