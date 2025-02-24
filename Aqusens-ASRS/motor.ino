@@ -1,3 +1,8 @@
+#define SYSTEM_CLOCK_FREQ       (48000000)
+#define PRESCALER_VAL           (8)
+
+#define ALARM_THRESHOLD_VALUE   (988) // Analog value on the Alarm Plus pin that seperates alarm state from non-alarm state.
+
 // Constants and Enums
 typedef enum MotorDir {
   CCW,
@@ -5,109 +10,103 @@ typedef enum MotorDir {
   OFF,
 } MotorDir;
 
-#define SYSTEM_CLOCK_FREQ  48000000
-#define PRESCALER_VAL       8
-
-#define ALARM_THRESHOLD_VALUE 988 // Analog value on the Alarm Plus pin that seperates alarm state from non-alarm state.
-
 volatile bool toggle = false;
 
-void setMotorDir(MotorDir dir);
+// IDK why this needs to be here but it does 
+void setMotorDir(MotorDir dir); 
+// womp womp
 
 /**
  * @brief Initialize motor pins
- * 
  */
 void motorInit() {
-  pinMode(STEP_POS_PIN, OUTPUT);
+    pinMode(STEP_POS_PIN, OUTPUT);
 }
+
 
 /**
  * @brief Checks ALARM_PLUS pin's analog voltage value, which changes when the motor alarms.
  *        The motor's alarm terminals change impedance from low to high when alarm is triggered.
  */
-
 bool isMotorAlarming() {
-  if (analogRead(ALARM_PLUS) > ALARM_THRESHOLD_VALUE) {
-    return true;
-  }
-  else {
-    return false;
-  }
+    return analogRead(ALARM_PLUS) > ALARM_THRESHOLD_VALUE;
 }
+
 
 /**
  * @brief Set the motor direction
- * 
  * @param dir direction of motor to set
  */
 void setMotorDir(MotorDir dir) {
-  if (dir == CW) {
-    digitalWrite(DIR_POS_PIN, HIGH);
-  } else {
-    digitalWrite(DIR_POS_PIN, LOW);
-  }
+    if (dir == CW) {
+        digitalWrite(DIR_POS_PIN, HIGH);
+    } else {
+        digitalWrite(DIR_POS_PIN, LOW);
+    }
 }
+
 
 /**
  * @brief converts given speed to PWM frequency
- * 
  * @param cm_per_sec given speed to be converted in cm/sec
  * @return uint32_t converted motor frequency
  */
 inline uint32_t speedToFreq(float cm_per_sec) {
-  constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (2.0f * PI * REEL_RAD_CM);
+  constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (2.0f * PI * REEL_RAD_CM); //TODO: D this should be config
   return cm_per_sec * MOTORSPEED_FACTOR;
 }
 
+
 /**
  * @brief Set the motor speed
- * 
  * @param cm_per_sec speed to set the motor to
  */
 void setMotorSpeed(float cm_per_sec) {
-  if (cm_per_sec < 0) {
-    setMotorDir(CCW);
-  }
-  else if (cm_per_sec > 0) {
-    setMotorDir(CW);
-  }
-  setMotorFreq(speedToFreq(abs(cm_per_sec)));
+    static float speed = 0.0f;
+    
+    if (cm_per_sec == speed) return; // TODO: ?do i need to added float padding for equality
+
+    if (cm_per_sec < 0) {
+        setMotorDir(CCW);
+    } else if (cm_per_sec > 0) {
+        setMotorDir(CW);
+    }
+
+    speed = cm_per_sec;
+    setMotorFreq(speedToFreq(abs(cm_per_sec)));
 }
+
 
 /**
  * @brief Reset power to the motor
- * 
  */
 void resetMotor(void) {
-  P1.writeDiscrete(1, RELAY_SLOT, MOTOR_POWER);
-  delay(1000);
-  P1.writeDiscrete(0, RELAY_SLOT, MOTOR_POWER);
+    P1.writeDiscrete(1, RELAY_SLOT, MOTOR_POWER);
+    delay(1000);
+    P1.writeDiscrete(0, RELAY_SLOT, MOTOR_POWER);
 }
+
 
 /**
  * @brief set motor speed to 0
- * 
  * @param double_check bool if motor speed needs to be set to some small number first
- * 
  * FIXME: why need the double_check
  */
 void turnMotorOff(bool double_check = 0) {
-  if (double_check) setMotorSpeed(3);
-  setMotorSpeed(0);
+    if (double_check) setMotorSpeed(3);
+    setMotorSpeed(0);
 }
+
 
 /**
  * @brief Set the motor frequency
- * 
  * @param frequency frequency to set the motor PWM to
  */
 void setMotorFreq(uint32_t frequency) {
     //Disables timer clock, disabling output
     if (frequency == 0) {
-      //GCLK->CLKCTRL.reg &= (~GCLK_CLKCTRL_CLKEN); //deprecated, messed with I2C i think...? lcd.clear() would hang indef.
-      TC5->COUNT16.CTRLA.bit.ENABLE = 0;
-      return;
+        TC5->COUNT16.CTRLA.bit.ENABLE = 0;
+        return;
     }
 
     // Enable clock for TC5
@@ -143,39 +142,38 @@ void setMotorFreq(uint32_t frequency) {
     return;
 }
 
+
 /**
  * @brief Calculates value for timer count register based on given frequency
  * 
  * @param frequency requested output frequency
  * @return uint32_t corresponding timer count value for given frequency
  */
-uint32_t countValFromFreq(uint32_t frequency) 
-{
+uint32_t countValFromFreq(uint32_t frequency) {
   return round(((SYSTEM_CLOCK_FREQ/(PRESCALER_VAL*2)) / frequency) - 1);
 }
 
+
 /**
  * @brief Enables TC5 interrupt
- * 
  */
 void enableTimerInterrupt() {
     NVIC_EnableIRQ(TC5_IRQn);
     TC5->COUNT16.INTENSET.reg = TC_INTENSET_MC(1);  // Enable Match/Compare 0 interrupt
 }
 
+
 /**
  * @brief ISR handler for TC5 (Timer/Counter 5)
- * 
  */
 void TC5_Handler() {
     if (TC5->COUNT16.INTFLAG.bit.MC0) {  // Match/Compare 0 interrupt
         TC5->COUNT16.INTFLAG.reg = TC_INTFLAG_MC(1);  // Clear interrupt flag
 
         if (!estop_pressed || state == MOTOR_CONTROL) {
-                  // Toggle the output pin
             toggle = !toggle;
             digitalWrite(STEP_POS_PIN, toggle);
-            }
+        }
     }
 }
 
