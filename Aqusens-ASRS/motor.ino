@@ -174,11 +174,6 @@ void TC5_Handler() {
         if (!estop_pressed || state == MOTOR_CONTROL) {
                   // Toggle the output pin
             toggle = !toggle;
-            
-            if (toggle == 1) {
-              motor_pulses++;
-            }
-
             digitalWrite(STEP_POS_PIN, toggle);
             }
     }

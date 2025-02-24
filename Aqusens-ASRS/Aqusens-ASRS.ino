@@ -144,17 +144,12 @@ SolenoidState solenoid_two_state = CLOSED;
 volatile StateEnum state = STANDBY;   // Start up will show standby state
 volatile AlarmFault fault = ESTOP;   // Start up will show standby state
 
-volatile uint32_t motor_pulses = 0; //TODO: remove?
-
 // Timing
 tmElements_t next_sample_time, sample_interval, soak_time, dry_time, tube_flush_time, aqusens_flush_time;
 Timer<5, millis> drop_timer; //TODO: remove?
-bool drop_flag = true; // Set by timers in activeLoop //TODO: remove?
 volatile bool estop_pressed = false; // Flag to keep track of E-stop pressed/released
 
 int8_t cursor_y = 2; // keeps track of current cursor position
-uint8_t screen_brightness = 10; 
-uint8_t screen_contrast = 10; // change to a sensible init val, is half of num of steps //TODO: remove?
 uint8_t last_setting_page = 4; // amount of settings pages
 uint8_t settings_page = 1; // current settings page
 
@@ -255,9 +250,6 @@ void loop() {
       break;
     case SET_AQUSENS_FLUSH_TIME: // Settings option to set dry time
       setAqusensFlushTimeLoop();
-      break;
-    case SET_BRIGHTNESS: // Settings option to set brightness of lcd
-      setBrightnessLoop();
       break;
     default:
       break;

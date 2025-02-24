@@ -454,38 +454,6 @@ void initSetSoakOrDryOrFlushLCD() {
 }
 
 /**
- * @brief Initialize SET_BRIGHTNESS/SET_CONTRAST screen
- * 
- * Initialize settings page option to set brightness/contrast
- */
-void initSetBrightnessOrConstrastLCD() {
-  resetLCD();
-
-  if (state == SET_BRIGHTNESS) {
-    lcd.setCursor(3, 0);
-    lcd.print("SET BRIGHTNESS");
-
-    for (int i = 0; i < screen_brightness; i++) {
-      lcd.setCursor(i, 1);
-      lcd.print(char(255));
-    }
-  }
-
-  else if (state == SET_CONTRAST) {
-    lcd.setCursor(4, 0);
-    lcd.print("SET CONTRAST");
-    
-    for (int i = 0; i < screen_brightness; i++) {
-      lcd.setCursor(i, 1);
-      lcd.print(char(255));
-    }
-  }
-
-  lcd.setCursor(3, 3);
-  lcd.print("SEL TO CONFIRM"); 
-}
-
-/**
  * @brief Update SET_CLOCK screen
  * 
  *  Update settings page option to set clock
@@ -631,29 +599,15 @@ void updateSetSoakOrDryOrFlushLCD(uint8_t cursor_pos, tmElements_t adjusted_time
 }
 
 /**
- * @brief Update SET_BRIGHTNESS/SET_CONTRAST screen
- * 
- * Update settings page option to set brightness/contrast
- * 
- * @param increasing_bar //TODO: Jack - add a description of the parameter
- */
-void updateBrightnessOrContrastLCD(bool increasing_bar) {
-  if (increasing_bar) {
-    screen_brightness++;
-    lcd.setCursor(screen_brightness - 1, 1);
-    lcd.print(char(255)); //prints black rect
-  }
-  else {
-    lcd.setCursor(screen_brightness - 1, 1);
-    screen_brightness--;
-    lcd.print(char(254)); //prints blank rect
-  }
-}
-
-/**
  * @brief ESTOP_ALARM/MOTOR_ALARM screen
  * 
  * Displays Alarm mode for E-stop/Motor alarm
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ _ _ _ A L A R M _ _ _ _ _ _ _ _|
+ * |R E A S O N : _ E - S T O P _ _ _ _ _ _|
+ * |* M A N U A L _ M O D E _ _ _ _ _ _ _ _|
+ * |_ E X I T _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  */
 void alarmLCD() {
   lcd.setCursor(7, 0);
@@ -697,6 +651,11 @@ void releaseEstopLCD() {
 /**
  * @brief MANUAL screen
  * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ _ _ M A N U A L _ M O D E _ _ _ _|
+ * |* M O T O R _ _ _ _ _ _ _ _ _ _ _ _ _ _|
+ * |_ S O L E N O I D S _ _ _ _ _ _ _ _ _ _|
+ * |_ E X I T _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  */
 void manualLCD() {
   lcd.setCursor(5, 0);
@@ -715,6 +674,11 @@ void manualLCD() {
 /**
  * @brief MOTOR_CONTROL screen
  * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ M O T O R _ C O N T R O L S _ _ _|
+ * |_ S E L _ T O _ R E S E T _ M O T O R _|
+ * |^ R A I S E _ _ _ _ _ _ _ _ v L O W E R|
+ * |< B A C K _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  */
 void motorControlLCD() {
   lcd.setCursor(3, 0);
@@ -727,22 +691,28 @@ void motorControlLCD() {
   lcd.print("vLOWER");
   lcd.setCursor(0, 3);
   lcd.print("<BACK");
-  
-  lcd.setCursor(0, cursor_y);
-  lcd.print("*");
-}
-
-/**
- * @brief Reset Motor screen in MOTOR_CONTROL
- * 
- */
-void resetMotorLCD() {
-  lcd.setCursor(0,1);
-  lcd.print("RESETTING...");
 }
 
 /**
  * @brief Updates display of the current position of the motor
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ M O T O R _ C O N T R O L S _ _ _|
+ * |_ S E L _ T O _ R E S E T _ M O T O R _|
+ * |^ R A I S E _ _ _ _ _ _ _ _ v L O W E R|
+ * |< B A C K _ _ _ _ _ _ _ _ R A I S I N G|
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ M O T O R _ C O N T R O L S _ _ _|
+ * |_ S E L _ T O _ R E S E T _ M O T O R _|
+ * |^ R A I S E _ _ _ _ _ _ _ _ v L O W E R|
+ * |< B A C K _ _ _ _ _ _ _ L O W E R I N G|
+ * 
+ *  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+ * |_ _ _ M O T O R _ C O N T R O L S _ _ _|
+ * |_ S E L _ T O _ R E S E T _ M O T O R _|
+ * |^ R A I S E _ _ _ _ _ _ _ _ v L O W E R|
+ * |< B A C K _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
  * 
  * @param status current status of the motor (RAISING/LOWERING/OFF)
  */
@@ -759,6 +729,15 @@ void updateMotorCurrPositionDisplay(MotorStatus status) {
     lcd.print("LOWERING");
   else 
     lcd.print("         ");
+}
+
+/**
+ * @brief Reset Motor screen in MOTOR_CONTROL
+ * 
+ */
+void resetMotorLCD() {
+  lcd.setCursor(0,1);
+  lcd.print("RESETTING...");
 }
 
 /**
