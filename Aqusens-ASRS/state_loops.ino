@@ -98,36 +98,33 @@ void releaseLoop() {
 
   resetLCD();
   static char pos[6];
-  // Serial.print("drop how far: ");
-  // while(!Serial.available());
-  // drop_distance_cm = Serial.parseFloat();
-  drop_distance_cm = 20;
+  drop_distance_cm = 0;
 
   // get the distance to drop from online or sd card
-  // while ((state == RELEASE) && (drop_distance_cm == 0))
-  // {
-  //   if (Serial.available()) {
-  //       String data = Serial.readStringUntil('\n'); // Read full line
-  //       drop_distance_cm = data.toFloat();  // Convert to float
+  while ((state == RELEASE) && (drop_distance_cm == 0))
+  {
+    if (Serial.available()) {
+        String data = Serial.readStringUntil('\n'); // Read full line
+        drop_distance_cm = data.toFloat();  // Convert to float
 
-  //       // if drop distance is -1 then get SD card info
-  //       if (drop_distance_cm == -1) {
-  //         drop_distance_cm = getTideData();
-  //       }
-  //       // TODO: calibrate drop distance
+        // if drop distance is -1 then get SD card info
+        if (drop_distance_cm == -1) {
+          drop_distance_cm = getTideData();
+        }
+        // TODO: calibrate drop distance
 
-  //       // Serial.print("Received: ");
-  //       // Serial.println(drop_distance_cm);
+        // Flush any remaining characters
+        while (Serial.available()) {
+            Serial.read();  // Discard extra data
+        }
+    }
+    checkEstop();
+  }
 
-  //       // Flush any remaining characters
-  //       while (Serial.available()) {
-  //           Serial.read();  // Discard extra data
-  //       }
-  //   }
-  //   checkEstop();
-  // }
+  Serial.print("Received: ");
+  Serial.println(drop_distance_cm);
+  while(1);
 
-  // drop_distance_cm = getTideData();
   // actually drop the tube
   while (state == RELEASE){
     snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
