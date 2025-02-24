@@ -391,7 +391,6 @@ void dryLoop() {
         dryLCD(min_time, sec_time, seconds_remaining % 4);
 
         // pull up on the tube 
-        // (she aqua on my tube til i sens) :]
         liftup_tube();    
     }
 
@@ -399,7 +398,7 @@ void dryLoop() {
     dropdown_tube();
 
     state = STANDBY;
-    tube_position_f = 0; // reset for safe keepings :0
+    tube_position_f = 0; // reset for safe keeping
 }
 
 /**

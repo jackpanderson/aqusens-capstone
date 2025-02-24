@@ -465,33 +465,3 @@ void setAqusensFlushTimeLoop() {
     } 
   }
 }
-
-/**
- * @brief SET_BRIGHTNESS
- * 
- */
-void setBrightnessLoop() {
-  char key;
-
-  resetLCD();
-  initSetBrightnessOrConstrastLCD();
-
-  while (state == SET_BRIGHTNESS) {
-    key = getKeyDebounce();
-    
-    if (key != NULL) {
-
-      if (key == 'S') {
-        state = SETTINGS;
-      }
-
-      else if (key == 'L' && screen_brightness > 1) {
-        updateBrightnessOrContrastLCD(false);
-      }
-
-      else if (key == 'R' && screen_brightness < 20) {
-        updateBrightnessOrContrastLCD(true);
-      }
-    } 
-  }
-}
