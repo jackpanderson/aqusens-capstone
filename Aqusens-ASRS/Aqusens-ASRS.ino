@@ -5,7 +5,7 @@
 //  -Bailey College of Science and Mathamatics Biology Department
 //  -Primary Owner: Alexis Pasulka
 //  -Design Engineers: Doug Brewster and Rob Brewster
-//  -Contributors: Sarah Martin, Deeba Khosravi, Emma Lucke, Jack Anderson, Jorge Ramirez
+//  -Contributors: Sarah Martin, Deeba Khosravi, Emma Lucke, Jack Anderson, Jorge Ramirez, Danny
 //  -Microcontroller: P1AM-100 ProOpen 
 //  -Arduino IDE version:2.3.4
 //  -See User Manual For Project Description
@@ -30,43 +30,33 @@
 #define HV_GPIO_SLOT 1                  // High voltage GPIO (P1-15CDD1)
 #define RELAY_SLOT   2                  // Relay module (P1-04TRS)
 #define RTD_SLOT     3                  // RTD Temp Sensor Module (P1-04RTD)
-#define CDD1_CHANNEL  (1) //TODO: remove?
 
-// Inputs - TODO: remove?
-#define MAG_SENS_IN {HV_GPIO_SLOT, 1}   // Magnetic sensor input
-#define SWITCH_IN {HV_GPIO_SLOT, 2}     // Switch input (for manual operation)
-#define E_STOP_IN {HV_GPIO_SLOT, 3}     // E Stop input
-
+// Keypad
 #define KEY_S 0
 #define KEY_D 1
 #define KEY_U 2
 #define KEY_L 3
 #define KEY_R 4
 
-#define ALARM_PLUS A2  // Used as interrupt, should be high normally, low in case of motor alarm
-#define ALARM_MINUS A5 // Keep High
-
+// SD card
 #define SD_CS 28
-// #define ESTOP_IN 4 //Change to real value TODO: remove?
 
 //Motor
 #define STEP_POS_PIN  6
 #define DIR_POS_PIN   13
+#define ALARM_PLUS A2  // Used as interrupt, should be high normally, low in case of motor alarm
+#define ALARM_MINUS A5 // Keep High
 
-//HV GPIO
+// HV GPIO
 #define MAG_SENSOR_IO_SLOT 1
 
-//Relays
+// Relays
 #define RELAY_SLOT 2
 #define MOTOR_POWER 1
 #define SOLENOID_ONE 3
 #define SOLENOID_TWO 4
 
-//TODO: remove?
-#define SOLENOID_ENABLE 1
-#define SOLENOID_DISABLE 0
-
-//RTD Inputs
+// RTD Inputs
 typedef enum TempSensor {
   TEMP_SENSOR_ONE = 1, // TODO: Eventually change to more descriptive names, depending on what each sensor actually is measuring
   TEMP_SENSOR_TWO = 2
@@ -74,20 +64,12 @@ typedef enum TempSensor {
 
 /* Hardcoded Macros **************************************************************/
 
-//TODO: remove?
-#define BASE_DROP_DIS 20      // Distance of drop until water (without tide data) 
-#define FLUSH_TIME 100        // Time in sec to flush probe
-#define MICROSTEP 3200        // Number of pulses for one revolution of motor
-
-
 #define TIDE_FILE "tides.txt"
 #define NUM_CONTRAST_STEPS 20
 #define NUM_BRIGHTNESS_STEPS 20
 #define REEL_RAD_CM         (5.0f)
 #define PULSE_PER_REV       (1600)
 #define GEAR_RATIO          (5.0f)
-#define RANDOM_GEAR_FACTOR  (1.0f)
-
 
 /* Variable Declarations *********************************************************/
 
@@ -138,13 +120,13 @@ typedef enum MotorStatus {
   MOTOR_OFF
 } MotorStatus; // For lowering and raising the motor manually
 
-SolenoidState solenoid_one_state = CLOSED;
-SolenoidState solenoid_two_state = CLOSED;
-
-volatile StateEnum state = STANDBY;   // Start up will show standby state
-volatile AlarmFault fault = ESTOP;   // Start up will show standby state
+volatile StateEnum state = STANDBY; 
+volatile AlarmFault fault = ESTOP;
 
 volatile uint32_t motor_pulses = 0; //TODO: remove?
+
+SolenoidState solenoid_one_state = CLOSED;
+SolenoidState solenoid_two_state = CLOSED;
 
 // Timing
 tmElements_t next_sample_time, sample_interval, soak_time, dry_time, tube_flush_time, aqusens_flush_time;
@@ -168,14 +150,11 @@ SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000 /
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-// float drop_distance_ft = 11;
 float drop_distance_cm = 410;
-// float drop_distance_cm = drop_distance_ft * 30.48;
 float tube_position_f; // Stores the current position of the sampler tube relative to 
 
 /* Setup and Loop **************************************************************/
 void setup() {
-
   Serial.begin(115200);
   while (!P1.init()) {;} // Initialize controller
 
