@@ -99,6 +99,7 @@ void releaseLoop() {
   resetLCD();
   static char pos[6];
   drop_distance_cm = 0;
+  Serial.println("T");
 
   // get the distance to drop from online or sd card
   while ((state == RELEASE) && (drop_distance_cm == 0))
@@ -111,7 +112,14 @@ void releaseLoop() {
         if (drop_distance_cm == -1) {
           drop_distance_cm = getTideData();
         }
+        // otherwise convert from meters to cm
+        else {
+          drop_distance_cm = drop_distance_cm * 100;
+        }
+        
         // TODO: calibrate drop distance
+        // for now just 25 ft - drop distance
+        drop_distance_cm = 25 * 30.48 - drop_distance_cm;
 
         // Flush any remaining characters
         while (Serial.available()) {
@@ -121,9 +129,7 @@ void releaseLoop() {
     checkEstop();
   }
 
-  Serial.print("Received: ");
-  Serial.println(drop_distance_cm);
-  while(1);
+  // drop_distance_cm = 20;
 
   // actually drop the tube
   while (state == RELEASE){
@@ -218,36 +224,32 @@ void recoverLoop() {
  */
 void sampleLoop() {
   resetLCD();
+  Serial.println("S");
 
   while (state == SAMPLE) 
   {
     sampleLCD();
 
-    // if (Serial.available()) {
-    //   String data = Serial.readStringUntil('\n'); // Read full line
+     if (Serial.available()) {
+       String data = Serial.readStringUntil('\n'); // Read full line
 
-    //   // check if wanting temperature read
-    //   if (data == "T") {
-    //     Serial.println((int)(readRTD(TEMP_SENSOR_ONE)));
-    //   }
+       // check if wanting temperature read
+       if (data == "T") {
+         Serial.println((int)(readRTD(TEMP_SENSOR_ONE)));
+       }
         
-    //   // only transition to flushing after Aqusens sample done
-    //   else {
-    //     if (data == "D") {  
-    //       state = FLUSH_TUBE;
-    //     }
-    //   }
+       // only transition to flushing after Aqusens sample done
+       else {
+         if (data == "D") {  
+           state = FLUSH_TUBE;
+         }
+       }
 
-    //   // Flush any remaining characters
-    //   while (Serial.available()) {
-    //       Serial.read();  // Discard extra data
-    //   }
-    // }
-    // if (Serial.available()) {
-      // state = FLUSH_TUBE;
-    // }
-    delay(500);
-    state = FLUSH_TUBE;
+       // Flush any remaining characters
+       while (Serial.available()) {
+           Serial.read();  // Discard extra data
+       }
+     }
   }
 }
 
@@ -317,27 +319,6 @@ void tubeFlushLoop() {
       temp_flag = false;
   }
 
-  // turn off Aqusens pump before transitioning to dry state
-  // Serial.println("F");
-
-  // while (state == FLUSH_TUBE) {
-  //   checkEstop();
-
-  //   if (Serial.available()) {
-  //     String data = Serial.readStringUntil('\n'); // Read full line
-
-  //     // only transition to drying after Aqusens pump turned off
-  //     if (data == "D") {  
-  //       state = DRY;
-  //     }
-
-  //     // Flush any remaining characters
-  //     while (Serial.available()) {
-  //         Serial.read();  // Discard extra data
-  //     }
-  //   }
-  // }
-
 }
 
 /**
@@ -346,6 +327,26 @@ void tubeFlushLoop() {
  * No selection options
  */
 void dryLoop() {
+    // turn off Aqusens pump before transitioning to dry state
+   Serial.println("F");
+
+   while (state == DRY) {
+     checkEstop();
+
+     if (Serial.available()) {
+       String data = Serial.readStringUntil('\n'); // Read full line
+
+       // only transition to drying after Aqusens pump turned off
+       if (data == "D") {  
+         break;
+       }
+
+       // Flush any remaining characters
+       while (Serial.available()) {
+           Serial.read();  // Discard extra data
+       }
+     }
+   }
     // setMotorSpeed(0);
   
     char sec_time[3]; // "00"
