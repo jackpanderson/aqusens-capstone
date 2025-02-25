@@ -9,7 +9,7 @@
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
 
-
+// TODO: make config
 // timings
 #define LIFT_TUBE_TIME_S        (0.5f)
 #define DUMP_WATER_TIME_S       (5UL)
@@ -17,8 +17,8 @@
 #define RINSE_ROPE_TIME_S       (DROP_TUBE_DIST_CM / HOME_TUBE_SPD_CM_S)
 #define RINSE_TUBE_TIME_S       (5UL)
 
-
-// aqusens timings TODO: config
+// TODO: config
+// aqusens timings 
 // #define AIR_GAP_TIME_S          (15)
 // #define LAST_AIR_GAP_TIME_S     (90)
 // #define WATER_RINSE_TIME_S      (180)
@@ -26,6 +26,7 @@
 #define WATER_RINSE_TIME_S      (15)
 #define LAST_AIR_GAP_TIME_S     (10)
 
+// TODO: make config
 constexpr unsigned long FLUSH_TIME_S = (3 * LIFT_TUBE_TIME_S + DUMP_WATER_TIME_S + 
   ROPE_DROP_TIME_S + RINSE_ROPE_TIME_S + RINSE_TUBE_TIME_S);
 constexpr unsigned long AQUSENS_TIME_S = 3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S;
@@ -45,12 +46,11 @@ typedef enum FlushState {
 
 /**
  * @brief FSM to control flushing process (8 states)
- * 
  * @return true once done with the flushing cycle
  * @return false if error occurs during flushing cycle
  */
 bool flushTube() {
-  constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000;
+  constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000; // TODO: make config
 
   static FlushState state;
   static unsigned long start_time;
@@ -159,10 +159,6 @@ typedef enum AqusensState {
   LAST_AIR,
 } AqusensState;
 
-// TODO: implement time from the struct    
-//  aqusens_flush_time.Minute = 0;
-//  aqusens_flush_time.Second = 15;
-// TODO: danny convert this to the ms and then fill the gaps
 /**
  * @brief TODO: Danny - update this function comment
  * 
