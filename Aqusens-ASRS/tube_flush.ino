@@ -9,6 +9,7 @@
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
 
+
 // timings
 #define LIFT_TUBE_TIME_S        (0.5f)
 #define DUMP_WATER_TIME_S       (5UL)
@@ -16,14 +17,14 @@
 #define RINSE_ROPE_TIME_S       (DROP_TUBE_DIST_CM / HOME_TUBE_SPD_CM_S)
 #define RINSE_TUBE_TIME_S       (5UL)
 
-// aqusens timings
+
+// aqusens timings TODO: config
 // #define AIR_GAP_TIME_S          (15)
 // #define LAST_AIR_GAP_TIME_S     (90)
 // #define WATER_RINSE_TIME_S      (180)
 #define AIR_GAP_TIME_S          (5)
 #define WATER_RINSE_TIME_S      (15)
 #define LAST_AIR_GAP_TIME_S     (10)
-
 
 constexpr unsigned long FLUSH_TIME_S = (3 * LIFT_TUBE_TIME_S + DUMP_WATER_TIME_S + 
   ROPE_DROP_TIME_S + RINSE_ROPE_TIME_S + RINSE_TUBE_TIME_S);

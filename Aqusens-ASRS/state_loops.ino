@@ -391,11 +391,11 @@ void dryLoop() {
         dryLCD(min_time, sec_time, seconds_remaining % 4);
 
         // pull up on the tube 
-        liftup_tube();    
+        tube_home_funcs(true);    
     }
 
     // bring tube 
-    dropdown_tube();
+    tube_home_funcs(false);
 
     state = STANDBY;
     tube_position_f = 0; // reset for safe keeping
