@@ -1,5 +1,5 @@
 #define GMT_TO_PST  (8)
-
+#define JSON_SIZE   (4096)
 SDConfig_t sd_cfg = {0};
 
 void setSDCfg(SDConfig_t& cfg) {
@@ -201,6 +201,171 @@ float getDropDistance(){
   return sd_cfg.pier_dist_cm + drop_distance_cm;
 }
 
-void readCfgFile() {
-  return;
+
+void export_cfg_to_sd(GlobalConfig_t& cfg) {
+    File file = SD.open("/config.json", FILE_WRITE);
+    if (!file) {
+        Serial.println("Error opening file for writing!");
+        return;
+    }
+
+    StaticJsonDocument<JSON_SIZE> doc; // TODO: this might be too little
+
+    // motor config
+    doc["motor"]["reel_radius_cm"] = cfg.motor_cfg.reel_radius_cm;
+    doc["motor"]["gear_ratio"] = cfg.motor_cfg.gear_ratio;
+    doc["motor"]["pulse_per_rev"] = cfg.motor_cfg.pulse_per_rev;
+
+    // position config
+    doc["position"]["narrow_tube_cm"] = cfg.position_cfg.narrow_tube_cm;
+    doc["position"]["tube_cm"] = cfg.position_cfg.tube_cm;
+    doc["position"]["water_level_cm"] = cfg.position_cfg.water_level_cm;
+    doc["position"]["min_ramp_dist_cm"] = cfg.position_cfg.min_ramp_dist_cm;
+    doc["position"]["drop_speed_cm_sec"] = cfg.position_cfg.drop_speed_cm_sec;
+    doc["position"]["raise_speed_cm_sec"] = cfg.position_cfg.raise_speed_cm_sec;
+
+    JsonArray drop_speeds = doc["position"].createNestedArray("drop_speeds");
+    for (float speed : cfg.position_cfg.drop_speeds) drop_speeds.add(speed);
+
+    JsonArray raise_speeds = doc["position"].createNestedArray("raise_speeds");
+    for (float speed : cfg.position_cfg.raise_speeds) raise_speeds.add(speed);
+
+    // flush time config
+    doc["flush"]["lift_tube_time_s"] = cfg.flush_cfg.flush_time_cfg.lift_tube_time_s;
+    doc["flush"]["dump_water_time_s"] = cfg.flush_cfg.flush_time_cfg.dump_water_time_s;
+    doc["flush"]["rope_drop_time_s"] = cfg.flush_cfg.flush_time_cfg.rope_drop_time_s;
+    doc["flush"]["rinse_rope_time_s"] = cfg.flush_cfg.flush_time_cfg.rinse_rope_time_s;
+    doc["flush"]["rinse_tube_time_s"] = cfg.flush_cfg.flush_time_cfg.rinse_tube_time_s;
+
+    // Aqusens timing config
+    doc["aqusens"]["air_gap_time_s"] = cfg.flush_cfg.aqusens_time_cfg.air_gap_time_s;
+    doc["aqusens"]["water_rinse_time_s"] = cfg.flush_cfg.aqusens_time_cfg.water_rinse_time_s;
+    doc["aqusens"]["last_air_gap_time_s"] = cfg.flush_cfg.aqusens_time_cfg.last_air_gap_time_s;
+
+    // SD config
+    doc["sd"]["tide_data_name"] = cfg.sd_cfg.tide_data_name;
+    doc["sd"]["pier_dist_cm"] = cfg.sd_cfg.pier_dist_cm;
+
+    // time config
+    doc["times"]["sample_interval"]["day"] = cfg.times_cfg.sample_interval.day;
+    doc["times"]["sample_interval"]["hour"] = cfg.times_cfg.sample_interval.hour;
+    doc["times"]["sample_interval"]["min"] = cfg.times_cfg.sample_interval.min;
+    doc["times"]["sample_interval"]["sec"] = cfg.times_cfg.sample_interval.sec;
+
+    doc["times"]["soak_time"]["min"] = cfg.times_cfg.soak_time.min;
+    doc["times"]["soak_time"]["sec"] = cfg.times_cfg.soak_time.sec;
+
+    doc["times"]["dry_time"]["min"] = cfg.times_cfg.dry_time.min;
+    doc["times"]["dry_time"]["sec"] = cfg.times_cfg.dry_time.sec;
+
+    // write to serial for fun
+    serializeJsonPretty(doc, Serial);
+
+    // Write to file
+    if (serializeJsonPretty(doc, file) == 0) {
+        Serial.println("Failed to write JSON to file");
+    } else {
+        Serial.println("Config successfully saved to SD!");
+    }
+
+    file.close();
 }
+
+bool load_cfg_from_sd(const char* filename) {
+    GlobalConfig_t& cfg = getGlobalCfg();
+
+    File file = SD.open(filename, FILE_READ);
+    if (!file) {
+        Serial.print("Error: Unable to open file ");
+        Serial.println(filename);
+        return false;
+    }
+
+    StaticJsonDocument<JSON_SIZE> doc;
+    DeserializationError error = deserializeJson(doc, file);
+
+    if (error) {
+        Serial.print("Error: Failed to parse JSON - ");
+        Serial.println(error.f_str());
+        file.close();
+        return false;
+    }
+
+    file.close(); 
+
+    // THANKS CHAT for the | operator for this json stuff
+
+    if (doc.containsKey("motor")) {
+        cfg.motor_cfg.reel_radius_cm = doc["motor"]["reel_radius_cm"] | 0.0f;
+        cfg.motor_cfg.gear_ratio = doc["motor"]["gear_ratio"] | 0.0f;
+        cfg.motor_cfg.pulse_per_rev = doc["motor"]["pulse_per_rev"] | 0;
+    } else {
+        Serial.println("Warning: Missing 'motor' key in JSON.");
+    }
+
+    if (doc.containsKey("position")) {
+        cfg.position_cfg.narrow_tube_cm = doc["position"]["narrow_tube_cm"] | 0.0f;
+        cfg.position_cfg.tube_cm = doc["position"]["tube_cm"] | 0.0f;
+        cfg.position_cfg.water_level_cm = doc["position"]["water_level_cm"] | 0.0f;
+        cfg.position_cfg.min_ramp_dist_cm = doc["position"]["min_ramp_dist_cm"] | 0.0f;
+        cfg.position_cfg.drop_speed_cm_sec = doc["position"]["drop_speed_cm_sec"] | 0.0f;
+        cfg.position_cfg.raise_speed_cm_sec = doc["position"]["raise_speed_cm_sec"] | 0.0f;
+
+        JsonArray drop_speeds = doc["position"]["drop_speeds"];
+        JsonArray raise_speeds = doc["position"]["raise_speeds"];
+
+        for (size_t i = 0; i < 4 && i < drop_speeds.size(); i++) {
+            cfg.position_cfg.drop_speeds[i] = drop_speeds[i] | 0.0f;
+        }
+        for (size_t i = 0; i < 4 && i < raise_speeds.size(); i++) {
+            cfg.position_cfg.raise_speeds[i] = raise_speeds[i] | 0.0f;
+        }
+    } else {
+        Serial.println("Warning: Missing 'position' key in JSON.");
+    }
+
+    if (doc.containsKey("flush")) {
+        cfg.flush_cfg.flush_time_cfg.lift_tube_time_s = doc["flush"]["lift_tube_time_s"] | 0.0f;
+        cfg.flush_cfg.flush_time_cfg.dump_water_time_s = doc["flush"]["dump_water_time_s"] | 0UL;
+        cfg.flush_cfg.flush_time_cfg.rope_drop_time_s = doc["flush"]["rope_drop_time_s"] | 0.0f;
+        cfg.flush_cfg.flush_time_cfg.rinse_rope_time_s = doc["flush"]["rinse_rope_time_s"] | 0.0f;
+        cfg.flush_cfg.flush_time_cfg.rinse_tube_time_s = doc["flush"]["rinse_tube_time_s"] | 0UL;
+    } else {
+        Serial.println("Warning: Missing 'flush' key in JSON.");
+    }
+
+    if (doc.containsKey("aqusens")) {
+        cfg.flush_cfg.aqusens_time_cfg.air_gap_time_s = doc["aqusens"]["air_gap_time_s"] | 0UL;
+        cfg.flush_cfg.aqusens_time_cfg.water_rinse_time_s = doc["aqusens"]["water_rinse_time_s"] | 0UL;
+        cfg.flush_cfg.aqusens_time_cfg.last_air_gap_time_s = doc["aqusens"]["last_air_gap_time_s"] | 0UL;
+    } else {
+        Serial.println("Warning: Missing 'aqusens' key in JSON.");
+    }
+
+    if (doc.containsKey("sd")) {
+        strlcpy(cfg.sd_cfg.tide_data_name, doc["sd"]["tide_data_name"] | "", sizeof(cfg.sd_cfg.tide_data_name));
+        cfg.sd_cfg.pier_dist_cm = doc["sd"]["pier_dist_cm"] | 0.0f;
+    } else {
+        Serial.println("Warning: Missing 'sd' key in JSON.");
+    }
+
+    if (doc.containsKey("times")) {
+        cfg.times_cfg.sample_interval.day = doc["times"]["sample_interval"]["day"] | 0;
+        cfg.times_cfg.sample_interval.hour = doc["times"]["sample_interval"]["hour"] | 0;
+        cfg.times_cfg.sample_interval.min = doc["times"]["sample_interval"]["min"] | 0;
+        cfg.times_cfg.sample_interval.sec = doc["times"]["sample_interval"]["sec"] | 0;
+
+        cfg.times_cfg.soak_time.min = doc["times"]["soak_time"]["min"] | 0;
+        cfg.times_cfg.soak_time.sec = doc["times"]["soak_time"]["sec"] | 0;
+
+        cfg.times_cfg.dry_time.min = doc["times"]["dry_time"]["min"] | 0;
+        cfg.times_cfg.dry_time.sec = doc["times"]["dry_time"]["sec"] | 0;
+    } else {
+        Serial.println("Warning: Missing 'times' key in JSON.");
+    }
+
+    Serial.println("Config successfully loaded from SD!");
+    return true;
+}
+
+

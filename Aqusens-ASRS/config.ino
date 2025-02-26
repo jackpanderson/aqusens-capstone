@@ -1,3 +1,5 @@
+#define CONFIG_FILENAME         ("config.json")
+
 // motor.ino
 #define REEL_RAD_CM             (5.0f)
 #define PULSE_PER_REV           (1600)
@@ -66,8 +68,8 @@ typedef struct AqusensTimeConfig_t {
 
 // TODO: ?get rid of pointers?
 typedef struct FlushConfig_t {
-    FlushTimeConfig_t* flush_time_cfg;
-    AqusensTimeConfig_t* aqusens_time_cfg;
+    FlushTimeConfig_t flush_time_cfg;
+    AqusensTimeConfig_t aqusens_time_cfg;
 } FlushConfig_t;
 
 typedef struct SDConfig_t {
@@ -114,19 +116,16 @@ PositionConfig_t DEF_POSITION_CFG = {
     {25.0f, 50.0f, 10.0f, 1.5f}
 };
 
-FlushTimeConfig_t DEF_FLUSH_TIME_CFG = {
-    LIFT_TUBE_TIME_S,
+FlushConfig_t DEF_FLUSH_CFG = {
+    { LIFT_TUBE_TIME_S,
     DUMP_WATER_TIME_S,
     ROPE_DROP_TIME_S,
     RINSE_ROPE_TIME_S,
-    RINSE_TUBE_TIME_S
-};
-AqusensTimeConfig_t DEF_AQS_TIME_CFG = {
-    AIR_GAP_TIME_S,
+    RINSE_TUBE_TIME_S }, 
+    { AIR_GAP_TIME_S,
     WATER_RINSE_TIME_S,
-    LAST_AIR_GAP_TIME_S
+    LAST_AIR_GAP_TIME_S }
 };
-FlushConfig_t DEF_FLUSH_CFG = {&DEF_FLUSH_TIME_CFG, &DEF_AQS_TIME_CFG};
 
 SDConfig_t DEF_SD_CFG = {"tides.txt", PIER_DEFAULT_DIST_CM};
 
@@ -149,7 +148,8 @@ void setPositionCfg(PositionConfig_t& cfg);
 void setFlushCfg(FlushConfig_t& cfg);
 void setSDCfg(SDConfig_t& cfg);
 void setTimesCfg(TimesConfig_t& cfg);
-
+bool load_cfg_from_sd(const char* filename);
+void export_cfg_to_sd(GlobalConfig_t& cfg);
 
 // ========================================================================
 // Functions
@@ -162,6 +162,7 @@ GlobalConfig_t& getGlobalCfg() {
 // needs to be call before everything
 void init_cfg() {
     // read JSON from sd
+    // load_cfg_from_sd(CONFIG_FILENAME);
 
     // set up the config to devices
     setMotorCfg(gbl_cfg.motor_cfg);

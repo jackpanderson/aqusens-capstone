@@ -28,20 +28,20 @@ typedef enum FlushState {
 void setFlushCfg(FlushConfig_t& cfg) {
   flush_cfg = cfg;
 
-  DUMP_WATER_TIME_MS = flush_cfg.flush_time_cfg->dump_water_time_s * 1000;
+  DUMP_WATER_TIME_MS = flush_cfg.flush_time_cfg.dump_water_time_s * 1000;
 
-  AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg->air_gap_time_s * 1000;
-  LAST_AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg->last_air_gap_time_s * 1000;
-  WATER_RINSE_TIME_MS = flush_cfg.aqusens_time_cfg->water_rinse_time_s * 1000;
+  AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg.air_gap_time_s * 1000;
+  LAST_AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg.last_air_gap_time_s * 1000;
+  WATER_RINSE_TIME_MS = flush_cfg.aqusens_time_cfg.water_rinse_time_s * 1000;
 
-  FLUSH_TIME_S = 3 * flush_cfg.flush_time_cfg->lift_tube_time_s + 
-                flush_cfg.flush_time_cfg->dump_water_time_s + 
-                flush_cfg.flush_time_cfg->rope_drop_time_s + 
-                flush_cfg.flush_time_cfg->rinse_rope_time_s + 
-                flush_cfg.flush_time_cfg->rinse_tube_time_s;
-  AQUSENS_TIME_S = 3 * flush_cfg.aqusens_time_cfg->air_gap_time_s + 
-                  3 * flush_cfg.aqusens_time_cfg->water_rinse_time_s + 
-                  flush_cfg.aqusens_time_cfg->last_air_gap_time_s;
+  FLUSH_TIME_S = 3 * flush_cfg.flush_time_cfg.lift_tube_time_s + 
+                flush_cfg.flush_time_cfg.dump_water_time_s + 
+                flush_cfg.flush_time_cfg.rope_drop_time_s + 
+                flush_cfg.flush_time_cfg.rinse_rope_time_s + 
+                flush_cfg.flush_time_cfg.rinse_tube_time_s;
+  AQUSENS_TIME_S = 3 * flush_cfg.aqusens_time_cfg.air_gap_time_s + 
+                  3 * flush_cfg.aqusens_time_cfg.water_rinse_time_s + 
+                  flush_cfg.aqusens_time_cfg.last_air_gap_time_s;
   TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S - 1;
   
   return;
@@ -113,7 +113,7 @@ bool flushTube() {
     case RINSE_TUBE:
       cur_time = millis();
 
-      if (cur_time - start_time > flush_cfg.flush_time_cfg->rinse_tube_time_s) {
+      if (cur_time - start_time > flush_cfg.flush_time_cfg.rinse_tube_time_s) {
         start_time = millis();
         
         state = RINSE_AQUSENS;

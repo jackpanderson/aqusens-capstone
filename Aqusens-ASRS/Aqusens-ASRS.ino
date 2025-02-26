@@ -23,6 +23,7 @@
 #include <TimeLib.h>
 #include <math.h>
 #include "SAMD_PWM.h"
+#include <ArduinoJson.h>
 
 /* Pin Mapping ********************************************************************/
 
@@ -152,8 +153,7 @@ void setup() {
   while (!P1.init()) {} // Initialize controller
 
   init_cfg();
-  // while(1);
-  
+
   rtcInit(); //TODO: add screen to input actual time/date to init rtc with
   RTDInit();
   gpioInit();
