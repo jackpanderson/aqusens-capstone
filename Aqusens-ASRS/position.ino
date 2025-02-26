@@ -8,7 +8,7 @@
 #define SAFE_DROP_DIST_CM       (10.0f)
 #define NUM_PHASES              (4UL)
 #define FREE_FALL_IND           (2)
-#define RAISE_DIST_PADDING_CM   (2.0f)
+#define RAISE_DIST_PADDING_CM   (5.0f)
 
 PositionConfig_t pos_cfg = {0};
 
@@ -24,14 +24,16 @@ void setPositionCfg(PositionConfig_t& cfg) {
  */
 void homeTube() {
     tube_position_f = 0;
-    if (magSensorRead()) return;
+    if (!magSensorRead()) {
+        while (!dropTube(SAFE_DROP_DIST_CM));
+        setMotorSpeed(SAFE_RISE_SPEED_CM_SEC);
+        while (!magSensorRead());
+        turnMotorOff(true);
+        tube_position_f = 0;
+    }
 
-    while (!dropTube(SAFE_DROP_DIST_CM));
-
-    setMotorSpeed(SAFE_RISE_SPEED_CM_SEC);
-    while (!magSensorRead());
-    turnMotorOff(true);
-    tube_position_f = 0;
+    tube_home_funcs(true); 
+    tube_home_funcs(false);
 }
 
 

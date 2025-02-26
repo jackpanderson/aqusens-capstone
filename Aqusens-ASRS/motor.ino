@@ -19,8 +19,9 @@ void setMotorDir(MotorDir dir);
 // womp womp
 
 
-void setMotorCfg(MotorConfig_t& cfg) {
-    MOTORSPEED_FACTOR = (cfg.pulse_per_rev * cfg.gear_ratio) / (2.0f * PI * cfg.reel_radius_cm);
+void setMotorCfg() {
+    const MotorConfig_t& motor_cfg = getGlobalCfg().motor_cfg;
+    MOTORSPEED_FACTOR = (motor_cfg.pulse_per_rev * motor_cfg.gear_ratio) / (2.0f * PI * motor_cfg.reel_radius_cm);
     return;
 }
 

@@ -1,28 +1,6 @@
 #define TIME_BASED_DEBOUNCE_WAIT_TIME_MS 35
 #define PRESS_AND_HOLD_INTERVAL_MS 25
 
-TimesConfig_t times_cfg = {0};
-
-void printTimeUnit(TimeUnit_t t);
-void printTimeUnit(TimeUnit_t t) {
-    Serial.print("Day: "); Serial.print(t.day);
-    Serial.print(", Hour: "); Serial.print(t.hour);
-    Serial.print(", Minute: "); Serial.print(t.min);
-    Serial.print(", Second: "); Serial.println(t.sec);
-}
-
-void setTimesCfg(TimesConfig_t& cfg) {
-  times_cfg = cfg;
-  // Serial.println("Sample Interval:");
-  // printTimeUnit(times_cfg.sample_interval);
-
-  // Serial.println("Soak Time:");
-  // printTimeUnit(times_cfg.soak_time);
-
-  // Serial.println("Dry Time:");
-  // printTimeUnit(times_cfg.dry_time);
-}
-
 /* Init Functions **************************************************************/
 
 /**
@@ -99,7 +77,9 @@ void onLowTrigger() {
 void rtcInit() {
   rtc.begin();
 
-  rtc.setEpoch(1738123553);
+  const TimesConfig_t& times_cfg = getGlobalCfg().times_cfg;
+
+  rtc.setEpoch(1740580200);
   sample_interval.Year = 0;
   sample_interval.Month = 0;
   sample_interval.Day = 0;

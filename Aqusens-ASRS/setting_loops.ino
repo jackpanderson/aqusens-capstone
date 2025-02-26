@@ -291,6 +291,8 @@ void setSoakTimeLoop() {
   updateSetSoakOrDryOrFlushLCD(cursor_pos, new_soak_time);
   lcd.blink();
 
+  TimeUnit_t& soak_times_cfg = getGlobalCfg().times_cfg.soak_time;
+
   while (state == SET_SOAK_TIME) {
     key = getKeyDebounce();
     
@@ -299,6 +301,10 @@ void setSoakTimeLoop() {
         //breakTime(makeTime(new_interval), new_interval);
         soak_time.Second = new_soak_time.Second;
         soak_time.Minute = new_soak_time.Minute;
+        
+        soak_times_cfg.min = new_soak_time.Minute;
+        soak_times_cfg.sec = new_soak_time.Second;
+
         lcd.noBlink();
         state = SETTINGS;
       }
@@ -338,6 +344,9 @@ void setDryTimeLoop() {
   updateSetSoakOrDryOrFlushLCD(cursor_pos, new_dry_time);
   lcd.blink();
 
+  TimeUnit_t& dry_times_cfg = getGlobalCfg().times_cfg.dry_time;
+
+
   while (state == SET_DRY_TIME) {
     key = getKeyDebounce();
     
@@ -347,6 +356,11 @@ void setDryTimeLoop() {
         //breakTime(makeTime(new_interval), new_interval);
         dry_time.Second = new_dry_time.Second;
         dry_time.Minute = new_dry_time.Minute;
+
+        dry_times_cfg.min = new_dry_time.Minute;
+        dry_times_cfg.sec = new_dry_time.Second;
+
+
         lcd.noBlink();
         state = SETTINGS;
       }

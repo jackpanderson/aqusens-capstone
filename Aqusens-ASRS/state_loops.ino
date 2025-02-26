@@ -19,6 +19,7 @@ void calibrateLoop() {
     setAlarmFault(ESTOP);
     return;
   }  
+   
 
   homeTube();
   state = STANDBY;
@@ -104,7 +105,7 @@ void releaseLoop() {
   drop_distance_cm = getDropDistance();
   Serial.print("dropping ");
   Serial.println(drop_distance_cm);
-  drop_distance_cm = 20;
+  drop_distance_cm = 200;
 
   // actually drop the tube
   while (state == RELEASE){
@@ -368,8 +369,8 @@ void dryLoop() {
       // Update LCD with remaining time
       dryLCD(min_time, sec_time, seconds_remaining % 4);
 
-        // pull up on the tube 
-        tube_home_funcs(true);    
+      // pull up on the tube 
+      tube_home_funcs(true);    
     }
 
     // bring tube 

@@ -25,6 +25,7 @@ typedef enum FlushState {
   HOME_2,
 } FlushState;
 
+// TODO: make on-the-fly configurable
 void setFlushCfg(FlushConfig_t& cfg) {
   flush_cfg = cfg;
 
@@ -42,7 +43,7 @@ void setFlushCfg(FlushConfig_t& cfg) {
   AQUSENS_TIME_S = 3 * flush_cfg.aqusens_time_cfg.air_gap_time_s + 
                   3 * flush_cfg.aqusens_time_cfg.water_rinse_time_s + 
                   flush_cfg.aqusens_time_cfg.last_air_gap_time_s;
-  TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S - 1;
+  TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S;
   
   return;
 }
@@ -186,7 +187,7 @@ bool flushAqusens(unsigned long cur_time) {
       prev_time_tweak = prev_time;
       #endif
 
-      Serial.println("going to air 1");
+      // Serial.println("going to air 1");
       state = AIR_1;
       break;
 
@@ -207,7 +208,7 @@ bool flushAqusens(unsigned long cur_time) {
 
         updateSolenoid(OPEN, SOLENOID_TWO);
 
-        Serial.println("going to water 1");
+        // Serial.println("going to water 1");
         state = WATER_1;
       }
       break;
@@ -219,7 +220,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_2;
-        Serial.println("going to air 2");
+        // Serial.println("going to air 2");
 
       }
       break;
@@ -231,7 +232,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_2;
-        Serial.println("going to water 2");
+        // Serial.println("going to water 2");
 
       }
       break;
@@ -243,7 +244,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_3;
-        Serial.println("going to air 3");
+        // Serial.println("going to air 3");
 
       }
       break;
@@ -255,7 +256,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_3;
-        Serial.println("going to water 3");
+        // Serial.println("going to water 3");
 
       }
       break;
@@ -266,7 +267,7 @@ bool flushAqusens(unsigned long cur_time) {
 
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
-        Serial.println("going to last air ");
+        // Serial.println("going to last air ");
 
         state = LAST_AIR;
       }
@@ -275,7 +276,7 @@ bool flushAqusens(unsigned long cur_time) {
       if (cur_time - prev_time >= LAST_AIR_GAP_TIME_MS) {
 
         state = RINSE_INIT;
-        Serial.println("Finished aqusens ");
+        Serial.println("[FLUSH] Finished aqusens ");
 
         return true;
       }
