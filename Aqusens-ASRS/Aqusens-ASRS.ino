@@ -83,10 +83,11 @@ typedef enum TempSensor {
 #define TIDE_FILE "tides.txt"
 #define NUM_CONTRAST_STEPS 20
 #define NUM_BRIGHTNESS_STEPS 20
-#define REEL_RAD_CM         (5.0f)
-#define PULSE_PER_REV       (1600)
-#define GEAR_RATIO          (5.0f)
-#define RANDOM_GEAR_FACTOR  (1.0f)
+#define REEL_RAD_CM           (5.0f)
+#define PULSE_PER_REV         (1600)
+#define GEAR_RATIO            (5.0f)
+#define RANDOM_GEAR_FACTOR    (1.0f)
+#define PIER_DEFAULT_DIST_CM  (762.0f)
 
 
 /* Variable Declarations *********************************************************/
@@ -177,7 +178,7 @@ float tube_position_f; // Stores the current position of the sampler tube relati
 void setup() {
 
   Serial.begin(115200);
-  while (!P1.init()) {;} // Initialize controller
+  while (!P1.init()) {} // Initialize controller
 
   rtcInit(); //TODO: add screen to input actual time/date to init rtc with
   RTDInit();

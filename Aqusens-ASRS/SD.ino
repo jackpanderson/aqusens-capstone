@@ -1,3 +1,5 @@
+#define GMT_TO_PST  (8)
+
 /**
  * @brief interpolates tide data from SD card
  * 
@@ -39,13 +41,13 @@ float getTideData(){
   curr_year = rtc.getYear();  /* In #### format */
   curr_month = rtc.getMonth();
   curr_day = rtc.getDay();
-  curr_hour = rtc.getHours();
+  curr_hour = rtc.getHours() + GMT_TO_PST; /* Convert GMT tide data to PST */
   
   /* Start reading tide data */
   while (file.available()){
     // line = file.readStringUntil('\n');  /* Get line of data */
     
-    Serial.println(line);
+    // Serial.println(line);
     
     if (line.length() > 0){
       line.trim();  /* Removes whitespaces from end and beginning */
@@ -126,7 +128,7 @@ float getTideData(){
 
   proportion = scaled_curr_hour / hour_diff;
   pred_diff = itr_pred - prev_itr_pred;
-  interpolated_pred = pred_diff * proportion;
+  interpolated_pred = (pred_diff * proportion) + prev_itr_pred;
 
   /* Debugging prints for calculating interpolation
   Serial.print("Prev hour: ");
@@ -149,9 +151,46 @@ float getTideData(){
   Serial.println(pred_diff);
 
   Serial.print("Interpolated Pred: ");
-  Serial.println(interpolated_pred);
+  Serial.println(interpolated_pred - prev_itr_pred);
   */
   
   file.close();
   return interpolated_pred;
+}
+
+
+float getDropDistance(){
+  float drop_distance_cm;
+
+  Serial.println("T");
+  drop_distance_cm = getTideData();
+
+  // get the distance to drop from online or sd card
+  // TODO: finish implementing DIVA
+  /*
+  while (1)
+  {
+    if (Serial.available()) {
+        String data = Serial.readStringUntil('\n'); // Read full line
+        drop_distance_cm = data.toFloat();  // Convert to float
+
+        // if drop distance is -1 then get SD card info
+        if (drop_distance_cm == -1) {
+          drop_distance_cm = getTideData();
+        }
+        // otherwise convert from meters to cm
+        else {
+          drop_distance_cm = drop_distance_cm * 100;
+        }
+
+        // Flush any remaining characters
+        while (Serial.available()) {
+            Serial.read();  // Discard extra data
+        }
+    }
+    checkEstop();
+  }
+  */
+
+  return PIER_DEFAULT_DIST_CM + drop_distance_cm;
 }
