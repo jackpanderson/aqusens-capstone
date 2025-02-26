@@ -1,7 +1,7 @@
 // motor.ino
-#define REEL_RAD_CM           (5.0f)
-#define PULSE_PER_REV         (1600)
-#define GEAR_RATIO            (5.0f)
+#define REEL_RAD_CM             (5.0f)
+#define PULSE_PER_REV           (1600)
+#define GEAR_RATIO              (5.0f)
 
 // position.ino
 #define NARROW_TUBE_CM          (15.0f) 
@@ -64,22 +64,38 @@ typedef struct AqusensTimeConfig_t {
     unsigned long last_air_gap_time_s;
 } AqusensTimeConfig_t;
 
+// TODO: ?get rid of pointers?
 typedef struct FlushConfig_t {
     FlushTimeConfig_t* flush_time_cfg;
     AqusensTimeConfig_t* aqusens_time_cfg;
 } FlushConfig_t;
 
 typedef struct SDConfig_t {
-  char* tide_data_name;
-  float pier_dist_cm;
+    char* tide_data_name;
+    float pier_dist_cm;
 } SDConfig_t;
+
+typedef struct TimeUnit_t {
+    uint8_t day;    
+    uint8_t hour;   
+    uint8_t min; 
+    uint8_t sec; 
+} TimeUnit_t;
+
+typedef struct TimesConfig_t {
+    TimeUnit_t sample_interval;
+    TimeUnit_t soak_time;
+    TimeUnit_t dry_time;
+} TimesConfig_t;
 
 typedef struct GlobalConfig_t {
     MotorConfig_t& motor_cfg;
     PositionConfig_t& position_cfg;
     FlushConfig_t& flush_cfg;
     SDConfig_t& sd_cfg;
+    TimesConfig_t& times_cfg;
 } GlobalConfig_t;
+
 
 // ========================================================================
 // Default Values
@@ -114,7 +130,13 @@ FlushConfig_t DEF_FLUSH_CFG = {&DEF_FLUSH_TIME_CFG, &DEF_AQS_TIME_CFG};
 
 SDConfig_t DEF_SD_CFG = {"tides.txt", PIER_DEFAULT_DIST_CM};
 
-GlobalConfig_t gbl_cfg = {DEF_MOTOR_CFG, DEF_POSITION_CFG, DEF_FLUSH_CFG, DEF_SD_CFG};
+TimesConfig_t DEF_TIME_CFG  = {
+    {0, 0, 15, 0}, 
+    {0, 0, 0, 5},
+    {0, 0, 0, 8}
+};
+
+GlobalConfig_t gbl_cfg = {DEF_MOTOR_CFG, DEF_POSITION_CFG, DEF_FLUSH_CFG, DEF_SD_CFG, DEF_TIME_CFG};
 
 
 // ========================================================================
@@ -126,6 +148,8 @@ void setMotorCfg(MotorConfig_t& cfg);
 void setPositionCfg(PositionConfig_t& cfg);
 void setFlushCfg(FlushConfig_t& cfg);
 void setSDCfg(SDConfig_t& cfg);
+void setTimesCfg(TimesConfig_t& cfg);
+
 
 // ========================================================================
 // Functions
@@ -137,13 +161,6 @@ GlobalConfig_t& getGlobalCfg() {
 
 // needs to be call before everything
 void init_cfg() {
-    char buf[300];
-    snprintf(buf, sizeof(buf), "rr %f gr %f ppr %u",
-             gbl_cfg.motor_cfg.reel_radius_cm,
-             gbl_cfg.motor_cfg.gear_ratio,
-             gbl_cfg.motor_cfg.pulse_per_rev);
-    Serial.println(buf);
-
     // read JSON from sd
 
     // set up the config to devices

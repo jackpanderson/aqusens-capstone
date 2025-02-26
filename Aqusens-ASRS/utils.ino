@@ -1,6 +1,12 @@
 #define TIME_BASED_DEBOUNCE_WAIT_TIME_MS 35
 #define PRESS_AND_HOLD_INTERVAL_MS 25
 
+TimesConfig_t times_cfg = {0};
+
+void setTimesCfg(TimesConfig_t& cfg) {
+  times_cfg = cfg;
+}
+
 /* Init Functions **************************************************************/
 
 /**
@@ -67,6 +73,7 @@ void updateSolenoid(SolenoidState state, int solenoid_number) {
  */
 void onLowTrigger() {
   setAlarmFault(ESTOP);
+  // TODO: ?should we turn things off here
 }
 
 /**
@@ -79,9 +86,9 @@ void rtcInit() {
   sample_interval.Year = 0;
   sample_interval.Month = 0;
   sample_interval.Day = 0;
-  sample_interval.Hour = 0;
-  sample_interval.Minute = 15;  
-  sample_interval.Second = 0;
+  sample_interval.Hour = times_cfg.sample_interval.hour;
+  sample_interval.Minute = times_cfg.sample_interval.min;  
+  sample_interval.Second = times_cfg.sample_interval.sec;
 
   next_sample_time.Year = rtc.getYear() + sample_interval.Year;
   next_sample_time.Month = rtc.getMonth() + sample_interval.Month;
@@ -89,18 +96,14 @@ void rtcInit() {
   next_sample_time.Hour = rtc.getHours() + sample_interval.Hour;
   next_sample_time.Minute = rtc.getMinutes() + sample_interval.Minute;
 
-  soak_time.Minute = 0;
-  soak_time.Second = 5;
+  soak_time.Minute = times_cfg.soak_time.min;
+  soak_time.Second = times_cfg.soak_time.sec;
 
-  // dry_time.Minute = 20;
-  dry_time.Minute = 0;
-  dry_time.Second = 5;
+  dry_time.Minute = times_cfg.dry_time.min;
+  dry_time.Second = times_cfg.dry_time.sec;
 
   tube_flush_time.Minute = TOT_FLUSH_TIME_S / 60;
   tube_flush_time.Second = TOT_FLUSH_TIME_S % 60;
-
-  aqusens_flush_time.Minute = 0;
-  aqusens_flush_time.Second = 15;
   
   updateAlarm();
 }
