@@ -14,8 +14,6 @@ PositionConfig_t pos_cfg = {0};
 
 void setPositionCfg(PositionConfig_t& cfg) {
     pos_cfg = cfg;
-    Serial.print("Position Min Ramp Distance: ");
-    Serial.println(pos_cfg.min_ramp_dist_cm);
     return;
 }
 
@@ -63,7 +61,6 @@ bool dropTube(unsigned int distance_cm) {
     static float drop_distance_cm;
     static size_t phase_ind;
 
-    static float speeds_cm_p_s[NUM_PHASES] = {15.0f, 30.0f, 75.0f, 30.0f}; // TODO: make config
     static float dists_cm[NUM_PHASES] = {pos_cfg.narrow_tube_cm, pos_cfg.tube_cm + pos_cfg.narrow_tube_cm, 0.0f, 0.0f};
 
     if (!dropping_flag) {
@@ -79,7 +76,7 @@ bool dropTube(unsigned int distance_cm) {
             phase_ind = 0;
             dists_cm[FREE_FALL_IND] = drop_distance_cm - pos_cfg.water_level_cm; 
             dists_cm[FREE_FALL_IND + 1] = drop_distance_cm;
-            setMotorSpeed(-speeds_cm_p_s[phase_ind]);
+            setMotorSpeed(-pos_cfg.drop_speeds[phase_ind]);
         }
 
         prev_time = millis();
@@ -94,12 +91,12 @@ bool dropTube(unsigned int distance_cm) {
         tube_position_f += (delta_time * pos_cfg.drop_speed_cm_sec) / 1000.0f;
     } 
     else {
-        tube_position_f += (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+        tube_position_f += (delta_time * pos_cfg.drop_speeds[phase_ind]) / 1000.0f;
 
         // ramp to next speed 
         if (tube_position_f >= dists_cm[phase_ind]) {
             phase_ind++;
-            setMotorSpeed(-speeds_cm_p_s[phase_ind]);
+            setMotorSpeed(-pos_cfg.drop_speeds[phase_ind]);
         }
     }
 
@@ -141,7 +138,6 @@ bool retrieveTube(float distance_cm) {
     static float raise_distance_cm;
     static size_t phase_ind;
 
-    static float speeds_cm_p_s[NUM_PHASES] = {25.0f, 50.0f, 10.0f, 1.5f};
     static float dists_cm[NUM_PHASES] = {0.0f, pos_cfg.tube_cm + pos_cfg.narrow_tube_cm, pos_cfg.narrow_tube_cm, 0.0f};
 
     if (!raise_flag) {
@@ -157,7 +153,7 @@ bool retrieveTube(float distance_cm) {
         else {
             phase_ind = 0;
             dists_cm[0] = tube_position_f - pos_cfg.water_level_cm;
-            setMotorSpeed(speeds_cm_p_s[phase_ind]);
+            setMotorSpeed(pos_cfg.raise_speeds[phase_ind]);
         }
 
         prev_time = millis();
@@ -172,12 +168,12 @@ bool retrieveTube(float distance_cm) {
         tube_position_f -= (delta_time * pos_cfg.raise_speed_cm_sec) / 1000.0f;
     } 
     else {
-        tube_position_f -= (delta_time * speeds_cm_p_s[phase_ind]) / 1000.0f;
+        tube_position_f -= (delta_time * pos_cfg.raise_speeds[phase_ind]) / 1000.0f;
 
         // ramp to next speed
         if (tube_position_f <= dists_cm[phase_ind]) {
             phase_ind++;
-            setMotorSpeed(speeds_cm_p_s[phase_ind]);
+            setMotorSpeed(pos_cfg.raise_speeds[phase_ind]);
         }
     }
 

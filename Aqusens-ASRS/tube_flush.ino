@@ -4,33 +4,14 @@
 #define TWEAK_TIME_MS           (500)
 #endif
 
-// flushing consts
 #define DROP_TUBE_DIST_CM       (40.0f)
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
 
-// TODO: make config
-// timings
-#define LIFT_TUBE_TIME_S        (0.5f)
-#define DUMP_WATER_TIME_S       (5UL)
-#define ROPE_DROP_TIME_S        (DROP_TUBE_DIST_CM / 15) // FIXME: slow drop speed instead of 15
-#define RINSE_ROPE_TIME_S       (DROP_TUBE_DIST_CM / HOME_TUBE_SPD_CM_S)
-#define RINSE_TUBE_TIME_S       (5UL)
-
-// TODO: config
-// aqusens timings 
-// #define AIR_GAP_TIME_S          (15)
-// #define LAST_AIR_GAP_TIME_S     (90)
-// #define WATER_RINSE_TIME_S      (180)
-#define AIR_GAP_TIME_S          (5)
-#define WATER_RINSE_TIME_S      (15)
-#define LAST_AIR_GAP_TIME_S     (10)
-
-// TODO: make config
-constexpr unsigned long FLUSH_TIME_S = (3 * LIFT_TUBE_TIME_S + DUMP_WATER_TIME_S + 
-  ROPE_DROP_TIME_S + RINSE_ROPE_TIME_S + RINSE_TUBE_TIME_S);
-constexpr unsigned long AQUSENS_TIME_S = 3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S;
-constexpr unsigned long TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S - 1;
+FlushConfig_t flush_cfg = {0};
+unsigned long FLUSH_TIME_S, AQUSENS_TIME_S, TOT_FLUSH_TIME_S;
+unsigned long AIR_GAP_TIME_MS, LAST_AIR_GAP_TIME_MS, WATER_RINSE_TIME_MS;
+unsigned long DUMP_WATER_TIME_MS;
 
 typedef enum FlushState {
   INIT,
@@ -44,14 +25,34 @@ typedef enum FlushState {
   HOME_2,
 } FlushState;
 
+void setFlushCfg(FlushConfig_t& cfg) {
+  flush_cfg = cfg;
+
+  DUMP_WATER_TIME_MS = flush_cfg.flush_time_cfg->dump_water_time_s * 1000;
+
+  AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg->air_gap_time_s * 1000;
+  LAST_AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg->last_air_gap_time_s * 1000;
+  WATER_RINSE_TIME_MS = flush_cfg.aqusens_time_cfg->water_rinse_time_s * 1000;
+
+  FLUSH_TIME_S = 3 * flush_cfg.flush_time_cfg->lift_tube_time_s + 
+                flush_cfg.flush_time_cfg->dump_water_time_s + 
+                flush_cfg.flush_time_cfg->rope_drop_time_s + 
+                flush_cfg.flush_time_cfg->rinse_rope_time_s + 
+                flush_cfg.flush_time_cfg->rinse_tube_time_s;
+  AQUSENS_TIME_S = 3 * flush_cfg.aqusens_time_cfg->air_gap_time_s + 
+                  3 * flush_cfg.aqusens_time_cfg->water_rinse_time_s + 
+                  flush_cfg.aqusens_time_cfg->last_air_gap_time_s;
+  TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S - 1;
+  
+  return;
+}
+
 /**
  * @brief FSM to control flushing process (8 states)
  * @return true once done with the flushing cycle
  * @return false if error occurs during flushing cycle
  */
 bool flushTube() {
-  constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000; // TODO: make config
-
   static FlushState state;
   static unsigned long start_time;
   unsigned long cur_time;
@@ -112,7 +113,7 @@ bool flushTube() {
     case RINSE_TUBE:
       cur_time = millis();
 
-      if (cur_time - start_time > RINSE_TUBE_TIME_S) {
+      if (cur_time - start_time > flush_cfg.flush_time_cfg->rinse_tube_time_s) {
         start_time = millis();
         
         state = RINSE_AQUSENS;
@@ -174,10 +175,6 @@ bool flushAqusens(unsigned long cur_time) {
   static unsigned long prev_time_tweak;
   static bool sole_state = true;
   #endif
-
-  constexpr unsigned long AIR_GAP_TIME_MS = AIR_GAP_TIME_S * 1000;
-  constexpr unsigned long LAST_AIR_GAP_TIME_MS = LAST_AIR_GAP_TIME_S * 1000;
-  constexpr unsigned long WATER_RINSE_TIME_MS = WATER_RINSE_TIME_S * 1000;
 
   switch (state) {
     case RINSE_INIT:
