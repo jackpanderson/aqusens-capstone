@@ -6,6 +6,12 @@ void setSDCfg(SDConfig_t& cfg) {
   sd_cfg = cfg;
 }
 
+void initSD() {
+  if (!SD.begin(SD_CS)){
+    Serial.println("[SD] Failed to Initialize SD card");
+  }
+}
+
 /**
  * @brief interpolates tide data from SD card
  * 
@@ -22,11 +28,6 @@ float getTideData(){
 
   prev_itr_pred = -1;
   prev_itr_hour = -1;
-
-  if (!SD.begin(SD_CS)){
-    Serial.println("Failed to Initialize SD card");
-    return NULL;
-  }
   
   File file = SD.open(sd_cfg.tide_data_name);
   if (!file){
@@ -201,15 +202,54 @@ float getDropDistance(){
   return sd_cfg.pier_dist_cm + drop_distance_cm;
 }
 
+void listFiles(File dir, int numTabs) {
+  while (true) {
+    File entry = dir.openNextFile();
+    if (!entry) {
+      // No more files
+      break;
+    }
+    for (int i = 0; i < numTabs; i++) {
+      Serial.print("\t");
+    }
+    Serial.print(entry.name());
+    if (entry.isDirectory()) {
+      Serial.println("/");
+      listFiles(entry, numTabs + 1); // Recursive call for subdirectories
+    } else {
+      Serial.print("\t");
+      Serial.println(entry.size(), DEC); // Print file size
+    }
+    entry.close();
+  }
+}
 
-void export_cfg_to_sd(GlobalConfig_t& cfg) {
-    File file = SD.open("/config.json", FILE_WRITE);
+
+void export_cfg_to_sd() {
+    // for debug purposes
+    // File root = SD.open("/");
+    // listFiles(root, 0);
+
+    File file = SD.open(CONFIG_FILENAME, O_CREAT | O_WRITE | O_TRUNC);
     if (!file) {
-        Serial.println("Error opening file for writing!");
+        Serial.println("[SD] Error opening file for writing!");
         return;
     }
 
+    GlobalConfig_t& cfg = getGlobalCfg();
     StaticJsonDocument<JSON_SIZE> doc; // TODO: this might be too little
+
+    // time config
+    doc["times"]["sample_interval"]["day"] = cfg.times_cfg.sample_interval.day;
+    doc["times"]["sample_interval"]["hour"] = cfg.times_cfg.sample_interval.hour;
+    doc["times"]["sample_interval"]["min"] = cfg.times_cfg.sample_interval.min;
+    doc["times"]["sample_interval"]["sec"] = cfg.times_cfg.sample_interval.sec;
+
+    doc["times"]["soak_time"]["min"] = cfg.times_cfg.soak_time.min;
+    doc["times"]["soak_time"]["sec"] = cfg.times_cfg.soak_time.sec;
+
+    doc["times"]["dry_time"]["min"] = cfg.times_cfg.dry_time.min;
+    doc["times"]["dry_time"]["sec"] = cfg.times_cfg.dry_time.sec;
 
     // motor config
     doc["motor"]["reel_radius_cm"] = cfg.motor_cfg.reel_radius_cm;
@@ -246,26 +286,12 @@ void export_cfg_to_sd(GlobalConfig_t& cfg) {
     doc["sd"]["tide_data_name"] = cfg.sd_cfg.tide_data_name;
     doc["sd"]["pier_dist_cm"] = cfg.sd_cfg.pier_dist_cm;
 
-    // time config
-    doc["times"]["sample_interval"]["day"] = cfg.times_cfg.sample_interval.day;
-    doc["times"]["sample_interval"]["hour"] = cfg.times_cfg.sample_interval.hour;
-    doc["times"]["sample_interval"]["min"] = cfg.times_cfg.sample_interval.min;
-    doc["times"]["sample_interval"]["sec"] = cfg.times_cfg.sample_interval.sec;
-
-    doc["times"]["soak_time"]["min"] = cfg.times_cfg.soak_time.min;
-    doc["times"]["soak_time"]["sec"] = cfg.times_cfg.soak_time.sec;
-
-    doc["times"]["dry_time"]["min"] = cfg.times_cfg.dry_time.min;
-    doc["times"]["dry_time"]["sec"] = cfg.times_cfg.dry_time.sec;
-
     // write to serial for fun
-    serializeJsonPretty(doc, Serial);
+    // serializeJsonPretty(doc, Serial);
 
     // Write to file
     if (serializeJsonPretty(doc, file) == 0) {
-        Serial.println("Failed to write JSON to file");
-    } else {
-        Serial.println("Config successfully saved to SD!");
+        Serial.println("[SD] Failed to write JSON to file");
     }
 
     file.close();
@@ -342,12 +368,13 @@ bool load_cfg_from_sd(const char* filename) {
         Serial.println("Warning: Missing 'aqusens' key in JSON.");
     }
 
-    if (doc.containsKey("sd")) {
-        strlcpy(cfg.sd_cfg.tide_data_name, doc["sd"]["tide_data_name"] | "", sizeof(cfg.sd_cfg.tide_data_name));
-        cfg.sd_cfg.pier_dist_cm = doc["sd"]["pier_dist_cm"] | 0.0f;
-    } else {
-        Serial.println("Warning: Missing 'sd' key in JSON.");
-    }
+    // TODO: fix this for loading in JSON
+    // if (doc.containsKey("sd")) {
+    //     strlcpy(cfg.sd_cfg.tide_data_name, doc["sd"]["tide_data_name"] | "", sizeof(cfg.sd_cfg.tide_data_name));
+    //     cfg.sd_cfg.pier_dist_cm = doc["sd"]["pier_dist_cm"] | 0.0f;
+    // } else {
+    //     Serial.println("Warning: Missing 'sd' key in JSON.");
+    // }
 
     if (doc.containsKey("times")) {
         cfg.times_cfg.sample_interval.day = doc["times"]["sample_interval"]["day"] | 0;
@@ -364,7 +391,7 @@ bool load_cfg_from_sd(const char* filename) {
         Serial.println("Warning: Missing 'times' key in JSON.");
     }
 
-    Serial.println("Config successfully loaded from SD!");
+    Serial.println("[SD] Config successfully loaded from SD!");
     return true;
 }
 

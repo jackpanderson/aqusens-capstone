@@ -269,9 +269,8 @@ bool flushAqusens(unsigned long cur_time) {
         Serial.println("going to last air ");
 
         state = LAST_AIR;
-        break;
       }
-
+      break;
     case LAST_AIR:
       if (cur_time - prev_time >= LAST_AIR_GAP_TIME_MS) {
 

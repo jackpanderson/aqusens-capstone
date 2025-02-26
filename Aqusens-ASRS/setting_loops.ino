@@ -28,6 +28,7 @@ void settingsLoop() {
       if (settings_page == 1) { // exits to STANDBY mode on first page left select
         resetLCD();
         state = STANDBY;
+        export_cfg_to_sd();
         // TODO: save config before leaving
         cursor_y = 2;
       }
@@ -114,6 +115,7 @@ void settingsLoop() {
 
     if (rtc.getMinutes() == ((last_key_press + 5) % 60)) {
       // TODO: save cfg before leaving
+      export_cfg_to_sd();
       state = STANDBY;
     }
   }

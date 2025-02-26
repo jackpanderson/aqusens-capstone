@@ -142,8 +142,8 @@ bool retrieveTube(float distance_cm) {
 
     if (!raise_flag) {
         raise_flag = true;
-        // raise_distance_cm = tube_position_f - distance_cm - RAISE_DIST_PADDING_CM;
-        raise_distance_cm = tube_position_f - distance_cm;
+        raise_distance_cm = tube_position_f - distance_cm - RAISE_DIST_PADDING_CM;
+        // raise_distance_cm = tube_position_f - distance_cm;
 
         // small raise
         if (distance_cm <= pos_cfg.min_ramp_dist_cm) {

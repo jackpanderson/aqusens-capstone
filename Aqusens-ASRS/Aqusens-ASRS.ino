@@ -142,6 +142,9 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 float drop_distance_cm;
 float tube_position_f; // Stores the current position of the sampler tube relative to the top of the tube in the home position
 
+void export_cfg_to_sd();
+
+
 /* Setup and Loop **************************************************************/
 void setup() {
   Serial.begin(115200);
@@ -160,6 +163,8 @@ void setup() {
   lcd.setCursor(0, 0); // Set cursor to column 0, row 0
 
   state = CALIBRATE;
+  
+  Serial.println("[SETUP] done with init");
 }
 
 void loop() {

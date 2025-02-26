@@ -3,8 +3,24 @@
 
 TimesConfig_t times_cfg = {0};
 
+void printTimeUnit(TimeUnit_t t);
+void printTimeUnit(TimeUnit_t t) {
+    Serial.print("Day: "); Serial.print(t.day);
+    Serial.print(", Hour: "); Serial.print(t.hour);
+    Serial.print(", Minute: "); Serial.print(t.min);
+    Serial.print(", Second: "); Serial.println(t.sec);
+}
+
 void setTimesCfg(TimesConfig_t& cfg) {
   times_cfg = cfg;
+  // Serial.println("Sample Interval:");
+  // printTimeUnit(times_cfg.sample_interval);
+
+  // Serial.println("Soak Time:");
+  // printTimeUnit(times_cfg.soak_time);
+
+  // Serial.println("Dry Time:");
+  // printTimeUnit(times_cfg.dry_time);
 }
 
 /* Init Functions **************************************************************/
@@ -82,6 +98,7 @@ void onLowTrigger() {
  */
 void rtcInit() {
   rtc.begin();
+
   rtc.setEpoch(1738123553);
   sample_interval.Year = 0;
   sample_interval.Month = 0;
@@ -611,7 +628,8 @@ bool magSensorRead() {
 void RTDInit() {
   const char P1_04RTD_CONFIG[] = { 0x40, 0x03, 0x60, 0x01, 0x20, 0x02, 0x80, 0x00 };
   // Config data for RTD module, configures Pt1000 type sensor and Celcius units returned when read
-  Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
+  P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT);
+  // Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
 }
 
 /**
