@@ -15,9 +15,7 @@
 
 #include <P1AM.h>
 #include <SD.h>
-#include <LiquidCrystal.h> //TODO: remove?
 #include <LiquidCrystal_I2C.h>
-#include <arduino-timer.h> //TODO: remove?
 #include <RTCZero.h>
 #include <SimpleKeypad.h>
 #include <TimeLib.h>
@@ -122,7 +120,6 @@ SolenoidState solenoid_two_state = CLOSED;
 
 // Timing
 tmElements_t next_sample_time, sample_interval, soak_time, dry_time, tube_flush_time, aqusens_flush_time;
-// Timer<5, millis> drop_timer;
 volatile bool estop_pressed = false; // Flag to keep track of E-stop pressed/released
 
 int8_t cursor_y = 2; // keeps track of current cursor position
@@ -132,17 +129,12 @@ uint8_t settings_page = 1; // current settings page
 // RTC
 RTCZero rtc;
 
-//PWM
-// SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000 //TODO: outdated comment - not 50:1
-
 //I2C LCD Screen
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
 float drop_distance_cm;
 float tube_position_f; // Stores the current position of the sampler tube relative to the top of the tube in the home position
-
-void export_cfg_to_sd();
 
 
 /* Setup and Loop **************************************************************/
