@@ -162,7 +162,7 @@ GlobalConfig_t& getGlobalCfg() {
 // needs to be call before everything
 void init_cfg() {
     // read JSON from sd
-    // load_cfg_from_sd(CONFIG_FILENAME);
+    load_cfg_from_sd(CONFIG_FILENAME);
 
     // set up the config to devices
     setMotorCfg(gbl_cfg.motor_cfg);
