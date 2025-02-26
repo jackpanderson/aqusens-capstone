@@ -1,5 +1,11 @@
 #define GMT_TO_PST  (8)
 
+SDConfig_t sd_cfg = {0};
+
+void setSDCfg(SDConfig_t& cfg) {
+  sd_cfg = cfg;
+}
+
 /**
  * @brief interpolates tide data from SD card
  * 
@@ -22,7 +28,7 @@ float getTideData(){
     return NULL;
   }
   
-  File file = SD.open(TIDE_FILE);
+  File file = SD.open(sd_cfg.tide_data_name);
   if (!file){
     Serial.println("Failed to Open Tide File");
     return NULL;
@@ -192,7 +198,7 @@ float getDropDistance(){
   }
   */
 
-  return PIER_DEFAULT_DIST_CM + drop_distance_cm;
+  return sd_cfg.pier_dist_cm + drop_distance_cm;
 }
 
 void readCfgFile() {

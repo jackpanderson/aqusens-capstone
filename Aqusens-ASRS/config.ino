@@ -24,6 +24,11 @@
 #define WATER_RINSE_TIME_S      (15)
 #define LAST_AIR_GAP_TIME_S     (10)
 
+// sd.ino
+#define PIER_DEFAULT_DIST_CM  (762.0f)
+#define TIDE_FILE "tides.txt"
+
+
 // ========================================================================
 // Struct Definitions
 // ========================================================================
@@ -64,10 +69,16 @@ typedef struct FlushConfig_t {
     AqusensTimeConfig_t* aqusens_time_cfg;
 } FlushConfig_t;
 
+typedef struct SDConfig_t {
+  char* tide_data_name;
+  float pier_dist_cm;
+} SDConfig_t;
+
 typedef struct GlobalConfig_t {
     MotorConfig_t& motor_cfg;
     PositionConfig_t& position_cfg;
     FlushConfig_t& flush_cfg;
+    SDConfig_t& sd_cfg;
 } GlobalConfig_t;
 
 // ========================================================================
@@ -101,7 +112,9 @@ AqusensTimeConfig_t DEF_AQS_TIME_CFG = {
 };
 FlushConfig_t DEF_FLUSH_CFG = {&DEF_FLUSH_TIME_CFG, &DEF_AQS_TIME_CFG};
 
-GlobalConfig_t gbl_cfg = {DEF_MOTOR_CFG, DEF_POSITION_CFG, DEF_FLUSH_CFG};
+SDConfig_t DEF_SD_CFG = {"tides.txt", PIER_DEFAULT_DIST_CM};
+
+GlobalConfig_t gbl_cfg = {DEF_MOTOR_CFG, DEF_POSITION_CFG, DEF_FLUSH_CFG, DEF_SD_CFG};
 
 
 // ========================================================================
@@ -112,6 +125,7 @@ GlobalConfig_t& getGlobalCfg();
 void setMotorCfg(MotorConfig_t& cfg);
 void setPositionCfg(PositionConfig_t& cfg);
 void setFlushCfg(FlushConfig_t& cfg);
+void setSDCfg(SDConfig_t& cfg);
 
 // ========================================================================
 // Functions
@@ -133,10 +147,10 @@ void init_cfg() {
     // read JSON from sd
 
     // set up the config to devices
-
     setMotorCfg(gbl_cfg.motor_cfg);
     setPositionCfg(gbl_cfg.position_cfg);
     setFlushCfg(gbl_cfg.flush_cfg);
+    setSDCfg(gbl_cfg.sd_cfg);
 }
 
 

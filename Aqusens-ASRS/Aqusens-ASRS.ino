@@ -64,10 +64,8 @@ typedef enum TempSensor {
 
 /* Hardcoded Macros **************************************************************/
 
-#define TIDE_FILE "tides.txt"
 #define NUM_CONTRAST_STEPS 20
 #define NUM_BRIGHTNESS_STEPS 20
-#define PIER_DEFAULT_DIST_CM  (762.0f)
 
 /* Variable Declarations *********************************************************/
 
