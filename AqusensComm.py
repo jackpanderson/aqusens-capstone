@@ -7,7 +7,7 @@ import csv
 import signal
 import sys
 
-SERIAL_PORT = "COM3"  # Change to match your Arduino port
+SERIAL_PORT = "COM4"  # Change to match your Arduino port
 BAUD_RATE = 115200
 READ_FILE = "AQUSENS.txt"  # File for Aqusens
 WRITE_FILE = "ASRS.txt"  # File for ASRS
@@ -130,9 +130,13 @@ def communicate(ser):
             print("Starting 5 minute timer")
 
             # create CSV file
-            csv_file = open(TEMP_CSV, "w", newline="\n")
+            csv_file = open(TEMP_CSV, "a", newline="\n")
             writer = csv.writer(csv_file)
-            writer.writerow(["Timestamp", "Temperature (C)"])   # Create CSV headers
+            # Create CSV header if empty
+            if os.stat(TEMP_CSV).st_size == 0:
+                writer.writerow(["Timestamp", "Min Temp(C)", "Max Temp(C)", "Avg Temp(C)"])
+
+            temperatures = []
 
             # Each 15 seconds request temperature -- 20 total requests
             for i in range (20):
@@ -146,11 +150,25 @@ def communicate(ser):
                     if ser.in_waiting:
                         temp_data = ser.readline().decode().strip()  # Read temperature
                         if temp_data.isdigit():  # Check it's an int
-                            writer.writerow([curr_time, int(temp_data)])  # Write data to CSV
                             print(f"{curr_time} - Temperature: {temp_data}°C")
+                            temperatures.append((int)(temp_data))
                             break
                     
                     time.sleep(0.5)  # try every 0.5 seconds
+
+            min_temp = temperatures[0]
+            max_temp = temperatures[0]
+            total_temp = 0
+            for i in range(20):
+                if temperatures[i] < min_temp:
+                    min_temp = temperatures[i]
+                if temperatures[i] > max_temp:
+                    max_temp = temperatures[i]
+                total_temp += temperatures[i]
+            average_temp = total_temp / 20
+            print(f"Min temp: {min_temp}, Max temp: {max_temp}, Average temp: {average_temp}")
+            writer.writerow([curr_time, min_temp, max_temp, average_temp])  # Write data to CSV
+            csv_file.close()
 
             # Stop Sample Collection -----------------------------------------
             while (1):
