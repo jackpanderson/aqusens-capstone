@@ -1,11 +1,11 @@
 //  -Aqusens-ASRS
 //  -Aqusens - Automated Sample Retrevial System V1.0
-//  -Date of Last Revision: 8/1/23
+//  -Date of Last Revision: 2/26/25
 //  -Califonia Polytechnic State University
 //  -Bailey College of Science and Mathamatics Biology Department
 //  -Primary Owner: Alexis Pasulka
 //  -Design Engineers: Doug Brewster and Rob Brewster
-//  -Contributors: Sarah Martin, Deeba Khosravi, Emma Lucke, Jack Anderson, Jorge Ramirez, Danny
+//  -Contributors: Sarah Martin, Deeba Khosravi, Emma Lucke, Jack Anderson, Jorge Ramirez, Danny ("the one, the only")
 //  -Microcontroller: P1AM-100 ProOpen 
 //  -Arduino IDE version:2.3.4
 //  -See User Manual For Project Description
@@ -62,11 +62,6 @@ typedef enum TempSensor {
   TEMP_SENSOR_ONE = 1, // TODO: Eventually change to more descriptive names, depending on what each sensor actually is measuring
   TEMP_SENSOR_TWO = 2
 } TempSensor;
-
-/* Hardcoded Macros **************************************************************/
-
-#define NUM_CONTRAST_STEPS 20
-#define NUM_BRIGHTNESS_STEPS 20
 
 /* Variable Declarations *********************************************************/
 
@@ -127,7 +122,7 @@ SolenoidState solenoid_two_state = CLOSED;
 
 // Timing
 tmElements_t next_sample_time, sample_interval, soak_time, dry_time, tube_flush_time, aqusens_flush_time;
-Timer<5, millis> drop_timer; //TODO: remove?
+// Timer<5, millis> drop_timer;
 volatile bool estop_pressed = false; // Flag to keep track of E-stop pressed/released
 
 int8_t cursor_y = 2; // keeps track of current cursor position
@@ -138,14 +133,14 @@ uint8_t settings_page = 1; // current settings page
 RTCZero rtc;
 
 //PWM
-SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000 //TODO: outdated comment - not 50:1
+// SAMD_PWM* stepper; //With 50:1 gearbox, max stable speed is around 47000-50000 //TODO: outdated comment - not 50:1
 
 //I2C LCD Screen
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 // Tube position
-float drop_distance_cm = 410;
-float tube_position_f; // Stores the current position of the sampler tube relative to 
+float drop_distance_cm;
+float tube_position_f; // Stores the current position of the sampler tube relative to the top of the tube in the home position
 
 /* Setup and Loop **************************************************************/
 void setup() {
