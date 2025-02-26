@@ -11,10 +11,18 @@ typedef enum MotorDir {
 } MotorDir;
 
 volatile bool toggle = false;
+float MOTORSPEED_FACTOR;
+
 
 // IDK why this needs to be here but it does 
 void setMotorDir(MotorDir dir); 
 // womp womp
+
+
+void setMotorCfg(MotorConfig_t& cfg) {
+    MOTORSPEED_FACTOR = (cfg.pulse_per_rev * cfg.gear_ratio) / (2.0f * PI * cfg.reel_radius_cm);
+    return;
+}
 
 /**
  * @brief Initialize motor pins
@@ -52,7 +60,6 @@ void setMotorDir(MotorDir dir) {
  * @return uint32_t converted motor frequency
  */
 inline uint32_t speedToFreq(float cm_per_sec) {
-  constexpr float MOTORSPEED_FACTOR = (PULSE_PER_REV * GEAR_RATIO) / (2.0f * PI * REEL_RAD_CM); //TODO: D this should be config
   return cm_per_sec * MOTORSPEED_FACTOR;
 }
 

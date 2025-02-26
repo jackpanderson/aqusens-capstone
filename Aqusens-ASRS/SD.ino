@@ -194,3 +194,7 @@ float getDropDistance(){
 
   return PIER_DEFAULT_DIST_CM + drop_distance_cm;
 }
+
+void readCfgFile() {
+  return;
+}

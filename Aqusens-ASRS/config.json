@@ -1,0 +1,7 @@
+{
+  "MotorConfig" : {
+	  "reel_radius_cm" : 10.5,
+	  "gear_ratio" : 2.0,
+	  "pulse_per_rev" : 1024
+  }
+}
