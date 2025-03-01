@@ -132,15 +132,13 @@ void settingsLCD(uint8_t page) {
     case 4:
       /*  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
        * |* F I L T E R _ S T A T U S _ _ _ _ _ _|
-       * |_ S E T _ C O N T R A S T _ _ _ _ _ _ _|
+       * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
        * |_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
        * |< B A C K _ _ _ _ _ _ _ _ _ _ _ _ _ _ _|
        */
 
       lcd.setCursor(1, 0);
       lcd.print("FILTER STATUS");
-      lcd.setCursor(1, 1);
-      lcd.print("SET CONTRAST");
 
       lcd.setCursor(0, 3);
       lcd.print("<BACK"); // final page has no "more" option
@@ -377,14 +375,14 @@ void solenoidControlLCD() {
   lcd.print("SOLENOID 1: ");
   
   if (solenoid_one_state == OPEN)
-    lcd.print("OPEN");
+    lcd.print("OPEN  ");
   else 
     lcd.print("CLOSED");
 
   lcd.setCursor(1, 2);
   lcd.print("SOLENOID 2: ");
   if (solenoid_two_state == OPEN)
-    lcd.print("OPEN");
+    lcd.print("OPEN  ");
   else 
     lcd.print("CLOSED");
 

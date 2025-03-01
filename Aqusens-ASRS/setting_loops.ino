@@ -18,7 +18,7 @@ void settingsLoop() {
     if (settings_page != last_setting_page)
       key_pressed = cursorSelect(0, 2);
     else
-      key_pressed = cursorSelect(0, 1);
+      key_pressed = cursorSelect(0, 0);
 
     if (key_pressed > 0) {
       last_key_press = rtc.getMinutes();
