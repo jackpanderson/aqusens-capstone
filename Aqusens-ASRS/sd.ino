@@ -30,6 +30,7 @@ float getTideData(){
     prev_itr_hour = -1;
 
     File file = SD.open(sd_cfg.tide_data_name);
+    // TODO: do this check multiple times
     if (!file){
         Serial.println("Failed to Open Tide File");
         return NULL;

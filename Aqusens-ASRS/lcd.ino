@@ -628,6 +628,9 @@ void alarmLCD() {
     case MOTOR:
       lcd.print("MOTOR");
       break;
+    default:
+      lcd.print("IRREGULAR");
+      break;
   }
 
   lcd.setCursor(0, cursor_y);
