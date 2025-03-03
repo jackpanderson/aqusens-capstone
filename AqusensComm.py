@@ -9,10 +9,10 @@ import requests
 
 SERIAL_PORT = "COM4"
 BAUD_RATE = 115200
-READ_FILE = "./aqusens-capstone/response_file.txt"  # File for Aqusens
-WRITE_FILE = "./aqusens-capstone/command_file.txt"  # File for ASRS
+READ_FILE = "\C:\Aqusens\Aqusens_CalPoly_CPE\response_file.txt"  # File for Aqusens
+WRITE_FILE = "\C:\Aqusens\Aqusens_CalPoly_CPE\command_file.txt"  # File for ASRS
 TEMP_CSV = "SampleTemps.csv"   # File for storing sample temperature readings
-DIRECTORY_PATH = "./aqusens-capstone/"  # Location of parent folder for Aqusens captures
+DIRECTORY_PATH = "\D:\Data\Raw\CPE"  # Location of parent folder for Aqusens captures
 
 
 def sigint_handler(signum, frame):
@@ -87,11 +87,11 @@ def communicate(ser):
                     input.seek(0)
                     
                     recv = input.read()
-                    if (len(recv) == 16):
+                    if (len(recv) >= 16):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "savetodirectory":
+                if recv[0] == "0" and recv[1:16].lower() == "savetodirectory":
                     break   # Got a successful ACK
 
                 # If error remake directory and try to save there
@@ -111,11 +111,11 @@ def communicate(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 10):
+                    if (len(recv) >= 10):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "startpump":
+                if recv[0] == "0" and recv[1:10].lower() == "startpump":
                     break   # Got a successful ACK
 
             # Start 2min Timer for sample to Aqusens ------------------------
@@ -137,56 +137,56 @@ def communicate(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 22):
+                    if (len(recv) >= 22):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "startsamplecollection":
+                if recv[0] == "0" and recv[1:22].lower() == "startsamplecollection":
                     break   # Got a successful ACK
             
             # Start 5min Timer for processing sample -------------------------
             print("Starting 5 minute timer")
 
-            # create CSV file
-            csv_file = open(TEMP_CSV, "a", newline="\n")
-            writer = csv.writer(csv_file)
-            # Create CSV header if empty
-            if os.stat(TEMP_CSV).st_size == 0:
-                writer.writerow(["Timestamp", "Min Temp(C)", "Max Temp(C)", "Avg Temp(C)"])
+            # # create CSV file
+            # csv_file = open(TEMP_CSV, "a", newline="\n")
+            # writer = csv.writer(csv_file)
+            # # Create CSV header if empty
+            # if os.stat(TEMP_CSV).st_size == 0:
+            #     writer.writerow(["Timestamp", "Min Temp(C)", "Max Temp(C)", "Avg Temp(C)"])
 
-            temperatures = []
+            # temperatures = []
 
-            # Each 15 seconds request temperature -- 20 total requests
-            for i in range (20):
-                time.sleep(15)
-                ser.write("T\n".encode())
-                # Get Current date and time
-                now = datetime.now()
-                curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
+            # # Each 15 seconds request temperature -- 20 total requests
+            # for i in range (20):
+            #     time.sleep(15)
+            #     ser.write("T\n".encode())
+            #     # Get Current date and time
+            #     now = datetime.now()
+            #     curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
 
-                while (1):
-                    if ser.in_waiting:
-                        temp_data = ser.readline().decode().strip()  # Read temperature
-                        if temp_data.isdigit():  # Check it's an int
-                            print(f"{curr_time} - Temperature: {temp_data}°C")
-                            temperatures.append((int)(temp_data))
-                            break
+            #     while (1):
+            #         if ser.in_waiting:
+            #             temp_data = ser.readline().decode().strip()  # Read temperature
+            #             if temp_data.isdigit():  # Check it's an int
+            #                 print(f"{curr_time} - Temperature: {temp_data}°C")
+            #                 temperatures.append((int)(temp_data))
+            #                 break
                     
-                    time.sleep(0.5)  # try every 0.5 seconds
+            #         time.sleep(0.5)  # try every 0.5 seconds
 
-            min_temp = temperatures[0]
-            max_temp = temperatures[0]
-            total_temp = 0
-            for i in range(20):
-                if temperatures[i] < min_temp:
-                    min_temp = temperatures[i]
-                if temperatures[i] > max_temp:
-                    max_temp = temperatures[i]
-                total_temp += temperatures[i]
-            average_temp = total_temp / 20
-            print(f"Min temp: {min_temp}, Max temp: {max_temp}, Average temp: {average_temp}")
-            writer.writerow([curr_time, min_temp, max_temp, average_temp])  # Write data to CSV
-            csv_file.close()
+            # min_temp = temperatures[0]
+            # max_temp = temperatures[0]
+            # total_temp = 0
+            # for i in range(20):
+            #     if temperatures[i] < min_temp:
+            #         min_temp = temperatures[i]
+            #     if temperatures[i] > max_temp:
+            #         max_temp = temperatures[i]
+            #     total_temp += temperatures[i]
+            # average_temp = total_temp / 20
+            # print(f"Min temp: {min_temp}, Max temp: {max_temp}, Average temp: {average_temp}")
+            # writer.writerow([curr_time, min_temp, max_temp, average_temp])  # Write data to CSV
+            # csv_file.close()
 
             # Stop Sample Collection -----------------------------------------
             while (1):
@@ -202,26 +202,26 @@ def communicate(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 21):
+                    if (len(recv) >= 21):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "stopsamplecollection":
+                if recv[0] == "0" and recv[1:21].lower() == "stopsamplecollection":
                     break   # Got a successful ACK
         
         # send done signal to Arduino
-        ser.write("D\n".encode())
+        # ser.write("D\n".encode())
         input.close()
         output.close()
 
-    except serial.SerialException as e:
-        print(f"Serial error: {e}")
-        if ser and ser.is_open:
-            ser.close()
+    # except serial.SerialException as e:
+    #     print(f"Serial error: {e}")
+    #     if ser and ser.is_open:
+    #         ser.close()
     except FileNotFoundError:
         print(f"File not found: {READ_FILE}")
-        if ser and ser.is_open:
-            ser.close()
+        # if ser and ser.is_open:
+        #     ser.close()
 
 def flush(ser):
     try:
@@ -240,11 +240,11 @@ def flush(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 9):
+                    if (len(recv) >= 9):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "stoppump":
+                if recv[0] == "0" and recv[1:9].lower() == "stoppump":
                     break   # Got a successful ACK
         
         # send done signal to Arduino
