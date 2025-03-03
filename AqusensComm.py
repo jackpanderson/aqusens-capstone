@@ -2,17 +2,17 @@ import serial
 import time
 import os
 from datetime import datetime
-from testingNOAAwaterLevelAPI import queryForWaterLevel
 import csv
 import signal
 import sys
+import requests
 
-SERIAL_PORT = "COM4"  # Change to match your Arduino port
+SERIAL_PORT = "COM4"
 BAUD_RATE = 115200
-READ_FILE = "AQUSENS.txt"  # File for Aqusens
-WRITE_FILE = "ASRS.txt"  # File for ASRS
+READ_FILE = "./aqusens-capstone/response_file.txt"  # File for Aqusens
+WRITE_FILE = "./aqusens-capstone/command_file.txt"  # File for ASRS
 TEMP_CSV = "SampleTemps.csv"   # File for storing sample temperature readings
-DIRECTORY_PATH = "./"  # Location of parent folder
+DIRECTORY_PATH = "./aqusens-capstone/"  # Location of parent folder for Aqusens captures
 
 
 def sigint_handler(signum, frame):
@@ -33,6 +33,24 @@ def setup():
     except serial.SerialException as e:
         print(f"Serial error: {e}")
         return None
+
+def queryForWaterLevel():
+    url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=latest&station=9412110&product=water_level&datum=MLLW&time_zone=lst&units=metric&format=json"
+    # Queries for the current water level from Port San Luis pier, updates every 6 minutes.
+
+    # Tries to get NOAA data from url
+    # If connectivity issues or data not found, fallback to SD card information (return -100)
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+
+            water_level = data['data'][0]['v']
+            return water_level
+        else:
+            return -100
+    except requests.exceptions.RequestException as e:
+        return -100
 
 def readCommand(ser):
     # Read arduino response for gather Tide data or writing to Aqusens
@@ -244,6 +262,8 @@ def flush(ser):
             ser.close()
 
 if __name__ == "__main__":
+    communicate(None)
+    exit()
     ser = setup()
     while ser is None:
         print(f"Unable to set up serial connection. Retrying...")
