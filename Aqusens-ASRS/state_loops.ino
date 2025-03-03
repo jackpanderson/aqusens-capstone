@@ -81,6 +81,7 @@ void ensureSampleStartLoop() {
     if (key_pressed == 'S') {
       if (cursor_y == 2) {
         state = RELEASE;
+        // state = FLUSH_TUBE;
       }
       else if (cursor_y == 3) {
         state = STANDBY;
@@ -99,18 +100,19 @@ void releaseLoop() {
 
   resetLCD();
   static char pos[6];
-  // drop_distance_cm = 0;
   
 
   drop_distance_cm = getDropDistance();
   Serial.print("dropping ");
   Serial.println(drop_distance_cm);
-  drop_distance_cm = 200;
+  drop_distance_cm = 60;
 
   // actually drop the tube
   while (state == RELEASE){
     snprintf(pos, sizeof(pos), "%.2fm", tube_position_f / 100.0f);
     releaseLCD(pos);
+
+    if (isMotorAlarming()) setAlarmFault(MOTOR);
 
     if (dropTube(drop_distance_cm)) {
       state = SOAK;
@@ -183,7 +185,9 @@ void recoverLoop() {
   resetLCD();
 
   while (state == RECOVER) {
-    checkEstop();
+    // checkEstop();
+    if (isMotorAlarming()) setAlarmFault(MOTOR);
+    
 
     if (retrieveTube(tube_position_f)) {
       state = SAMPLE;
@@ -200,6 +204,8 @@ void recoverLoop() {
  */
 void sampleLoop() {
   resetLCD();
+
+  // TODO: wrap this in a meaningful function name (inline?)
   Serial.println("S");
 
   while (state == SAMPLE) 
@@ -226,8 +232,11 @@ void sampleLoop() {
     //        Serial.read();  // Discard extra data
     //    }
     //  }
-    delay(1000);
-    state = FLUSH_TUBE;
+
+    // TODO: if pc_signal
+    if (Serial.available()) {
+      state = FLUSH_TUBE;
+    }
   }
 }
 
@@ -248,7 +257,6 @@ void tubeFlushLoop() {
   int seconds_remaining, minutes_remaining;
   uint32_t last_toggle_time = curr_time; // Track the last time temp_flag was toggled
 
-  // while (state == FLUSH_TUBE && millis() < end_time) {
   while (state == FLUSH_TUBE) {
     checkEstop();
 
@@ -296,6 +304,8 @@ void tubeFlushLoop() {
     if (temp_flag)
       temp_flag = false;
   }
+
+  // TODO: send all the temperature buffer to pc to log
 
 }
 

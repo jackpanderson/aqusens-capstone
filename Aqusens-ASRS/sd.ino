@@ -92,6 +92,7 @@ float getTideData(){
       Serial.println(itr_pred);
       */
 
+
             if (curr_year != itr_year){
                 Serial.println("Need to update SD Card\n");
                 file.close();
@@ -159,7 +160,9 @@ float getTideData(){
 
   Serial.print("Interpolated Pred: ");
   Serial.println(interpolated_pred - prev_itr_pred);
+  Serial.println(interpolated_pred);
   */
+
 
     file.close();
     return interpolated_pred;
@@ -199,7 +202,7 @@ float getDropDistance(){
   }
   */
 
-    return sd_cfg.pier_dist_cm + drop_distance_cm;
+    return sd_cfg.pier_dist_cm + drop_distance_cm + 20.0f;
 }
 
 void listFiles(File dir, int numTabs) {

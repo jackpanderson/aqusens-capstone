@@ -8,7 +8,7 @@
 #define SAFE_DROP_DIST_CM       (10.0f)
 #define NUM_PHASES              (4UL)
 #define FREE_FALL_IND           (2)
-#define RAISE_DIST_PADDING_CM   (5.0f)
+#define RAISE_DIST_PADDING_CM   (10.0f)
 
 PositionConfig_t pos_cfg = {0};
 
@@ -144,8 +144,8 @@ bool retrieveTube(float distance_cm) {
 
     if (!raise_flag) {
         raise_flag = true;
-        raise_distance_cm = tube_position_f - distance_cm - RAISE_DIST_PADDING_CM;
-        // raise_distance_cm = tube_position_f - distance_cm;
+        // raise_distance_cm = tube_position_f - distance_cm - RAISE_DIST_PADDING_CM;
+        raise_distance_cm = tube_position_f - distance_cm;
 
         // small raise
         if (distance_cm <= pos_cfg.min_ramp_dist_cm) {
