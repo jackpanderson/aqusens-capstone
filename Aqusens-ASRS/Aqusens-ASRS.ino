@@ -87,7 +87,7 @@ typedef enum TempSensor {
 #define PULSE_PER_REV         (1600)
 #define GEAR_RATIO            (5.0f)
 #define RANDOM_GEAR_FACTOR    (1.0f)
-#define PIER_DEFAULT_DIST_CM  (762.0f)
+#define PIER_DEFAULT_DIST_CM  (914.0f)    // 30 ft default (with overshoot)
 
 
 /* Variable Declarations *********************************************************/

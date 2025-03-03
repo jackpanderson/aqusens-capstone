@@ -174,8 +174,8 @@ float getDropDistance(){
         String data = Serial.readStringUntil('\n'); // Read full line
         drop_distance_cm = data.toFloat();  // Convert to float
 
-        // if drop distance is -1 then get SD card info
-        if (drop_distance_cm == -1) {
+        // if drop distance is -100 then get SD card info
+        if (drop_distance_cm == -100) {
           drop_distance_cm = getTideData();
         }
         // otherwise convert from meters to cm
@@ -192,5 +192,5 @@ float getDropDistance(){
   }
   */
 
-  return PIER_DEFAULT_DIST_CM + drop_distance_cm;
+  return PIER_DEFAULT_DIST_CM - drop_distance_cm;
 }
