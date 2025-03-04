@@ -183,25 +183,30 @@ float getDropDistance(){
         if (Serial.available()) {
             String data = Serial.readStringUntil('\n'); // Read full line
             drop_distance_cm = data.toFloat();  // Convert to float
-
-            // if drop distance is -1000 then get SD card info
-            if (drop_distance_cm == -1000) {
-            drop_distance_cm = getTideData();
-            }
-            // otherwise convert from meters to cm
-            else {
-            drop_distance_cm = drop_distance_cm * 100;
-            }
-
-            // Flush any remaining characters
-            while (Serial.available()) {
-                Serial.read();  // Discard extra data
-            }
+            break;
         }
+        
         checkEstop();
     }
 
-    return sd_cfg.pier_dist_cm - drop_distance_cm + 60.0f;
+        Serial.print("Distance to drop ");
+        Serial.println(drop_distance_cm);
+
+        // if drop distance is -1000 then get SD card info
+        if (drop_distance_cm == -1000) {
+          drop_distance_cm = getTideData();
+        }
+        // otherwise convert from meters to cm
+        else {
+          drop_distance_cm = drop_distance_cm * 100;
+        }
+
+        // Flush any remaining characters
+        while (Serial.available()) {
+            Serial.read();  // Discard extra data
+        }
+
+    return sd_cfg.pier_dist_cm - drop_distance_cm + 20.0f;
 }
 
 void listFiles(File dir, int numTabs) {
@@ -296,7 +301,7 @@ void export_cfg_to_sd() {
         Serial.println("[SD] Failed to write JSON to file");
     }
 
-    // Serial.println("[SD] Successfully saved config to SD");
+    Serial.println("[SD] Successfully saved config to SD");
 
     file.close();
 }
@@ -466,8 +471,6 @@ bool load_cfg_from_sd(const char* filename) {
     //     Serial.println("Warning: Missing 'sd' key in JSON.");
     // }
 
-    // Serial.println("[SD] Config successfully loaded from SD!");
+    Serial.println("[SD] Config successfully loaded from SD!");
     return true;
 }
-
-
