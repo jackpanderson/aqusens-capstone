@@ -157,7 +157,7 @@ void setup() {
 
   state = CALIBRATE;
   
-  Serial.println("[SETUP] done with init");
+  // Serial.println("[SETUP] done with init");
 }
 
 void loop() {

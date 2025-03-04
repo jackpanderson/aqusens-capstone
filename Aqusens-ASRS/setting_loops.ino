@@ -477,8 +477,8 @@ void setAqusensFlushTimeLoop() {
       updateSetSoakOrDryOrFlushLCD(cursor_pos, new_aqusens_flush_time);
       }
 
-      Serial.print(key);
-      Serial.println(cursor_pos);
+      // Serial.print(key);
+      // Serial.println(cursor_pos);
     
     } 
   }

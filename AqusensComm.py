@@ -2,17 +2,17 @@ import serial
 import time
 import os
 from datetime import datetime
-from testingNOAAwaterLevelAPI import queryForWaterLevel
 import csv
 import signal
 import sys
+import requests
 
-SERIAL_PORT = "COM4"  # Change to match your Arduino port
+SERIAL_PORT = "COM4"
 BAUD_RATE = 115200
-READ_FILE = "AQUSENS.txt"  # File for Aqusens
-WRITE_FILE = "ASRS.txt"  # File for ASRS
+READ_FILE = "response_file.txt" #"C:/Aqusens/Aqusens_CalPoly_CPE/response_file.txt"  # File for Aqusens
+WRITE_FILE = "command_file.txt" #"C:/Aqusens/Aqusens_CalPoly_CPE/command_file.txt"  # File for ASRS
 TEMP_CSV = "SampleTemps.csv"   # File for storing sample temperature readings
-DIRECTORY_PATH = "./"  # Location of parent folder
+DIRECTORY_PATH = "./" #"D:/Data/Raw/test/"  # Location of parent folder for Aqusens captures
 
 
 def sigint_handler(signum, frame):
@@ -33,6 +33,24 @@ def setup():
     except serial.SerialException as e:
         print(f"Serial error: {e}")
         return None
+
+def queryForWaterLevel():
+    url = "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=latest&station=9412110&product=water_level&datum=MLLW&time_zone=lst&units=metric&format=json"
+    # Queries for the current water level from Port San Luis pier, updates every 6 minutes.
+
+    # Tries to get NOAA data from url
+    # If connectivity issues or data not found, fallback to SD card information (return -100)
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+
+            water_level = data['data'][0]['v']
+            return water_level
+        else:
+            return -1000
+    except requests.exceptions.RequestException as e:
+        return -1000
 
 def readCommand(ser):
     # Read arduino response for gather Tide data or writing to Aqusens
@@ -69,11 +87,11 @@ def communicate(ser):
                     input.seek(0)
                     
                     recv = input.read()
-                    if (len(recv) == 16):
+                    if (len(recv) >= 16):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "savetodirectory":
+                if recv[0] == "0" and recv[1:16].lower() == "savetodirectory":
                     break   # Got a successful ACK
 
                 # If error remake directory and try to save there
@@ -93,11 +111,11 @@ def communicate(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 10):
+                    if (len(recv) >= 10):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "startpump":
+                if recv[0] == "0" and recv[1:10].lower() == "startpump":
                     break   # Got a successful ACK
 
             # Start 2min Timer for sample to Aqusens ------------------------
@@ -119,11 +137,11 @@ def communicate(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 22):
+                    if (len(recv) >= 22):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "startsamplecollection":
+                if recv[0] == "0" and recv[1:22].lower() == "startsamplecollection":
                     break   # Got a successful ACK
             
             # Start 5min Timer for processing sample -------------------------
@@ -184,11 +202,11 @@ def communicate(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 21):
+                    if (len(recv) >= 21):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "stopsamplecollection":
+                if recv[0] == "0" and recv[1:21].lower() == "stopsamplecollection":
                     break   # Got a successful ACK
         
         # send done signal to Arduino
@@ -222,11 +240,11 @@ def flush(ser):
                     input.seek(0)
 
                     recv = input.read()
-                    if (len(recv) == 9):
+                    if (len(recv) >= 9):
                         break
                 
                 # Process ACK
-                if recv[0] == "1" and recv[1:].lower() == "stoppump":
+                if recv[0] == "0" and recv[1:9].lower() == "stoppump":
                     break   # Got a successful ACK
         
         # send done signal to Arduino

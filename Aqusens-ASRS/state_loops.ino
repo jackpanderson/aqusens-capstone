@@ -103,9 +103,9 @@ void releaseLoop() {
   
 
   drop_distance_cm = getDropDistance();
-  Serial.print("dropping ");
-  Serial.println(drop_distance_cm);
-  drop_distance_cm = 60;
+  // Serial.print("dropping ");
+  // Serial.println(drop_distance_cm);
+  // drop_distance_cm = 60;
 
   // actually drop the tube
   while (state == RELEASE){
@@ -206,37 +206,37 @@ void sampleLoop() {
   resetLCD();
 
   // TODO: wrap this in a meaningful function name (inline?)
-  Serial.println("S");
+  sendToPython("S");
 
   while (state == SAMPLE) 
   {
     sampleLCD();
 
-    //  if (Serial.available()) {
-    //    String data = Serial.readStringUntil('\n'); // Read full line
+     if (Serial.available()) {
+       String data = Serial.readStringUntil('\n'); // Read full line
 
-    //    // check if wanting temperature read
-    //    if (data == "T") {
-    //      Serial.println((int)(readRTD(TEMP_SENSOR_ONE)));
-    //    }
+       // check if wanting temperature read
+       if (data == "T") {
+         sendToPython(String((int)(readRTD(TEMP_SENSOR_ONE))));
+       }
 
-    //    // only transition to flushing after Aqusens sample done
-    //    else {
-    //      if (data == "D") {  
-    //        state = FLUSH_TUBE;
-    //      }
-    //    }
+       // only transition to flushing after Aqusens sample done
+       else {
+         if (data == "D") {  
+           state = FLUSH_TUBE;
+         }
+       }
 
-    //    // Flush any remaining characters
-    //    while (Serial.available()) {
-    //        Serial.read();  // Discard extra data
-    //    }
-    //  }
+       // Flush any remaining characters
+       while (Serial.available()) {
+           Serial.read();  // Discard extra data
+       }
+     }
 
-    // TODO: if pc_signal
-    if (Serial.available()) {
-      state = FLUSH_TUBE;
-    }
+    // // TODO: if pc_signal
+    // if (Serial.available()) {
+    //   state = FLUSH_TUBE;
+    // }
   }
 }
 
@@ -316,78 +316,78 @@ void tubeFlushLoop() {
  */
 void dryLoop() {
   // turn off Aqusens pump before transitioning to dry state
-  Serial.println("F");
+  sendToPython("F");
 
-    // while (state == DRY) {
-    //    checkEstop();
+  while (state == DRY) {
+    checkEstop();
 
-    //    if (Serial.available()) {
-    //      String data = Serial.readStringUntil('\n'); // Read full line
+    if (Serial.available()) {
+      String data = Serial.readStringUntil('\n'); // Read full line
 
-    //      // only transition to drying after Aqusens pump turned off
-    //      if (data == "D") {  
-    //        break;
-    //      }
-
-    //      // Flush any remaining characters
-    //      while (Serial.available()) {
-    //          Serial.read();  // Discard extra data
-    //      }
-    //    }
-    //  }
-    // setMotorSpeed(0);
-
-    char sec_time[3]; // "00"
-    char min_time[3]; // "00"
-
-    resetLCD();
-
-    uint32_t curr_time = millis();
-    uint32_t end_time = curr_time + (60 * dry_time.Minute * 1000) + (dry_time.Second * 1000);
-
-    int seconds_remaining, minutes_remaining;
-
-    while (state == DRY && millis() < end_time) {
-      checkEstop();
-
-      // Calculate remaining time, accounting for millis() overflow
-      uint32_t millis_remaining;
-      if (end_time > millis()) {
-        millis_remaining = end_time - millis();
-      } else {
-        // Handle overflow case
-        millis_remaining = (UINT32_MAX - millis()) + end_time;
+      // only transition to drying after Aqusens pump turned off
+      if (data == "D") {  
+        break;
       }
 
-      seconds_remaining = millis_remaining / 1000;
-      minutes_remaining = seconds_remaining / 60;
-
-      // Format seconds with leading zero if necessary
-      if (seconds_remaining % 60 > 9) {
-        snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
-      } else {
-        snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
+      // Flush any remaining characters
+      while (Serial.available()) {
+        Serial.read();  // Discard extra data
       }
+    }
+  }
+  // setMotorSpeed(0);
 
-      // Format minutes with leading zero if necessary
-      if (minutes_remaining > 9) {
-        snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
-      } else {
-        snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
-      }
+  char sec_time[3]; // "00"
+  char min_time[3]; // "00"
 
-      // Update LCD with remaining time
-      dryLCD(min_time, sec_time, seconds_remaining % 4);
+  resetLCD();
 
-      // pull up on the tube 
-      tube_home_funcs(true);    
+  uint32_t curr_time = millis();
+  uint32_t end_time = curr_time + (60 * dry_time.Minute * 1000) + (dry_time.Second * 1000);
+
+  int seconds_remaining, minutes_remaining;
+
+  while (state == DRY && millis() < end_time) {
+    checkEstop();
+
+    // Calculate remaining time, accounting for millis() overflow
+    uint32_t millis_remaining;
+    if (end_time > millis()) {
+      millis_remaining = end_time - millis();
+    } else {
+      // Handle overflow case
+      millis_remaining = (UINT32_MAX - millis()) + end_time;
     }
 
-    // bring tube 
-    tube_home_funcs(false);
+    seconds_remaining = millis_remaining / 1000;
+    minutes_remaining = seconds_remaining / 60;
 
-    state = STANDBY;
-    tube_position_f = 0; // reset for safe keeping
+    // Format seconds with leading zero if necessary
+    if (seconds_remaining % 60 > 9) {
+      snprintf(sec_time, sizeof(sec_time), "%i", seconds_remaining % 60);
+    } else {
+      snprintf(sec_time, sizeof(sec_time), "0%i", seconds_remaining % 60);
+    }
+
+    // Format minutes with leading zero if necessary
+    if (minutes_remaining > 9) {
+      snprintf(min_time, sizeof(min_time), "%i", minutes_remaining);
+    } else {
+      snprintf(min_time, sizeof(min_time), "0%i", minutes_remaining);
+    }
+
+    // Update LCD with remaining time
+    dryLCD(min_time, sec_time, seconds_remaining % 4);
+
+    // pull up on the tube 
+    tube_home_funcs(true);    
+  }
+
+  // bring tube 
+  tube_home_funcs(false);
+
+  state = STANDBY;
+  tube_position_f = 0; // reset for safe keeping
 }
 
   /**

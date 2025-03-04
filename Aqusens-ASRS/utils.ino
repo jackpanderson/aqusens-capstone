@@ -623,6 +623,15 @@ float readRTD(TempSensor sensor_num) {
 }
 
 /**
+ * @brief provides the ability to send a value over serial
+ * 
+ * @param string_to_send the string to send over serial
+ */
+ void sendToPython(String string_to_send) {
+    Serial.println(string_to_send);
+ }
+
+/**
  * @brief provides a delay for press-and-hold functionality, prevents adjusted values from 
  *        being incremented/decremented too quickly
  * 
