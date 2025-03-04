@@ -1,0 +1,55 @@
+{
+  "motor": {
+    "reel_radius_cm" : 5.0, 
+    "gear_ratio": 5.0,
+    "pulse_per_rev": 1600
+  },
+  "position": {
+    "narrow_tube_cm": 15.0,
+    "tube_cm": 85.0,
+    "water_level_cm": 15.0,
+    "min_ramp_dist_cm": 120.0,
+    "drop_speed_cm_sec": 15.0,
+    "raise_speed_cm_sec": 5.0,
+    "drop_speeds": [15.0, 30.0, 75.0, 30.0],
+    "raise_speeds": [25.0, 50.0, 10.0, 1.5]
+  },
+  "flush": {
+    "flush_time": {
+      "lift_tube_time_s": 0.5,
+      "dump_water_time_s": 5,
+      "rope_drop_time_s": 2.67,
+      "rinse_rope_time_s": 20.0,
+      "rinse_tube_time_s": 5
+    },
+    "aqusens_time": {
+      "air_gap_time_s": 5,
+      "water_rinse_time_s": 15,
+      "last_air_gap_time_s": 10
+    }
+  },
+  "sd": {
+    "tide_data_name": "tides.txt",
+    "pier_dist_cm": 762.0
+  },
+  "times": {
+    "sample_interval": {
+      "day": 0,
+      "hour": 0,
+      "min": 15,
+      "sec": 0
+    },
+    "soak_time": {
+      "day": 0,
+      "hour": 0,
+      "min": 0,
+      "sec": 5
+    },
+    "dry_time": {
+      "day": 0,
+      "hour": 0,
+      "min": 0,
+      "sec": 8
+    }
+  }
+}

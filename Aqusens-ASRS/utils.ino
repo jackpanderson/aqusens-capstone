@@ -67,6 +67,7 @@ void updateSolenoid(SolenoidState state, int solenoid_number) {
  */
 void onLowTrigger() {
   setAlarmFault(ESTOP);
+  // TODO: ?should we turn things off here
 }
 
 /**
@@ -75,13 +76,16 @@ void onLowTrigger() {
  */
 void rtcInit() {
   rtc.begin();
-  rtc.setEpoch(1738123553);
+
+  const TimesConfig_t& times_cfg = getGlobalCfg().times_cfg;
+
+  rtc.setEpoch(1740580200);
   sample_interval.Year = 0;
   sample_interval.Month = 0;
   sample_interval.Day = 0;
-  sample_interval.Hour = 0;
-  sample_interval.Minute = 15;  
-  sample_interval.Second = 0;
+  sample_interval.Hour = times_cfg.sample_interval.hour;
+  sample_interval.Minute = times_cfg.sample_interval.min;  
+  sample_interval.Second = times_cfg.sample_interval.sec;
 
   next_sample_time.Year = rtc.getYear() + sample_interval.Year;
   next_sample_time.Month = rtc.getMonth() + sample_interval.Month;
@@ -89,18 +93,14 @@ void rtcInit() {
   next_sample_time.Hour = rtc.getHours() + sample_interval.Hour;
   next_sample_time.Minute = rtc.getMinutes() + sample_interval.Minute;
 
-  soak_time.Minute = 0;
-  soak_time.Second = 5;
+  soak_time.Minute = times_cfg.soak_time.min;
+  soak_time.Second = times_cfg.soak_time.sec;
 
-  // dry_time.Minute = 20;
-  dry_time.Minute = 0;
-  dry_time.Second = 5;
+  dry_time.Minute = times_cfg.dry_time.min;
+  dry_time.Second = times_cfg.dry_time.sec;
 
   tube_flush_time.Minute = TOT_FLUSH_TIME_S / 60;
   tube_flush_time.Second = TOT_FLUSH_TIME_S % 60;
-
-  aqusens_flush_time.Minute = 0;
-  aqusens_flush_time.Second = 15;
   
   updateAlarm();
 }
@@ -608,7 +608,8 @@ bool magSensorRead() {
 void RTDInit() {
   const char P1_04RTD_CONFIG[] = { 0x40, 0x03, 0x60, 0x01, 0x20, 0x02, 0x80, 0x00 };
   // Config data for RTD module, configures Pt1000 type sensor and Celcius units returned when read
-  Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
+  P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT);
+  // Serial.println(P1.configureModule(P1_04RTD_CONFIG, RTD_SLOT));  //sends the config data to the module in slot 1
 }
 
 /**
@@ -620,6 +621,15 @@ void RTDInit() {
 float readRTD(TempSensor sensor_num) {
   return roundf(P1.readTemperature(RTD_SLOT, sensor_num) * 10) / 10.0;
 }
+
+/**
+ * @brief provides the ability to send a value over serial
+ * 
+ * @param string_to_send the string to send over serial
+ */
+ void sendToPython(String string_to_send) {
+    Serial.println(string_to_send);
+ }
 
 /**
  * @brief provides a delay for press-and-hold functionality, prevents adjusted values from 

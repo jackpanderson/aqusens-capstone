@@ -9,10 +9,10 @@ import requests
 
 SERIAL_PORT = "COM4"
 BAUD_RATE = 115200
-READ_FILE = "\C:\Aqusens\Aqusens_CalPoly_CPE\response_file.txt"  # File for Aqusens
-WRITE_FILE = "\C:\Aqusens\Aqusens_CalPoly_CPE\command_file.txt"  # File for ASRS
+READ_FILE = "response_file.txt" #"C:/Aqusens/Aqusens_CalPoly_CPE/response_file.txt"  # File for Aqusens
+WRITE_FILE = "command_file.txt" #"C:/Aqusens/Aqusens_CalPoly_CPE/command_file.txt"  # File for ASRS
 TEMP_CSV = "SampleTemps.csv"   # File for storing sample temperature readings
-DIRECTORY_PATH = "\D:\Data\Raw\CPE"  # Location of parent folder for Aqusens captures
+DIRECTORY_PATH = "./" #"D:/Data/Raw/test/"  # Location of parent folder for Aqusens captures
 
 
 def sigint_handler(signum, frame):
@@ -48,9 +48,9 @@ def queryForWaterLevel():
             water_level = data['data'][0]['v']
             return water_level
         else:
-            return -100
+            return -1000
     except requests.exceptions.RequestException as e:
-        return -100
+        return -1000
 
 def readCommand(ser):
     # Read arduino response for gather Tide data or writing to Aqusens
@@ -147,46 +147,46 @@ def communicate(ser):
             # Start 5min Timer for processing sample -------------------------
             print("Starting 5 minute timer")
 
-            # # create CSV file
-            # csv_file = open(TEMP_CSV, "a", newline="\n")
-            # writer = csv.writer(csv_file)
-            # # Create CSV header if empty
-            # if os.stat(TEMP_CSV).st_size == 0:
-            #     writer.writerow(["Timestamp", "Min Temp(C)", "Max Temp(C)", "Avg Temp(C)"])
+            # create CSV file
+            csv_file = open(TEMP_CSV, "a", newline="\n")
+            writer = csv.writer(csv_file)
+            # Create CSV header if empty
+            if os.stat(TEMP_CSV).st_size == 0:
+                writer.writerow(["Timestamp", "Min Temp(C)", "Max Temp(C)", "Avg Temp(C)"])
 
-            # temperatures = []
+            temperatures = []
 
-            # # Each 15 seconds request temperature -- 20 total requests
-            # for i in range (20):
-            #     time.sleep(15)
-            #     ser.write("T\n".encode())
-            #     # Get Current date and time
-            #     now = datetime.now()
-            #     curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
+            # Each 15 seconds request temperature -- 20 total requests
+            for i in range (20):
+                time.sleep(15)
+                ser.write("T\n".encode())
+                # Get Current date and time
+                now = datetime.now()
+                curr_time = now.strftime("%y-%m-%d_%H:%M:%S")
 
-            #     while (1):
-            #         if ser.in_waiting:
-            #             temp_data = ser.readline().decode().strip()  # Read temperature
-            #             if temp_data.isdigit():  # Check it's an int
-            #                 print(f"{curr_time} - Temperature: {temp_data}°C")
-            #                 temperatures.append((int)(temp_data))
-            #                 break
+                while (1):
+                    if ser.in_waiting:
+                        temp_data = ser.readline().decode().strip()  # Read temperature
+                        if temp_data.isdigit():  # Check it's an int
+                            print(f"{curr_time} - Temperature: {temp_data}°C")
+                            temperatures.append((int)(temp_data))
+                            break
                     
-            #         time.sleep(0.5)  # try every 0.5 seconds
+                    time.sleep(0.5)  # try every 0.5 seconds
 
-            # min_temp = temperatures[0]
-            # max_temp = temperatures[0]
-            # total_temp = 0
-            # for i in range(20):
-            #     if temperatures[i] < min_temp:
-            #         min_temp = temperatures[i]
-            #     if temperatures[i] > max_temp:
-            #         max_temp = temperatures[i]
-            #     total_temp += temperatures[i]
-            # average_temp = total_temp / 20
-            # print(f"Min temp: {min_temp}, Max temp: {max_temp}, Average temp: {average_temp}")
-            # writer.writerow([curr_time, min_temp, max_temp, average_temp])  # Write data to CSV
-            # csv_file.close()
+            min_temp = temperatures[0]
+            max_temp = temperatures[0]
+            total_temp = 0
+            for i in range(20):
+                if temperatures[i] < min_temp:
+                    min_temp = temperatures[i]
+                if temperatures[i] > max_temp:
+                    max_temp = temperatures[i]
+                total_temp += temperatures[i]
+            average_temp = total_temp / 20
+            print(f"Min temp: {min_temp}, Max temp: {max_temp}, Average temp: {average_temp}")
+            writer.writerow([curr_time, min_temp, max_temp, average_temp])  # Write data to CSV
+            csv_file.close()
 
             # Stop Sample Collection -----------------------------------------
             while (1):
@@ -210,18 +210,18 @@ def communicate(ser):
                     break   # Got a successful ACK
         
         # send done signal to Arduino
-        # ser.write("D\n".encode())
+        ser.write("D\n".encode())
         input.close()
         output.close()
 
-    # except serial.SerialException as e:
-    #     print(f"Serial error: {e}")
-    #     if ser and ser.is_open:
-    #         ser.close()
+    except serial.SerialException as e:
+        print(f"Serial error: {e}")
+        if ser and ser.is_open:
+            ser.close()
     except FileNotFoundError:
         print(f"File not found: {READ_FILE}")
-        # if ser and ser.is_open:
-        #     ser.close()
+        if ser and ser.is_open:
+            ser.close()
 
 def flush(ser):
     try:
@@ -262,8 +262,6 @@ def flush(ser):
             ser.close()
 
 if __name__ == "__main__":
-    communicate(None)
-    exit()
     ser = setup()
     while ser is None:
         print(f"Unable to set up serial connection. Retrying...")

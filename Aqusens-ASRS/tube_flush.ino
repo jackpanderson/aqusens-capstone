@@ -1,88 +1,84 @@
 // For some fun
-// #define FUN
+// #define FUN 
 #ifdef FUN
 #define TWEAK_TIME_MS           (500)
 #endif
 
-// flushing consts
 #define DROP_TUBE_DIST_CM       (40.0f)
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
 
-// timings
-#define LIFT_TUBE_TIME_S        (0.5f)
-#define DUMP_WATER_TIME_S       (5UL)
-#define ROPE_DROP_TIME_S        (DROP_TUBE_DIST_CM / 15) // FIXME: slow drop speed instead of 15
-#define RINSE_ROPE_TIME_S       (DROP_TUBE_DIST_CM / HOME_TUBE_SPD_CM_S)
-#define RINSE_TUBE_TIME_S       (5UL)
-
-// aqusens timings
-// #define AIR_GAP_TIME_S          (15)
-// #define LAST_AIR_GAP_TIME_S     (90)
-// #define WATER_RINSE_TIME_S      (180)
-#define AIR_GAP_TIME_S          (5)
-#define WATER_RINSE_TIME_S      (15)
-#define LAST_AIR_GAP_TIME_S     (10)
-
-
-constexpr unsigned long FLUSH_TIME_S = (3 * LIFT_TUBE_TIME_S + DUMP_WATER_TIME_S + 
-  ROPE_DROP_TIME_S + RINSE_ROPE_TIME_S + RINSE_TUBE_TIME_S);
-constexpr unsigned long AQUSENS_TIME_S = 3 * AIR_GAP_TIME_S + 3 * WATER_RINSE_TIME_S + LAST_AIR_GAP_TIME_S;
-constexpr unsigned long TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S - 1;
+FlushConfig_t flush_cfg = {0};
+unsigned long FLUSH_TIME_S, AQUSENS_TIME_S, TOT_FLUSH_TIME_S;
+unsigned long AIR_GAP_TIME_MS, LAST_AIR_GAP_TIME_MS, WATER_RINSE_TIME_MS;
+unsigned long DUMP_WATER_TIME_MS, RINSE_TUBE_TIME_MS;
 
 typedef enum FlushState {
   INIT,
-  DUMP_TUBE_1,
-  DUMP_DELAY,
+  DUMP_TUBE,
   ROPE_DROP,
   RINSE_ROPE_HOME,
-  DUMP_TUBE_2,
   RINSE_TUBE,
   RINSE_AQUSENS,
-  HOME_2,
 } FlushState;
+
+// TODO: make on-the-fly configurable
+void setFlushCfg(FlushConfig_t& cfg) {
+  flush_cfg = cfg;
+
+  DUMP_WATER_TIME_MS = flush_cfg.flush_time_cfg.dump_water_time_s * 1000;
+  RINSE_TUBE_TIME_MS = flush_cfg.flush_time_cfg.rinse_tube_time_s * 1000;
+
+  AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg.air_gap_time_s * 1000;
+  LAST_AIR_GAP_TIME_MS = flush_cfg.aqusens_time_cfg.last_air_gap_time_s * 1000;
+  WATER_RINSE_TIME_MS = flush_cfg.aqusens_time_cfg.water_rinse_time_s * 1000;
+
+  FLUSH_TIME_S = 3 * flush_cfg.flush_time_cfg.lift_tube_time_s +  
+                flush_cfg.flush_time_cfg.dump_water_time_s + 
+                flush_cfg.flush_time_cfg.rope_drop_time_s + 
+                flush_cfg.flush_time_cfg.rinse_rope_time_s + 
+                flush_cfg.flush_time_cfg.rinse_tube_time_s;
+
+  AQUSENS_TIME_S = 3 * flush_cfg.aqusens_time_cfg.air_gap_time_s + 
+                  3 * flush_cfg.aqusens_time_cfg.water_rinse_time_s + 
+                  flush_cfg.aqusens_time_cfg.last_air_gap_time_s;
+  TOT_FLUSH_TIME_S = FLUSH_TIME_S + AQUSENS_TIME_S;
+  
+  return;
+}
 
 /**
  * @brief FSM to control flushing process (8 states)
- * 
  * @return true once done with the flushing cycle
  * @return false if error occurs during flushing cycle
  */
 bool flushTube() {
-  constexpr unsigned long DUMP_WATER_TIME_MS = DUMP_WATER_TIME_S * 1000;
-
   static FlushState state;
   static unsigned long start_time;
   unsigned long cur_time;
 
   switch(state) {
     case INIT:
-      state = DUMP_TUBE_1;
+      state = DUMP_TUBE;
+      start_time = millis();
       break;
 
-    case DUMP_TUBE_1:
-      setMotorSpeed(LIFT_SPEED_CM_S);
-      
-      if (!magSensorRead()) {
-        turnMotorOff();
-        start_time = millis();
+    case DUMP_TUBE:
+      tube_home_funcs(true);
 
-        updateSolenoid(OPEN, SOLENOID_ONE);
-        
-        state = DUMP_DELAY;
-      }
-      break;      
-
-    case DUMP_DELAY:
       cur_time = millis();
 
       if (cur_time - start_time > DUMP_WATER_TIME_MS) {
         state = ROPE_DROP;
+        
+        tube_home_funcs(false);
       }
-      break;
+
+      break;      
 
     case ROPE_DROP:
       if (dropTube(DROP_TUBE_DIST_CM)) {
+        updateSolenoid(OPEN, SOLENOID_ONE);
         
         state = RINSE_ROPE_HOME; 
       }
@@ -93,54 +89,41 @@ bool flushTube() {
       
       if (magSensorRead()) {
         turnMotorOff();
-        
-        state = DUMP_TUBE_2;
-      }
-      break;
-
-    case DUMP_TUBE_2:
-      setMotorSpeed(LIFT_SPEED_CM_S);
-      
-      if (!magSensorRead()) {
-        turnMotorOff();
+        tube_home_funcs(true);
         start_time = millis();
+
         state = RINSE_TUBE;
       }
-      break;      
+      break;    
 
     case RINSE_TUBE:
       cur_time = millis();
 
-      if (cur_time - start_time > RINSE_TUBE_TIME_S) {
+      if (cur_time - start_time > RINSE_TUBE_TIME_MS) {
         start_time = millis();
         
+        // TODO: send pc to start aqusens motor
         state = RINSE_AQUSENS;
       }
       break;
 
     case RINSE_AQUSENS:
-      cur_time = millis();
 
-      if (flushAqusens(cur_time)) {
+      if (flushAqusens(millis())) {
         updateSolenoid(CLOSED, SOLENOID_ONE);
         updateSolenoid(CLOSED, SOLENOID_TWO);
         
-        state = HOME_2;
-      }
-      break;
-
-    case HOME_2:
-      setMotorSpeed(-LIFT_SPEED_CM_S);
-      
-      if (magSensorRead()) {
-        turnMotorOff();
+        tube_home_funcs(false);
+        // TODO: tell pc to stop aqusens motor
         state = INIT;
+
         return true;
       }
       break;
 
+
     default:
-      Serial.println("[FLUSH_TUBE] bad state. Shouldn't be here");      
+      // Serial.println("[FLUSH_TUBE] bad state. Shouldn't be here");      
       while(1);
   }
 
@@ -158,10 +141,6 @@ typedef enum AqusensState {
   LAST_AIR,
 } AqusensState;
 
-// TODO: implement time from the struct    
-//  aqusens_flush_time.Minute = 0;
-//  aqusens_flush_time.Second = 15;
-// TODO: danny convert this to the ms and then fill the gaps
 /**
  * @brief TODO: Danny - update this function comment
  * 
@@ -178,10 +157,6 @@ bool flushAqusens(unsigned long cur_time) {
   static bool sole_state = true;
   #endif
 
-  constexpr unsigned long AIR_GAP_TIME_MS = AIR_GAP_TIME_S * 1000;
-  constexpr unsigned long LAST_AIR_GAP_TIME_MS = LAST_AIR_GAP_TIME_S * 1000;
-  constexpr unsigned long WATER_RINSE_TIME_MS = WATER_RINSE_TIME_S * 1000;
-
   switch (state) {
     case RINSE_INIT:
       updateSolenoid(CLOSED, SOLENOID_TWO);
@@ -192,7 +167,7 @@ bool flushAqusens(unsigned long cur_time) {
       prev_time_tweak = prev_time;
       #endif
 
-      Serial.println("going to air 1");
+      // Serial.println("going to air 1");
       state = AIR_1;
       break;
 
@@ -213,7 +188,7 @@ bool flushAqusens(unsigned long cur_time) {
 
         updateSolenoid(OPEN, SOLENOID_TWO);
 
-        Serial.println("going to water 1");
+        // Serial.println("going to water 1");
         state = WATER_1;
       }
       break;
@@ -225,7 +200,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_2;
-        Serial.println("going to air 2");
+        // Serial.println("going to air 2");
 
       }
       break;
@@ -237,7 +212,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_2;
-        Serial.println("going to water 2");
+        // Serial.println("going to water 2");
 
       }
       break;
@@ -249,7 +224,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
         state = AIR_3;
-        Serial.println("going to air 3");
+        // Serial.println("going to air 3");
 
       }
       break;
@@ -261,7 +236,7 @@ bool flushAqusens(unsigned long cur_time) {
         updateSolenoid(OPEN, SOLENOID_TWO);
 
         state = WATER_3;
-        Serial.println("going to water 3");
+        // Serial.println("going to water 3");
 
       }
       break;
@@ -272,17 +247,16 @@ bool flushAqusens(unsigned long cur_time) {
 
         updateSolenoid(CLOSED, SOLENOID_TWO);
 
-        Serial.println("going to last air ");
+        // Serial.println("going to last air ");
 
         state = LAST_AIR;
-        break;
       }
-
+      break;
     case LAST_AIR:
       if (cur_time - prev_time >= LAST_AIR_GAP_TIME_MS) {
 
         state = RINSE_INIT;
-        Serial.println("Finished aqusens ");
+        // Serial.println("[FLUSH] Finished aqusens ");
 
         return true;
       }

@@ -1,1 +1,1 @@
-SaveToDirectory(./aqusens-capstone/250303_092947)
+StartSampleCollection(1)
