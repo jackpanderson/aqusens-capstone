@@ -189,24 +189,21 @@ float getDropDistance(){
         checkEstop();
     }
 
-        Serial.print("Distance to drop ");
-        Serial.println(drop_distance_cm);
+    // if drop distance is -1000 then get SD card info
+    if (drop_distance_cm == -1000) {
+        drop_distance_cm = getTideData();
+    }
+    // otherwise convert from meters to cm
+    else {
+        drop_distance_cm = drop_distance_cm * 100;
+    }
 
-        // if drop distance is -1000 then get SD card info
-        if (drop_distance_cm == -1000) {
-          drop_distance_cm = getTideData();
-        }
-        // otherwise convert from meters to cm
-        else {
-          drop_distance_cm = drop_distance_cm * 100;
-        }
+    // Flush any remaining characters
+    while (Serial.available()) {
+        Serial.read();  // Discard extra data
+    }
 
-        // Flush any remaining characters
-        while (Serial.available()) {
-            Serial.read();  // Discard extra data
-        }
-
-    return sd_cfg.pier_dist_cm - drop_distance_cm + 20.0f;
+    return sd_cfg.pier_dist_cm - drop_distance_cm + 60.0f;
 }
 
 void listFiles(File dir, int numTabs) {
