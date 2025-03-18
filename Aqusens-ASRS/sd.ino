@@ -264,7 +264,6 @@ void export_cfg_to_sd() {
     doc["position"]["narrow_tube_cm"] = cfg.position_cfg.narrow_tube_cm;
     doc["position"]["tube_cm"] = cfg.position_cfg.tube_cm;
     doc["position"]["water_level_cm"] = cfg.position_cfg.water_level_cm;
-    doc["position"]["min_ramp_dist_cm"] = cfg.position_cfg.min_ramp_dist_cm;
     doc["position"]["drop_speed_cm_sec"] = cfg.position_cfg.drop_speed_cm_sec;
     doc["position"]["raise_speed_cm_sec"] = cfg.position_cfg.raise_speed_cm_sec;
 
@@ -352,9 +351,6 @@ bool load_cfg_from_sd(const char* filename) {
         }
         if (position.containsKey("water_level_cm")) {
             cfg.position_cfg.water_level_cm = position["water_level_cm"].as<float>();
-        }
-        if (position.containsKey("min_ramp_dist_cm")) {
-            cfg.position_cfg.min_ramp_dist_cm = position["min_ramp_dist_cm"].as<float>();
         }
         if (position.containsKey("drop_speed_cm_sec")) {
             cfg.position_cfg.drop_speed_cm_sec = position["drop_speed_cm_sec"].as<float>();

@@ -45,7 +45,6 @@ typedef struct PositionConfig_t {
     float narrow_tube_cm;
     float tube_cm;
     float water_level_cm;
-    float min_ramp_dist_cm;
     float drop_speed_cm_sec;
     float raise_speed_cm_sec;
     float drop_speeds[4];
@@ -109,7 +108,6 @@ PositionConfig_t DEF_POSITION_CFG = {
     NARROW_TUBE_CM,
     TUBE_CM,
     WATER_LEVEL_CM,
-    MIN_RAMP_DIST_CM,
     DROP_SPEED_CM_SEC,
     RAISE_SPEED_CM_SEC,
     {15.0f, 30.0f, 75.0f, 30.0f},
@@ -144,8 +142,8 @@ GlobalConfig_t gbl_cfg = {DEF_MOTOR_CFG, DEF_POSITION_CFG, DEF_FLUSH_CFG, DEF_SD
 
 GlobalConfig_t& getGlobalCfg();
 void setMotorCfg();
-void setPositionCfg(PositionConfig_t& cfg);
-void setFlushCfg(FlushConfig_t& cfg);
+void setPositionCfg();
+void setFlushCfg();
 void setSDCfg(SDConfig_t& cfg);
 // void setTimesCfg(TimesConfig_t& cfg);
 bool load_cfg_from_sd(const char* filename);
@@ -169,10 +167,9 @@ void init_cfg() {
 
     // set up the config to devices
     setMotorCfg();
-    setPositionCfg(gbl_cfg.position_cfg);
-    setFlushCfg(gbl_cfg.flush_cfg);
+    setPositionCfg();
+    setFlushCfg();
     setSDCfg(gbl_cfg.sd_cfg);
-    // setTimesCfg(gbl_cfg.times_cfg);
 }
 
 

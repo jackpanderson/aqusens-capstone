@@ -1,0 +1,5 @@
+Driver
+	was peak power 4.5W for only a moment? 
+	what did avg power look like?
+	what sw for the pcb desgin?
+	why version B? cheaper? more throughput? less power?

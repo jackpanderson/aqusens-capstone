@@ -10,10 +10,11 @@
 #define FREE_FALL_IND           (2)
 #define RAISE_DIST_PADDING_CM   (10.0f)
 
-PositionConfig_t pos_cfg = {0};
+float MIN_RAMP_DIST = 0;
 
-void setPositionCfg(PositionConfig_t& cfg) {
-    pos_cfg = cfg;
+void setPositionCfg() {
+    PositionConfig_t& cfg = getGlobalCfg().position_cfg;
+    MIN_RAMP_DIST = cfg.narrow_tube_cm + cfg.tube_cm + cfg.water_level_cm;
     return;
 }
 
@@ -62,6 +63,7 @@ bool dropTube(unsigned int distance_cm) {
     static unsigned long prev_time;
     static float drop_distance_cm;
     static size_t phase_ind;
+    static PositionConfig_t& pos_cfg = getGlobalCfg().position_cfg;
 
     static float dists_cm[NUM_PHASES] = {pos_cfg.narrow_tube_cm, pos_cfg.tube_cm + pos_cfg.narrow_tube_cm, 0.0f, 0.0f};
 
@@ -70,7 +72,7 @@ bool dropTube(unsigned int distance_cm) {
         drop_distance_cm = distance_cm + tube_position_f;
 
         // small drop
-        if (distance_cm <= pos_cfg.min_ramp_dist_cm)  {
+        if (distance_cm <= MIN_RAMP_DIST)  {
             small_drop = true;
             setMotorSpeed(-pos_cfg.drop_speed_cm_sec);
         } 
@@ -139,6 +141,7 @@ bool retrieveTube(float distance_cm) {
     static unsigned long prev_time;
     static float raise_distance_cm;
     static size_t phase_ind;
+    static PositionConfig_t& pos_cfg = getGlobalCfg().position_cfg;
 
     static float dists_cm[NUM_PHASES] = {0.0f, pos_cfg.tube_cm + pos_cfg.narrow_tube_cm, pos_cfg.narrow_tube_cm, 0.0f};
 
@@ -148,7 +151,7 @@ bool retrieveTube(float distance_cm) {
         raise_distance_cm = tube_position_f - distance_cm;
 
         // small raise
-        if (distance_cm <= pos_cfg.min_ramp_dist_cm) {
+        if (distance_cm <= MIN_RAMP_DIST) {
             small_raise = true;
             setMotorSpeed(pos_cfg.raise_speed_cm_sec);
         }

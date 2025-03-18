@@ -79,7 +79,7 @@ void rtcInit() {
 
   const TimesConfig_t& times_cfg = getGlobalCfg().times_cfg;
 
-  rtc.setEpoch(1740580200);
+  rtc.setEpoch(1741885200);
   sample_interval.Year = 0;
   sample_interval.Month = 0;
   sample_interval.Day = 0;

@@ -8,7 +8,6 @@
 #define LIFT_SPEED_CM_S         (0.5f)
 #define HOME_TUBE_SPD_CM_S      (2.0f)
 
-FlushConfig_t flush_cfg = {0};
 unsigned long FLUSH_TIME_S, AQUSENS_TIME_S, TOT_FLUSH_TIME_S;
 unsigned long AIR_GAP_TIME_MS, LAST_AIR_GAP_TIME_MS, WATER_RINSE_TIME_MS;
 unsigned long DUMP_WATER_TIME_MS, RINSE_TUBE_TIME_MS;
@@ -23,8 +22,8 @@ typedef enum FlushState {
 } FlushState;
 
 // TODO: make on-the-fly configurable
-void setFlushCfg(FlushConfig_t& cfg) {
-  flush_cfg = cfg;
+void setFlushCfg() {
+  auto flush_cfg = getGlobalCfg().flush_cfg;
 
   DUMP_WATER_TIME_MS = flush_cfg.flush_time_cfg.dump_water_time_s * 1000;
   RINSE_TUBE_TIME_MS = flush_cfg.flush_time_cfg.rinse_tube_time_s * 1000;
